@@ -21,26 +21,6 @@ type MediaMultipartSingle struct {
 	Block     int
 }
 
-func StoreMediaMultipartSingle(mms MediaMultipartSingle, dbtx *sql.Tx) {
-	// store in database
-	stmtstr := `insert into media_multipart (part, max, address, reference, signature, data, txid, block, complete, success, active) values (` + strconv.Itoa(mms.Part) + `, ` + strconv.Itoa(mms.Max) + `, ?, ?, ?, ?, "` + mms.Txid + `", ` + strconv.Itoa(mms.Block) + `, 0, 0, 1)`
-
-	stmt, err := dbtx.Prepare(stmtstr)
-	if err != nil {
-		fmt.Println("exit 160")
-		log.Fatal(err)
-	}
-
-	_, stmterr := stmt.Exec(mms.Address, mms.Reference, mms.Signature, mms.Data)
-	if stmterr != nil {
-		fmt.Println("exit 161")
-		log.Fatal(stmterr)
-	}
-
-	stmt.Close()
-
-}
-
 func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error) {
 	// using the reference tx, check how many different txs we have and determine if we have all transactions
 	// if we have a valid media-multipart complete instance, let's return the byte array it consists of
@@ -103,6 +83,26 @@ func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error)
 	updatestmt.Close()
 
 	return []byte(fullData), nil
+}
+
+func StoreMediaMultipartSingle(mms MediaMultipartSingle, dbtx *sql.Tx) {
+	// store in database
+	stmtstr := `insert into media_multipart (part, max, address, reference, signature, data, txid, block, complete, success, active) values (` + strconv.Itoa(mms.Part) + `, ` + strconv.Itoa(mms.Max) + `, ?, ?, ?, ?, "` + mms.Txid + `", ` + strconv.Itoa(mms.Block) + `, 0, 0, 1)`
+
+	stmt, err := dbtx.Prepare(stmtstr)
+	if err != nil {
+		fmt.Println("exit 160")
+		log.Fatal(err)
+	}
+
+	_, stmterr := stmt.Exec(mms.Address, mms.Reference, mms.Signature, mms.Data)
+	if stmterr != nil {
+		fmt.Println("exit 161")
+		log.Fatal(stmterr)
+	}
+
+	stmt.Close()
+
 }
 
 func UpdateMediaMultipartSuccess(reference string, dbtx *sql.Tx) {

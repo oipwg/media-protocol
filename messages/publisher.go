@@ -26,6 +26,31 @@ type AlexandriaPublisher struct {
 	Signature string `json:"signature"`
 }
 
+func CheckPublisherAddressExists(address string, dbtx *sql.Tx) bool {
+	// check if this publisher address is already in-use
+	stmtstr := `select name from publisher where address = ?`
+
+	rows, stmterr := dbtx.Query(stmtstr, address)
+	if stmterr != nil {
+		fmt.Println("exit 91248")
+		log.Fatal(stmterr)
+	}
+
+	var rowsCount int = 0
+	for rows.Next() {
+		rowsCount++
+	}
+
+	rows.Close()
+	return rowsCount > 0
+
+}
+
+func CreateNewPublisherTxComment(b []byte) {
+	// given some JSON, post it to the blockchain using either a tx-comment or multipart tx-comment
+
+}
+
 func StorePublisher(publisher AlexandriaPublisher, dbtx *sql.Tx, txid string, block int, hash string) {
 	// store in database
 	stmtstr := `insert into publisher (name, address, timestamp, txid, block, emailmd5, bitmessage, hash, signature, active) values (?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ?, "` + hash + `", ?, 1)`
@@ -96,25 +121,5 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 
 	// fmt.Println(" -- VERIFIED --")
 	return v, nil
-
-}
-
-func CheckPublisherAddressExists(address string, dbtx *sql.Tx) bool {
-	// check if this publisher address is already in-use
-	stmtstr := `select name from publisher where address = ?`
-
-	rows, stmterr := dbtx.Query(stmtstr, address)
-	if stmterr != nil {
-		fmt.Println("exit 91248")
-		log.Fatal(stmterr)
-	}
-
-	var rowsCount int = 0
-	for rows.Next() {
-		rowsCount++
-	}
-
-	rows.Close()
-	return rowsCount > 0
 
 }

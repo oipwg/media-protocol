@@ -37,6 +37,71 @@ type AlexandriaMedia struct {
 	Signature string `json:"signature"`
 }
 
+func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
+	// find the "extra info" json object
+	var ret []byte
+	for k, v := range jmap {
+		if k == "alexandria-media" {
+			vm := v.(map[string]interface{})
+			for k2, v2 := range vm {
+				if k2 == "info" {
+					v2m := v2.(map[string]interface{})
+					for k3, v3 := range v2m {
+						if k3 == "extra-info" {
+							// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
+							v3json, err := json.Marshal(v3)
+							if err != nil {
+								return ret, err
+							}
+							return v3json, nil
+						}
+					}
+
+				}
+			}
+		}
+	}
+	return ret, errors.New("no media extra info found")
+}
+
+func extractMediaPayment(jmap map[string]interface{}) ([]byte, error) {
+	// find the "payment" json object
+	var ret []byte
+	for k, v := range jmap {
+		if k == "alexandria-media" {
+			vm := v.(map[string]interface{})
+			for k2, v2 := range vm {
+				if k2 == "payment" {
+					// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
+					v2json, err := json.Marshal(v2)
+					if err != nil {
+						return ret, err
+					}
+					return v2json, nil
+
+				}
+			}
+		}
+	}
+	return ret, errors.New("no payment extra info found")
+}
+
+func DeactivateMedia(deactiv AlexandriaDeactivation, dbtx *sql.Tx) error {
+	stmtstr := `update media set invalidated = 1 where publisher = "` + deactiv.AlexandriaDeactivation.Address + `" and txid = "` + deactiv.AlexandriaDeactivation.Txid + `"`
+	stmt, err := dbtx.Prepare(stmtstr)
+	if err != nil {
+		return err
+	}
+
+	_, stmterr := stmt.Exec()
+	if stmterr != nil {
+		return stmterr
+	}
+
+	stmt.Close()
+	return nil
+}
+
 func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx, txid string, block int, multipart int) {
 	// check for media payment data
 	payment, payment_err := extractMediaPayment(jmap)
@@ -158,74 +223,4 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	// fmt.Println(" -- VERIFIED --")
 	return v, m, nil
 
-}
-
-func CreateNewPublisherTxComment(b []byte) {
-	// given some JSON, post it to the blockchain using either a tx-comment or multipart tx-comment
-
-}
-
-func extractMediaPayment(jmap map[string]interface{}) ([]byte, error) {
-	// find the "payment" json object
-	var ret []byte
-	for k, v := range jmap {
-		if k == "alexandria-media" {
-			vm := v.(map[string]interface{})
-			for k2, v2 := range vm {
-				if k2 == "payment" {
-					// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
-					v2json, err := json.Marshal(v2)
-					if err != nil {
-						return ret, err
-					}
-					return v2json, nil
-
-				}
-			}
-		}
-	}
-	return ret, errors.New("no payment extra info found")
-}
-
-func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
-	// find the "extra info" json object
-	var ret []byte
-	for k, v := range jmap {
-		if k == "alexandria-media" {
-			vm := v.(map[string]interface{})
-			for k2, v2 := range vm {
-				if k2 == "info" {
-					v2m := v2.(map[string]interface{})
-					for k3, v3 := range v2m {
-						if k3 == "extra-info" {
-							// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
-							v3json, err := json.Marshal(v3)
-							if err != nil {
-								return ret, err
-							}
-							return v3json, nil
-						}
-					}
-
-				}
-			}
-		}
-	}
-	return ret, errors.New("no media extra info found")
-}
-
-func DeactivateMedia(deactiv AlexandriaDeactivation, dbtx *sql.Tx) error {
-	stmtstr := `update media set invalidated = 1 where publisher = "` + deactiv.AlexandriaDeactivation.Address + `" and txid = "` + deactiv.AlexandriaDeactivation.Txid + `"`
-	stmt, err := dbtx.Prepare(stmtstr)
-	if err != nil {
-		return err
-	}
-
-	_, stmterr := stmt.Exec()
-	if stmterr != nil {
-		return stmterr
-	}
-
-	stmt.Close()
-	return nil
 }
