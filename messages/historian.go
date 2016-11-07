@@ -10,7 +10,7 @@ import (
 
 type HistorianMessage struct {
 	Version       string
-	UTL           string
+	URL           string
 	Mrr_last_10   string
 	Pool_hashrate string
 	Fbd_hashrate  string
@@ -18,7 +18,7 @@ type HistorianMessage struct {
 	Fmd_usd       string
 }
 
-func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int, multipart int) {
+func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int) {
 	// ToDo: store the data point in the database
 }
 
