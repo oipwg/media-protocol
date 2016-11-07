@@ -5,8 +5,8 @@ import (
 // "github.com/dloa/media-protocol/utility"
 )
 import (
-	"github.com/dloa/media-protocol/messages"
 	"errors"
+	"github.com/dloa/media-protocol/messages"
 )
 
 const min_block = 1045632
@@ -40,6 +40,12 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 	deactivation, VerifyDeactivationError := messages.VerifyDeactivation([]byte(txComment))
 	if VerifyDeactivationError == nil {
 		return deactivation, nil, nil
+	}
+
+	// check for alexandria-historian messages
+	hm, err := messages.VerifyHistorianMessage([]byte(txComment))
+	if err == nil {
+		return hm, nil, nil
 	}
 
 	return nil, nil, errors.New("Unknown media type")
