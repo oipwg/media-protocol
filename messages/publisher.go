@@ -8,6 +8,7 @@ import (
 	"github.com/dloa/media-protocol/utility"
 	"log"
 	"strconv"
+	"strings"
 )
 
 const PUBLISHER_ROOT_KEY = "alexandria-publisher"
@@ -76,6 +77,10 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 	var v AlexandriaPublisher
 	var i interface{}
 	var m map[string]interface{}
+
+	if !strings.HasPrefix(string(b), `{ "alexandria-publisher"`) {
+		return v, errors.New("Not alexandria-publisher")
+	}
 
 	// fmt.Printf("Attempting to verify alexandria-publisher JSON...")
 

@@ -8,6 +8,7 @@ import (
 	"github.com/dloa/media-protocol/utility"
 	"log"
 	"strconv"
+	"strings"
 )
 
 const MEDIA_ROOT_KEY = "alexandria-media"
@@ -151,6 +152,10 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	var v AlexandriaMedia
 	var i interface{}
 	var m map[string]interface{}
+
+	if !strings.HasPrefix(string(b), `{ "alexandria-media"`) {
+		return v, nil, errors.New("Not alexandria-media")
+	}
 
 	if !utility.IsJSON(string(b)) {
 		return v, m, errors.New("this string isn't even JSON!")

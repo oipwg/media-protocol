@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/dloa/media-protocol/utility"
 	"regexp"
+	"strings"
 )
 
 const DEACTIVATION_ROOT_KEY = "alexandria-deactivation"
@@ -19,9 +20,14 @@ type AlexandriaDeactivation struct {
 }
 
 func VerifyDeactivation(b []byte) (AlexandriaDeactivation, error) {
+
 	var v AlexandriaDeactivation
 	var i interface{}
 	var m map[string]interface{}
+
+	if !strings.HasPrefix(string(b), `{"alexandria-deactivation"`) {
+		return v, errors.New("Not alexandria-deactivation")
+	}
 
 	if !utility.IsJSON(string(b)) {
 		return v, errors.New("this string isn't even JSON!")
