@@ -3,6 +3,7 @@ package messages
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -24,6 +25,9 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	}{
 		{s, nil},
 		{s[:len(s)-1] + "a", ErrHistorianMessageBadSignature},
+		{s[:25], ErrHistorianMessageInvalid},
+		{strings.Replace(s, "v001", "v002", 1), ErrHistorianMessageInvalid},
+		{strings.Replace(s, "pool.", "notpool.", 1), ErrHistorianMessageInvalid},
 	}
 
 	for _, c := range cases {
