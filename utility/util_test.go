@@ -6,15 +6,8 @@ import (
 )
 
 func TestCheckAddress(t *testing.T) {
-	if os.Getenv("F_USER") == "" {
-		t.Skip("skipping test; $F_TOKEN not set")
-	}
-	if os.Getenv("F_TOKEN") == "" {
-		t.Skip("skipping test; $F_TOKEN not set")
-	}
-
 	// Don't need heavy testing of true address validity
-	// The heavy lifting is done by the FlorinCoin daemon
+	// The heavy lifting is done by btc suite
 	cases := []struct {
 		in  string
 		out bool

@@ -7,7 +7,7 @@ go:
   - master
 
 install:
-  - go get github.com/metacoin/flojson
+  - go get github.com/btcsuite/btcutil
   - go get github.com/metacoin/foundation
 
 notifications:

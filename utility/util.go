@@ -3,24 +3,16 @@ package utility
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/metacoin/flojson"
+	"github.com/btcsuite/btcutil"
 	"github.com/metacoin/foundation"
 )
 
 func CheckAddress(address string) bool {
-	reply, err := foundation.RPCCall("validateaddress", address)
+	_, err := btcutil.DecodeAddress(address, &FloParams)
 	if err != nil {
-		fmt.Println("foundation error: " + err.Error())
 		return false
 	}
-	result, ok := reply.(*flojson.ValidateAddressResult)
-	if !ok {
-		return false
-	}
-	if result.IsValid == true {
-		return true
-	}
-	return false
+	return true
 }
 
 func CheckSignature(address string, signature string, message string) bool {
