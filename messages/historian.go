@@ -9,8 +9,9 @@ import (
 	"strings"
 )
 
-var ErrHistorianMessageInvalid = errors.New("Historian message invalid")
 var ErrHistorianMessageBadSignature = errors.New("Historian message bad signature")
+var ErrHistorianMessageInvalid = errors.New("Historian message invalid")
+var ErrHistorianMessagePoolUntrusted = errors.New("Historian message pool untrusted")
 
 type HistorianMessage struct {
 	Version       int
@@ -21,6 +22,22 @@ type HistorianMessage struct {
 	Fmd_weighted  float64
 	Fmd_usd       float64
 	Signature     string
+}
+
+type hmPool struct {
+	address string
+	url     string
+	version int
+}
+
+var hmPools []hmPool = []hmPool{
+	{
+		// https://github.com/dloa/node-merged-pool/blob/master/lib/pool.js#L39
+		// V1 Alexandria.io is signed with FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD
+		"FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD",
+		"pool.alexandria.io",
+		1,
+	},
 }
 
 func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int) {
@@ -37,11 +54,7 @@ func VerifyHistorianMessage(b []byte) (HistorianMessage, error) {
 }
 
 func parseV1(s string) (HistorianMessage, error) {
-	// https://github.com/dloa/node-merged-pool/blob/master/lib/pool.js#L39
-	// V1 Alexandria.io is signed with FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD
-
 	var hm HistorianMessage
-	var isAlexandria bool
 
 	hm.Version = 1
 	parts := strings.Split(s, ":")
@@ -51,21 +64,16 @@ func parseV1(s string) (HistorianMessage, error) {
 	}
 	hm.Signature = parts[7]
 
-	if parts[1] == "pool.alexandria.io" {
-		isAlexandria = true
-	} else {
-		isAlexandria = false
-		// Only trust the alexandria pool for now
-		return hm, ErrHistorianMessageInvalid
-	}
 	hm.URL = parts[1]
 
-	if isAlexandria {
-		i := strings.LastIndex(s, ":")
-		// ToDo: determine proper signature address
-		if !utility.CheckSignature("FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD", s[i+1:], s[:i]) {
-			return hm, ErrHistorianMessageBadSignature
-		}
+	p, err := getPool(hm.URL, 1)
+	if err != nil {
+		return hm, ErrHistorianMessagePoolUntrusted
+	}
+
+	i := strings.LastIndex(s, ":")
+	if !utility.CheckSignature(p.address, s[i+1:], s[:i]) {
+		return hm, ErrHistorianMessageBadSignature
 	}
 
 	for i := 2; i < 7; i++ {
@@ -88,4 +96,14 @@ func parseV1(s string) (HistorianMessage, error) {
 	}
 
 	return hm, nil
+}
+
+func getPool(url string, version int) (hmPool, error) {
+	var p hmPool
+	for _, p := range hmPools {
+		if p.version == version && p.url == url {
+			return p, nil
+		}
+	}
+	return p, ErrHistorianMessagePoolUntrusted
 }
