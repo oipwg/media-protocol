@@ -39,7 +39,7 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 	}
 
 	// check for alexandria-historian messages
-	hm, err := messages.VerifyHistorianMessage([]byte(txComment))
+	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock)
 	if err == nil {
 		return hm, nil, nil
 	}
