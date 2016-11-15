@@ -44,7 +44,7 @@ var hmPools []hmPool = []hmPool{
 
 func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int) {
 	// store in database
-	stmtStr := `insert into historian (timestamp, txid, block, active, version,` +
+	stmtStr := `insert into historian (txid, block, active, version,` +
 		` url, mrrLast10, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
 		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
 
