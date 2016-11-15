@@ -10,6 +10,10 @@ install:
   - go get github.com/btcsuite/btcutil
   - go get github.com/metacoin/foundation
 
+script:
+  - test -z "$(go fmt ./...)"
+  - go test
+
 notifications:
   email: false
   slack:
