@@ -1,10 +1,6 @@
 package alexandriaProtocol
 
 import (
-// "github.com/dloa/media-protocol/messages"
-// "github.com/dloa/media-protocol/utility"
-)
-import (
 	"errors"
 	"github.com/dloa/media-protocol/messages"
 )
