@@ -3,7 +3,9 @@ package messages
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/dloa/media-protocol/utility"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -41,7 +43,25 @@ var hmPools []hmPool = []hmPool{
 }
 
 func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int) {
-	// ToDo: store the data point in the database
+	// store in database
+	stmtStr := `insert into historian (timestamp, txid, block, active, version,` +
+		` url, mrrLast10, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
+		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+
+	stmt, err := dbtx.Prepare(stmtStr)
+	if err != nil {
+		fmt.Println("exit 200")
+		log.Fatal(err)
+	}
+
+	_, stmterr := stmt.Exec(txid, block, hm.Version, hm.URL, hm.Mrr_last_10,
+		hm.Pool_hashrate, hm.Fbd_hashrate, hm.Fmd_weighted, hm.Fmd_usd, hm.Signature)
+	if err != nil {
+		fmt.Println("exit 201")
+		log.Fatal(stmterr)
+	}
+
+	stmt.Close()
 }
 
 func VerifyHistorianMessage(b []byte) (HistorianMessage, error) {
