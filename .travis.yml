@@ -12,7 +12,7 @@ install:
 
 script:
   - test -z "$(go fmt ./...)"
-  - go test
+  - go test -v ./...
 
 notifications:
   email: false
