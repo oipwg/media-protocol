@@ -77,7 +77,8 @@ func VerifyDeactivation(b []byte) (AlexandriaDeactivation, error) {
 
 	// verify signature was created by this address
 	// signature pre-image for deactivation is <address>-<txid>
-	if utility.CheckSignature(v.AlexandriaDeactivation.Address, signature, v.AlexandriaDeactivation.Address+"-"+v.AlexandriaDeactivation.Txid) == false {
+	val, _ := utility.CheckSignature(v.AlexandriaDeactivation.Address, signature, v.AlexandriaDeactivation.Address+"-"+v.AlexandriaDeactivation.Txid)
+	if val == false {
 		return v, errors.New("can't verify deactivation - message failed to pass signature verification")
 	}
 

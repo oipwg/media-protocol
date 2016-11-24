@@ -2,9 +2,8 @@ package utility
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/bitspill/bitsig-go"
 	"github.com/btcsuite/btcutil"
-	"github.com/metacoin/foundation"
 )
 
 func CheckAddress(address string) bool {
@@ -15,16 +14,8 @@ func CheckAddress(address string) bool {
 	return true
 }
 
-func CheckSignature(address string, signature string, message string) bool {
-	reply, err := foundation.RPCCall("verifymessage", address, signature, message)
-	if err != nil {
-		fmt.Println("foundation error: " + err.Error())
-		return false
-	}
-	if reply == true {
-		return true
-	}
-	return false
+func CheckSignature(address string, signature string, message string) (bool, error) {
+	return bitsig_go.CheckSignature(address, signature, message, "Florincoin", &FloParams)
 }
 
 // reference: Cory LaNou, Mar 2 '14 at 15:21, http://stackoverflow.com/a/22129435/2576956

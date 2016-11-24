@@ -120,7 +120,8 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 
 	// verify signature was created by this address
 	// signature pre-image for publisher is <name>-<address>-<timestamp>
-	if utility.CheckSignature(v.AlexandriaPublisher.Address, signature, v.AlexandriaPublisher.Name+"-"+v.AlexandriaPublisher.Address+"-"+strconv.FormatInt(v.AlexandriaPublisher.Timestamp, 10)) == false {
+	val, _ := utility.CheckSignature(v.AlexandriaPublisher.Address, signature, v.AlexandriaPublisher.Name+"-"+v.AlexandriaPublisher.Address+"-"+strconv.FormatInt(v.AlexandriaPublisher.Timestamp, 10))
+	if val == false {
 		return v, errors.New("can't verify publisher - message failed to pass signature verification")
 	}
 

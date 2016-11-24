@@ -221,7 +221,8 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 
 	// verify signature was created by this address
 	// signature pre-image for media is <torrenthash>-<publisher>-<timestamp>
-	if utility.CheckSignature(v.AlexandriaMedia.Publisher, signature, v.AlexandriaMedia.Torrent+"-"+v.AlexandriaMedia.Publisher+"-"+strconv.FormatInt(v.AlexandriaMedia.Timestamp, 10)) == false {
+	val, _ := utility.CheckSignature(v.AlexandriaMedia.Publisher, signature, v.AlexandriaMedia.Torrent+"-"+v.AlexandriaMedia.Publisher+"-"+strconv.FormatInt(v.AlexandriaMedia.Timestamp, 10))
+	if val == false {
 		return v, m, errors.New("can't verify media - message failed to pass signature verification")
 	}
 

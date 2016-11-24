@@ -118,7 +118,8 @@ func parseV1(s string, block int) (HistorianMessage, error) {
 	// If there's no defined address there is no signature to check
 	if p.address != "" {
 		i := strings.LastIndex(s, ":")
-		if !utility.CheckSignature(p.address, s[i+1:], s[:i]) {
+		val, _ := utility.CheckSignature(p.address, s[i+1:], s[:i])
+		if !val {
 			return hm, ErrHistorianMessageBadSignature
 		}
 	}

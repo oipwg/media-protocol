@@ -8,7 +8,7 @@ go:
 
 install:
   - go get github.com/btcsuite/btcutil
-  - go get github.com/metacoin/foundation
+  - go get github.com/bitspill/bitsig-go
 
 script:
   - test -z "$(go fmt ./...)"

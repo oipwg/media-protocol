@@ -181,7 +181,8 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	preimage := string(s[0]) + "-" + string(s[2]) + "-" + address + "-" + reference + "-" + data
 	// fmt.Printf("preimage: %v\n", preimage)
 
-	if !utility.CheckSignature(address, signature, preimage) {
+	val, _ := utility.CheckSignature(address, signature, preimage)
+	if !val {
 		// fmt.Println("signature didn't pass checksignature test")
 		return ret, errors.New("signature didn't pass checksignature test")
 	}

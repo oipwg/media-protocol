@@ -1,7 +1,6 @@
 package utility
 
 import (
-	"os"
 	"testing"
 )
 
@@ -25,15 +24,8 @@ func TestCheckAddress(t *testing.T) {
 }
 
 func TestCheckSignature(t *testing.T) {
-	if os.Getenv("F_USER") == "" {
-		t.Skip("skipping test; $F_TOKEN not set")
-	}
-	if os.Getenv("F_TOKEN") == "" {
-		t.Skip("skipping test; $F_TOKEN not set")
-	}
-
 	// Don't need heavy testing of true signature validity
-	// The heavy lifting is done by the FlorinCoin daemon
+	// The heavy lifting is done by the btc suite
 	cases := []struct {
 		mes, sig, addr string
 		out            bool
@@ -43,7 +35,7 @@ func TestCheckSignature(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got := CheckSignature(c.addr, c.sig, c.mes)
+		got, _ := CheckSignature(c.addr, c.sig, c.mes)
 		if got != c.out {
 			t.Errorf("CheckSignature(%q, <...>) == %q, want %q", c.mes, c.out, c.out)
 		}
