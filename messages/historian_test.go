@@ -25,8 +25,6 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	// valid
 	s7 := "alexandria-historian-v001:pool.alexandria.io:0.000104048500:223208386.28518352:2214713879:0.00000429:0.00308:ICyn+Wh4OxKF89+O9u0wkQULeyvJ6CDurGiZACCkNtk8Rl+QpejBmPWKYiuyt6PM5+MrUs/gDcACWjKFTSoYrxA="
 
-	// Don't need heavy testing of true address validity
-	// The heavy lifting is done by the FlorinCoin daemon
 	cases := []struct {
 		in    string
 		block int
