@@ -85,7 +85,7 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 	// fmt.Printf("Attempting to verify alexandria-publisher JSON...")
 
 	if !utility.IsJSON(string(b)) {
-		return v, errors.New("this string isn't even JSON!")
+		return v, ErrNotJSON
 	}
 
 	err := json.Unmarshal(b, &v)
@@ -115,14 +115,14 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 
 	// verify signature
 	if v.Signature != signature {
-		return v, errors.New("can't verify publisher - signature mismatch")
+		return v, ErrBadSignature
 	}
 
 	// verify signature was created by this address
 	// signature pre-image for publisher is <name>-<address>-<timestamp>
 	val, _ := utility.CheckSignature(v.AlexandriaPublisher.Address, signature, v.AlexandriaPublisher.Name+"-"+v.AlexandriaPublisher.Address+"-"+strconv.FormatInt(v.AlexandriaPublisher.Timestamp, 10))
 	if val == false {
-		return v, errors.New("can't verify publisher - message failed to pass signature verification")
+		return v, ErrBadSignature
 	}
 
 	// fmt.Println(" -- VERIFIED --")

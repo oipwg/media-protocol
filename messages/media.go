@@ -158,7 +158,7 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	}
 
 	if !utility.IsJSON(string(b)) {
-		return v, m, errors.New("this string isn't even JSON!")
+		return v, m, ErrNotJSON
 	}
 
 	// fmt.Printf("Attempting to verify alexandria-media JSON...")
@@ -223,7 +223,7 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	// signature pre-image for media is <torrenthash>-<publisher>-<timestamp>
 	val, _ := utility.CheckSignature(v.AlexandriaMedia.Publisher, signature, v.AlexandriaMedia.Torrent+"-"+v.AlexandriaMedia.Publisher+"-"+strconv.FormatInt(v.AlexandriaMedia.Timestamp, 10))
 	if val == false {
-		return v, m, errors.New("can't verify media - message failed to pass signature verification")
+		return v, m, ErrBadSignature
 	}
 
 	// fmt.Println(" -- VERIFIED --")

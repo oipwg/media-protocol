@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-var ErrHistorianMessageBadSignature = errors.New("Historian message bad signature")
 var ErrHistorianMessageInvalid = errors.New("Historian message invalid")
 var ErrHistorianMessagePoolUntrusted = errors.New("Historian message pool untrusted")
 
@@ -120,7 +119,7 @@ func parseV1(s string, block int) (HistorianMessage, error) {
 		i := strings.LastIndex(s, ":")
 		val, _ := utility.CheckSignature(p.address, s[i+1:], s[:i])
 		if !val {
-			return hm, ErrHistorianMessageBadSignature
+			return hm, ErrBadSignature
 		}
 	}
 

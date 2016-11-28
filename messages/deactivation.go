@@ -30,7 +30,7 @@ func VerifyDeactivation(b []byte) (AlexandriaDeactivation, error) {
 	}
 
 	if !utility.IsJSON(string(b)) {
-		return v, errors.New("this string isn't even JSON!")
+		return v, ErrNotJSON
 	}
 
 	err := json.Unmarshal(b, &v)
@@ -72,14 +72,14 @@ func VerifyDeactivation(b []byte) (AlexandriaDeactivation, error) {
 
 	// verify signature
 	if v.Signature != signature {
-		return v, errors.New("can't verify deactivation - signature mismatch")
+		return v, ErrBadSignature
 	}
 
 	// verify signature was created by this address
 	// signature pre-image for deactivation is <address>-<txid>
 	val, _ := utility.CheckSignature(v.AlexandriaDeactivation.Address, signature, v.AlexandriaDeactivation.Address+"-"+v.AlexandriaDeactivation.Txid)
 	if val == false {
-		return v, errors.New("can't verify deactivation - message failed to pass signature verification")
+		return v, ErrBadSignature
 	}
 
 	return v, nil

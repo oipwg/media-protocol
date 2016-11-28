@@ -33,13 +33,13 @@ func TestVerifyHistorianMessage(t *testing.T) {
 		err   error
 	}{
 		{s, 1750000, nil},                               // valid
-		{s, 1974560, ErrHistorianMessageBadSignature},   // wrong address
+		{s, 1974560, ErrBadSignature},                   // wrong address
 		{s1, 1974560, ErrHistorianMessageInvalid},       // bad version
 		{s2, 1974560, ErrHistorianMessagePoolUntrusted}, // bad pool
 		{s3, 1974560, ErrHistorianMessageInvalid},       // wrong length
-		{s4, 1974560, ErrHistorianMessageBadSignature},  // no signature
-		{s5, 1974560, ErrHistorianMessageBadSignature},  // trailing :
-		{s6, 1974560, ErrHistorianMessageBadSignature},  // invalid signature
+		{s4, 1974560, ErrBadSignature},                  // no signature
+		{s5, 1974560, ErrBadSignature},                  // trailing :
+		{s6, 1974560, ErrBadSignature},                  // invalid signature
 		{s7, 1974560, nil},                              // valid
 		{s4, 1974559, nil},                              // no signature, but unenforced
 	}

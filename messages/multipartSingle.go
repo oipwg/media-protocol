@@ -157,7 +157,7 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	address := s[4:38]
 	if !utility.CheckAddress(address) {
 		// fmt.Println("address doesn't check out: \"" + address + "\"")
-		return ret, errors.New("address doesn't validate using validateaddress")
+		return ret, ErrInvalidAddress
 	}
 
 	// get reference txid
@@ -184,7 +184,7 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	val, _ := utility.CheckSignature(address, signature, preimage)
 	if !val {
 		// fmt.Println("signature didn't pass checksignature test")
-		return ret, errors.New("signature didn't pass checksignature test")
+		return ret, ErrBadSignature
 	}
 
 	// if part == 0, reference should be submitted in the tx-comment as a string of 64 zeros
