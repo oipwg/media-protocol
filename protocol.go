@@ -3,6 +3,7 @@ package alexandriaProtocol
 import (
 	"errors"
 	"github.com/dloa/media-protocol/messages"
+	"strings"
 )
 
 const min_block = 1045632
@@ -13,6 +14,10 @@ func GetMinBlock() int {
 }
 
 func Parse(txComment string, txid string, processingBlock int) (interface{}, map[string]interface{}, error) {
+
+	if strings.HasPrefix(txComment, "text:") {
+		txComment = txComment[5:]
+	}
 
 	// check for alexandria-media-multipart single protocol (new media multipart tx-comment)
 	mms, VerifyMediaMultipartSingleError := messages.VerifyMediaMultipartSingle(txComment, txid, processingBlock)
