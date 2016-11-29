@@ -44,5 +44,11 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 		return hm, nil, nil
 	}
 
+	// check for oip-transfer messages
+	oip_t, err := messages.VerifyOIPTransfer(txComment, processingBlock)
+	if err == nil {
+		return oip_t, nil, nil
+	}
+
 	return nil, nil, errors.New("Unknown media type")
 }
