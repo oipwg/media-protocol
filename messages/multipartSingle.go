@@ -172,6 +172,10 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	}
 
 	signature := s[104:sigEndIndex]
+	if signature[len(signature)-1] == ',' {
+		// strip erroneous comma added by fluffy-enigma
+		signature = signature[:len(signature)-1]
+	}
 	data := s[sigEndIndex+2:]
 	// fmt.Println("data: \"" + data + "\"")
 
