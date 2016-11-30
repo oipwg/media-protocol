@@ -130,7 +130,7 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	// check prefix
 	checkPrefix := strings.HasPrefix(s, prefix)
 	if !checkPrefix {
-		return ret, errors.New("wrong prefix in tx-comment (does not match required prefix)")
+		return ret, ErrWrongPrefix
 	}
 
 	// trim prefix off
