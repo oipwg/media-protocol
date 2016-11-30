@@ -78,8 +78,9 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 	var i interface{}
 	var m map[string]interface{}
 
-	if !strings.HasPrefix(string(b), `{ "alexandria-publisher"`) {
-		return v, errors.New("Not alexandria-publisher")
+	if !strings.HasPrefix(string(b), `{ "alexandria-publisher"`) &&
+		!strings.HasPrefix(string(b), `{"alexandria-publisher"`) {
+		return v, ErrWrongPrefix
 	}
 
 	// fmt.Printf("Attempting to verify alexandria-publisher JSON...")
