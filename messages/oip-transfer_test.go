@@ -8,13 +8,6 @@ import (
 func TestVerifyOIPTransfer(t *testing.T) {
 
 	s := `{"oip-transfer":{"tx":"x","to":"x","fro":"F8gFhCVvcBv18fQNf5U3RZ6Zotgcjy8JnF","ts":66,"sig":"INIbrjpLIF4dnsMAUtEu5ETBvbqKVbBs+UCASs8oiLp+RFIg7xsaRebPgzEMBYYHIeWMrM0mmLbiHb3OfJCZBxw="}}`
-	oip_t := OIPTransfer{
-		"x",
-		"x",
-		"F8gFhCVvcBv18fQNf5U3RZ6Zotgcjy8JnF",
-		66,
-		"INIbrjpLIF4dnsMAUtEu5ETBvbqKVbBs+UCASs8oiLp+RFIg7xsaRebPgzEMBYYHIeWMrM0mmLbiHb3OfJCZBxw=",
-	}
 	s2 := `{"oip-transfer":{"tx":"6f9c23edabc92e5738491a269a66aa469e03fc61156084909b646131e92ab985","to":"FLHP1SVdUSWWWnU43qBotWmHUBXYbwS4Ds","fro":"FNa3C96zuEtA5Zra54wkLpMZ6mRvTCo5uG","ts":1480321281,"sig":"IBdSrcPP6NLcKH5zvlPivy9M5p8O4tWSRVXrx5CCPACnKko761MhlkOoZE35XJcblhbEQx173Qg8AELBVDu1+V4="}}`
 	oip_t2 := OIPTransfer{
 		"6f9c23edabc92e5738491a269a66aa469e03fc61156084909b646131e92ab985",
@@ -24,6 +17,7 @@ func TestVerifyOIPTransfer(t *testing.T) {
 		"IBdSrcPP6NLcKH5zvlPivy9M5p8O4tWSRVXrx5CCPACnKko761MhlkOoZE35XJcblhbEQx173Qg8AELBVDu1+V4=",
 	}
 	s3 := `aye`
+	nilOIPT := OIPTransfer{}
 
 	cases := []struct {
 		in    string
@@ -31,10 +25,10 @@ func TestVerifyOIPTransfer(t *testing.T) {
 		block int
 		err   error
 	}{
-		{s, oip_t, 1, ErrTooEarly},
-		{s, oip_t, 2000000, ErrInvalidReference},
+		{s, nilOIPT, 1, ErrTooEarly},
+		{s, nilOIPT, 2000000, ErrInvalidReference},
 		{s2, oip_t2, 2000000, nil},
-		{s3, oip_t2, 2000000, ErrWrongPrefix},
+		{s3, nilOIPT, 2000000, ErrWrongPrefix},
 	}
 
 	for i, c := range cases {
