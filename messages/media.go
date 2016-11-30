@@ -153,8 +153,11 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	var i interface{}
 	var m map[string]interface{}
 
-	if !strings.HasPrefix(string(b), `{ "alexandria-media"`) && !strings.HasPrefix(string(b), `{ "media-data"`) {
-		return v, nil, errors.New("Not alexandria-media")
+	if !strings.HasPrefix(string(b), `{ "alexandria-media"`) &&
+		!strings.HasPrefix(string(b), `{"alexandria-media"`) &&
+		!strings.HasPrefix(string(b), `{"media-data"`) &&
+		!strings.HasPrefix(string(b), `{ "media-data"`) {
+		return v, nil, ErrWrongPrefix
 	}
 
 	if !utility.IsJSON(string(b)) {
