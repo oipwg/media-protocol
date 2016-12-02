@@ -14,6 +14,8 @@ type Oip041Artifact struct {
 	Timestamp int           `json:"timestamp"`
 	Type      string        `json:"type"`
 	Info      Oip041Info    `json:"info"`
+	Storage   Oip041Storage `json:"storage"`
+	Files     []Oip041Files `json:"files"`
 	Payment   Oip041Payment `json:"payment"`
 }
 
@@ -33,15 +35,13 @@ type Oip041Payment struct {
 }
 
 type Oip041MusicExtraInfo struct {
-	Artist            string        `json:"artist"`
-	Company           string        `json:"company"`
-	Composers         []string      `json:"composers"`
-	Copyright         string        `json:"copyright"`
-	UsageProhibitions string        `json:"usageProhibitions"`
-	UsageRights       string        `json:"usageRights"`
-	Tags              []string      `json:"tags"`
-	Storage           Oip041Storage `json:"storage"`
-	Files             []Oip041Files `json:"files"`
+	Artist            string   `json:"artist"`
+	Company           string   `json:"company"`
+	Composers         []string `json:"composers"`
+	Copyright         string   `json:"copyright"`
+	UsageProhibitions string   `json:"usageProhibitions"`
+	UsageRights       string   `json:"usageRights"`
+	Tags              []string `json:"tags"`
 }
 
 type Oip041Storage struct {
