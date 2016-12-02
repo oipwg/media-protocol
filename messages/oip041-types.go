@@ -45,29 +45,29 @@ type Oip041MusicExtraInfo struct {
 }
 
 type Oip041Storage struct {
-	Network  string `json:"network"`
-	Location string `json:"location"`
+	Network  string `json:"network,omitempty"`
+	Location string `json:"location,omitempty"`
 }
 
 type Oip041Files struct {
-	DisallowBuy   bool          `json:"disallowBuy,omitempty"`
+	DisallowBuy   int           `json:"disallowBuy"`
 	Dname         string        `json:"dname"`
-	Duration      int           `json:"duration,omitempty"`
+	Duration      float64       `json:"duration,omitempty"`
 	Fname         string        `json:"fname"`
 	Fsize         int           `json:"fsize"`
-	MinPlay       string        `json:"minPlay,omitempty"`
-	SugPlay       string        `json:"sugPlay,omitempty"`
-	Promo         string        `json:"promo,omitempty"`
-	Retail        string        `json:"retail,omitempty"`
+	MinPlay       float64       `json:"minPlay"`
+	SugPlay       float64       `json:"sugPlay"`
+	Promo         float64       `json:"promo"`
+	Retail        float64       `json:"retail"`
 	PtpFT         int           `json:"ptpFT,omitempty"`
 	PtpDT         int           `json:"ptpDT,omitempty"`
 	PtpDA         int           `json:"ptpDA,omitempty"`
 	Type          string        `json:"type"`
 	TokenlyID     string        `json:"tokenly_ID,omitempty"`
-	DissallowPlay bool          `json:"dissallowPlay,omitempty"`
-	MinBuy        string        `json:"minBuy,omitempty"`
-	SugBuy        string        `json:"sugBuy,omitempty"`
-	Storage       Oip041Storage `json:"storage,omitempty"`
+	DissallowPlay int           `json:"dissallowPlay"`
+	MinBuy        float64       `json:"minBuy"`
+	SugBuy        float64       `json:"sugBuy"`
+	Storage       Oip041Storage `json:"storage"`
 }
 
-type Oip041Tokens interface{} // dynamic field
+type Oip041Tokens map[string]string
