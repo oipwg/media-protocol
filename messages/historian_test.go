@@ -64,3 +64,21 @@ func TestVerifyHistorianMessage(t *testing.T) {
 		}
 	}
 }
+
+var (
+	// to prevent the compiler deleting the benchmark
+	hmTestErr error
+	hmTestHM  HistorianMessage
+)
+
+// This benchmark was really just for curiosity sake, maybe later it will
+// actually be adapted to serve a purpose
+func BenchmarkVerifyHistorianMessage(b *testing.B) {
+	// signed FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD
+	// valid
+	s := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA="
+
+	for n := 0; n < b.N; n++ {
+		hmTestHM, hmTestErr = VerifyHistorianMessage([]byte(s), 1750000)
+	}
+}
