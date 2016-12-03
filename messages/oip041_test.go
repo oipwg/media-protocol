@@ -1,11 +1,20 @@
 package messages
 
 import (
-	"encoding/json"
-	"fmt"
 	"reflect"
 	"testing"
 )
+
+func TestDecodeOIP041(t *testing.T) {
+	// ToDo: a better test/errors
+	oip041, err := DecodeOIP041(oip041_music_example)
+	if err != nil {
+		t.Error("error")
+	}
+	if !reflect.DeepEqual(oip041, oip041_music_example_obj) {
+		t.Error("not equal")
+	}
+}
 
 var oip041_music_example = `{
   "oip-041": {
@@ -110,23 +119,7 @@ var oip041_music_example = `{
   }
 }`
 
-func TestDecodeOIP041(t *testing.T) {
-	oip041w := Oip041Wrapper{}
-	err := json.Unmarshal([]byte(oip041_music_example), &oip041w)
-	fmt.Println(err)
-	fmt.Println(oip041w.Oip041)
-	if err != nil {
-		t.Error("error")
-	}
-	b, e := json.Marshal(oip041w)
-	fmt.Println(e)
-	fmt.Println(string(b))
-	if !reflect.DeepEqual(oip041w.Oip041, oip041_example_obj) {
-		t.Error("not equal")
-	}
-}
-
-var oip041_example_obj Oip041 = Oip041{
+var oip041_music_example_obj Oip041 = Oip041{
 	Oip041Artifact{
 		"F97Tp8LYnw94CpXmAhqACXWTT36jyvLCWx",
 		1470269387,
