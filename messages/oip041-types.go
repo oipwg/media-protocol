@@ -50,24 +50,24 @@ type Oip041Storage struct {
 }
 
 type Oip041Files struct {
-	DisallowBuy   int           `json:"disallowBuy"`
-	Dname         string        `json:"dname"`
-	Duration      float64       `json:"duration,omitempty"`
-	Fname         string        `json:"fname"`
-	Fsize         int           `json:"fsize"`
-	MinPlay       float64       `json:"minPlay"`
-	SugPlay       float64       `json:"sugPlay"`
-	Promo         float64       `json:"promo"`
-	Retail        float64       `json:"retail"`
-	PtpFT         int           `json:"ptpFT,omitempty"`
-	PtpDT         int           `json:"ptpDT,omitempty"`
-	PtpDA         int           `json:"ptpDA,omitempty"`
-	Type          string        `json:"type"`
-	TokenlyID     string        `json:"tokenly_ID,omitempty"`
-	DissallowPlay int           `json:"dissallowPlay"`
-	MinBuy        float64       `json:"minBuy"`
-	SugBuy        float64       `json:"sugBuy"`
-	Storage       Oip041Storage `json:"storage"`
+	DisallowBuy  int           `json:"disallowBuy"`
+	Dname        string        `json:"dname"`
+	Duration     float64       `json:"duration,omitempty"`
+	Fname        string        `json:"fname"`
+	Fsize        int           `json:"fsize"`
+	MinPlay      float64       `json:"minPlay"`
+	SugPlay      float64       `json:"sugPlay"`
+	Promo        float64       `json:"promo"`
+	Retail       float64       `json:"retail"`
+	PtpFT        int           `json:"ptpFT,omitempty"`
+	PtpDT        int           `json:"ptpDT,omitempty"`
+	PtpDA        int           `json:"ptpDA,omitempty"`
+	Type         string        `json:"type"`
+	TokenlyID    string        `json:"tokenly_ID,omitempty"`
+	DisallowPlay int           `json:"disallowPlay"`
+	MinBuy       float64       `json:"minBuy"`
+	SugBuy       float64       `json:"sugBuy"`
+	Storage      Oip041Storage `json:"storage"`
 }
 
 type Oip041Tokens map[string]string
