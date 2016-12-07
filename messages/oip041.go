@@ -4,12 +4,41 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 func DecodeOIP041(s string) (Oip041, error) {
 	oip041w := Oip041Wrapper{}
 	err := json.Unmarshal([]byte(s), &oip041w)
 	return oip041w.Oip041, err
+}
+
+func StoreOIP041(o Oip041, txid string, block int, dbtx *sql.Tx) error {
+	// store in database
+	stmtStr := `INSERT INTO 'oip_artifact'
+		('active','block','json','tags','timestamp',
+		'title','txid','type','year','publisher')
+		VALUES (?,?,?,?,?,?,?,?,?,?);`
+
+	stmt, err := dbtx.Prepare(stmtStr)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	s, err := o.GetJSON()
+	if err != nil {
+		return nil
+	}
+
+	_, err = stmt.Exec(1, block, s, strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
+		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
+		o.Artifact.Info.Year, o.Artifact.Publisher)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func CreateTables(dbTx *sql.Tx) error {
@@ -35,7 +64,7 @@ var oip041SqliteCreateStatements = []struct {
 	sql  string
 }{
 	{"oip_media table",
-		`CREATE TABLE if not exists 'oip_media' (
+		`CREATE TABLE if not exists 'oip_artifact' (
 		'uid'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		'active'	INTEGER NOT NULL,
 		'block'	INTEGER NOT NULL,
