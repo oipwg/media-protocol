@@ -9,6 +9,18 @@ type Oip041 struct {
 	Signature string         `json:"signature"`
 }
 
+type Oip041ArtifactAPIResult struct {
+	Block     int
+	JSON      string
+	Tags      string
+	Timestamp int
+	Title     string
+	TxID      string
+	Type      string
+	Year      int
+	Publisher string
+}
+
 type Oip041Artifact struct {
 	Publisher string        `json:"publisher"`
 	Timestamp int           `json:"timestamp"`

@@ -48,8 +48,41 @@ func StoreOIP041(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	return nil
 }
 
+func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
+	stmtStr := `select a.block, a.json, a.tags, a.timestamp,
+				a.title, a.txid, a.type, a.year, a.publisher
+				from oip_artifact as a join publisher as p
+				where p.address = a.publisher and a.invalidated = 0`
+
+	stmt, err := dbtx.Prepare(stmtStr)
+	if err != nil {
+		return []Oip041ArtifactAPIResult{}, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return []Oip041ArtifactAPIResult{}, err
+	}
+
+	var results []Oip041ArtifactAPIResult
+
+	for rows.Next() {
+		var a Oip041ArtifactAPIResult
+		rows.Scan(&a.Block, &a.JSON, &a.Tags, &a.Timestamp,
+			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher)
+
+		results = append(results, a)
+	}
+
+	dbtx.Commit()
+	stmt.Close()
+	rows.Close()
+
+	return results, nil
+}
+
 func CreateTables(dbTx *sql.Tx) error {
-	// ToDo: update the triggers for deactivating media
 	for _, v := range oip041SqliteCreateStatements {
 		fmt.Printf("Creating %s\n", v.name)
 		stmt, err := dbTx.Prepare(v.sql)
