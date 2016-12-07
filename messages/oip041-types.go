@@ -10,15 +10,15 @@ type Oip041 struct {
 }
 
 type Oip041ArtifactAPIResult struct {
-	Block     int    `json:"Block"`
-	JSON      string `json:"JSON"`
-	Tags      string `json:"Tags"`
-	Timestamp int    `json:"Timestamp"`
-	Title     string `json:"Title"`
-	TxID      string `json:"TxID"`
-	Type      string `json:"Type"`
-	Year      int    `json:"Year"`
-	Publisher string `json:"Publisher"`
+	Block     int         `json:"Block"`
+	OIP041    interface{} `json:"oip041"`
+	Tags      string      `json:"Tags"`
+	Timestamp int         `json:"Timestamp"`
+	Title     string      `json:"Title"`
+	TxID      string      `json:"TxID"`
+	Type      string      `json:"Type"`
+	Year      int         `json:"Year"`
+	Publisher string      `json:"Publisher"`
 }
 
 type Oip041Artifact struct {

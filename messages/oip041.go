@@ -69,9 +69,12 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 
 	for rows.Next() {
 		var a Oip041ArtifactAPIResult
-		rows.Scan(&a.Block, &a.JSON, &a.Tags, &a.Timestamp,
+		var s string
+
+		rows.Scan(&a.Block, &s, &a.Tags, &a.Timestamp,
 			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher)
 
+		json.Unmarshal([]byte(s), &a.OIP041)
 		results = append(results, a)
 	}
 
