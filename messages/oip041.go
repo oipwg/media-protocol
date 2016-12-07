@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func VerifyOIP041(s string, block int) (Oip041, error) {
+	if block < 1997454 {
+		return Oip041{}, ErrTooEarly
+	}
+	return DecodeOIP041(s)
+}
+
 func DecodeOIP041(s string) (Oip041, error) {
 	oip041w := Oip041Wrapper{}
 	err := json.Unmarshal([]byte(s), &oip041w)

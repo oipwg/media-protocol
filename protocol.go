@@ -55,5 +55,10 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 		return oip_t, nil, nil
 	}
 
+	// check for any oip41 data
+	oip041, err := messages.VerifyOIP041(txComment, processingBlock)
+	if err == nil {
+		return oip041, nil, nil
+	}
 	return nil, nil, errors.New("Unknown media type")
 }
