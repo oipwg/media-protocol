@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+const Version string = "0.4.1"
 const min_block = 1045632
 
 func GetMinBlock() int {
