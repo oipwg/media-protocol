@@ -91,7 +91,7 @@ func VerifyHistorianMessage(b []byte, block int) (HistorianMessage, error) {
 	if strings.HasPrefix(string(b), "alexandria-historian-v001") {
 		return parseV1(string(b), block)
 	} else {
-		return hm, ErrHistorianMessageInvalid
+		return hm, ErrWrongPrefix
 	}
 }
 
