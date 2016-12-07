@@ -75,7 +75,6 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 		results = append(results, a)
 	}
 
-	dbtx.Commit()
 	stmt.Close()
 	rows.Close()
 
