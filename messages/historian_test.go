@@ -44,7 +44,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	}{
 		{s, hm, 1750000, nil},                                  // valid
 		{s, nilHM, 1974560, ErrBadSignature},                   // wrong address
-		{s1, nilHM, 1974560, ErrHistorianMessageInvalid},       // bad version
+		{s1, nilHM, 1974560, ErrWrongPrefix},                   // bad version
 		{s2, nilHM, 1974560, ErrHistorianMessagePoolUntrusted}, // bad pool
 		{s3, nilHM, 1974560, ErrHistorianMessageInvalid},       // wrong length
 		{s4, nilHM, 1974560, ErrBadSignature},                  // no signature
