@@ -2,17 +2,24 @@ language: go
 sudo: false
 
 go:
-  - 1.6
-  - 1.7
+  - 1.6.x
+  - 1.7.x
   - master
 
+env:
+  secure: "Xg+9A1MqQ1z8y1jgztamOCuIEOGWVK1lAElSCjj+U+3l4gHv88ZacDL5E7fi0dJsPCOB2ImJo6SjKkG9TAiNczNKjTFQl+0LPQYd7F+BOIt2sFePBijx+ZWn+rXaj+9ODV+T4sTVhpwUO9UABz9DBdwAJP1GKdi1tZtqvl+6SeBFZ+BG2Ph5F/z46kLgGnfltDAbdUg5hY0GzR7Hap3PQak1pKaycLSRf59typMaPkbNNhce2XUn6rOLC/EmAnYp1FG6ZyknhLkCVIBKXz+ih2OqA59X3LliUFMU4Yo8HZPwSgiyuy5+bUrB9rHGk4kla/Cgt9OpIVn9Gii0ZNWV4NjPqNegaHZRfN+/wV1PMQWbMPcsPgpGYpRTdVFXhM+4Cyp/77GZg/ljj6nlea8khCP897rNVpEX6bjZ/jyWlXYiaXar6SFo6UjoKQyU5fD6crNgLhc7ab2FBRtsUXeedeASzgO+mQKIGjwWgS6rXoUGgz89aZ9VoMp4bAQDDw5Ls42SuQ9lFXzD6xHHw9f5eHNIXg0ex0rZDrIqvQ6tZdc9Fm9lj+Hix/sjiqSONfK1Q3DXlArhUStsQ8rdlGFAstDIC6GWL8gz8FlalqOvpQZBjMpIa5F93/qGS5y9TgAgoODtGA5OPpzmVLpMQBMHOEalUIbLouZnXLbtaLrthsA="
+
 install:
-  - go get github.com/btcsuite/btcutil
-  - go get github.com/bitspill/bitsig-go
+  - make dependencies
+  - test -z "$(go fmt ./...)"
 
 script:
-  - test -z "$(go fmt ./...)"
-  - go test -v ./...
+  - make test-v
+
+after_success:
+  - make cover
+  - make coveralls
+  - make lint
 
 notifications:
   email: false
