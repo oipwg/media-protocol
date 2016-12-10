@@ -7,14 +7,60 @@ import (
 
 func TestDecodeOIP041(t *testing.T) {
 	// ToDo: a better test/errors
-	oip041, err := DecodeOIP041(oip041_music_example)
+	oip041a, err := DecodeOIP041(oip041_music_example)
 	if err != nil {
-		t.Error("error")
+		t.Error("error 1")
 	}
-	if !reflect.DeepEqual(oip041, oip041_music_example_obj) {
-		t.Error("not equal")
+	if !reflect.DeepEqual(oip041a, oip041_music_example_obj) {
+		t.Error("not equal 1")
+	}
+
+	oip041e, err := DecodeOIP041(oip041_edit_example)
+	if err != nil {
+		t.Error("error 2")
+	}
+	if !reflect.DeepEqual(oip041e, oip041_edit_example_obj) {
+		t.Error("not equal 2")
 	}
 }
+
+var oip041_edit_example_obj Oip041 = Oip041{
+	Edit: Oip041Edit{
+		Add: map[string]string{
+			"payment.tokens": "FREEBIEOFTHEWEEK:\"1\"",
+		},
+		Edit: map[string]string{
+			"files[0].dname": "Throwing Stones",
+			"files[0].fname": "1 - Throwing Stones.mp3",
+		},
+		Remove: []string{
+			"tokens.LTBCOIN",
+		},
+		Timestamp: 1234,
+		TxID:      "96bad8e17f908da4c695c58b0f843a03928e338b361b3035ed16a864eafc31a2",
+	},
+	Signature: "<SignatureOfSomething>",
+}
+
+var oip041_edit_example = `{
+  "oip-041": {
+    "edit": {
+      "txid": "96bad8e17f908da4c695c58b0f843a03928e338b361b3035ed16a864eafc31a2",
+      "timestamp": 1234,
+      "add": {
+        "payment.tokens": "FREEBIEOFTHEWEEK:\"1\""
+      },
+      "edit": {
+        "files[0].dname": "Throwing Stones",
+        "files[0].fname": "1 - Throwing Stones.mp3"
+      },
+      "remove": [
+        "tokens.LTBCOIN"
+      ]
+    },
+    "signature": "<SignatureOfSomething>"
+  }
+}`
 
 var oip041_music_example = `{
   "oip-041": {

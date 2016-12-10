@@ -6,6 +6,7 @@ type Oip041Wrapper struct {
 
 type Oip041 struct {
 	Artifact  Oip041Artifact `json:"artifact"`
+	Edit      Oip041Edit     `json:"edit"`
 	Signature string         `json:"signature"`
 }
 
@@ -19,6 +20,14 @@ type Oip041ArtifactAPIResult struct {
 	Type      string      `json:"type"`
 	Year      int         `json:"year"`
 	Publisher string      `json:"publisher"`
+}
+
+type Oip041Edit struct {
+	Add       map[string]string `json:"add"`
+	Edit      map[string]string `json:"edit"`
+	Remove    []string          `json:"remove"`
+	Timestamp int               `json:"timestamp"`
+	TxID      string            `json:"txid"`
 }
 
 type Oip041Artifact struct {

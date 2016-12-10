@@ -16,7 +16,7 @@ func (o Oip041) GetJSON() (string, error) {
 	return s, err
 }
 
-func StoreOIP041(o Oip041, txid string, block int, dbtx *sql.Tx) error {
+func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	// store in database
 	stmtStr := `INSERT INTO 'oip_artifact'
 		('active','block','json','tags','timestamp',
