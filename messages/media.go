@@ -191,35 +191,9 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	}
 
 	// fmt.Printf("*** debug: JSON object root matches, printing v:\n%v\n*** /debug ***\n", v)
-	// verify torrent hash length
-	if len(v.AlexandriaMedia.Torrent) <= 1 {
-		return v, m, errors.New("can't verify media - invalid torrent hash length")
-	}
-
-	// verify signature
-	if v.Signature != signature {
-		return v, m, errors.New("can't verify media - signature mismatch")
-	}
-
-	// verify timestamp length
-	if v.AlexandriaMedia.Timestamp <= 0 {
-		return v, m, errors.New("can't verify media - invalid timestamp")
-	}
-
-	// verify type length
-	if len(v.AlexandriaMedia.Type) <= 1 {
-		return v, m, errors.New("can't verify media - invalid type length")
-	}
-
-	// verify media info lengths
-	if len(v.AlexandriaMedia.Info.Title) <= 0 {
-		return v, m, errors.New("can't verify media - invalid info title length")
-	}
-	if len(v.AlexandriaMedia.Info.Description) <= 0 {
-		return v, m, errors.New("can't verify media - invalid info description length")
-	}
-	if v.AlexandriaMedia.Info.Year <= 0 {
-		return v, m, errors.New("can't verify media - invalid info year")
+	err = checkRequiredMediaFields(v, signature)
+	if err != nil {
+		return v, m, err
 	}
 
 	// verify signature was created by this address
@@ -232,4 +206,39 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 	// fmt.Println(" -- VERIFIED --")
 	return v, m, nil
 
+}
+
+func checkRequiredMediaFields(v AlexandriaMedia, signature string) error {
+	// verify torrent hash length
+	if len(v.AlexandriaMedia.Torrent) <= 1 {
+		return errors.New("can't verify media - invalid torrent hash length")
+	}
+
+	// verify signature
+	if v.Signature != signature {
+		return errors.New("can't verify media - signature mismatch")
+	}
+
+	// verify timestamp length
+	if v.AlexandriaMedia.Timestamp <= 0 {
+		return errors.New("can't verify media - invalid timestamp")
+	}
+
+	// verify type length
+	if len(v.AlexandriaMedia.Type) <= 1 {
+		return errors.New("can't verify media - invalid type length")
+	}
+
+	// verify media info lengths
+	if len(v.AlexandriaMedia.Info.Title) <= 0 {
+		return errors.New("can't verify media - invalid info title length")
+	}
+	if len(v.AlexandriaMedia.Info.Description) <= 0 {
+		return errors.New("can't verify media - invalid info description length")
+	}
+	if v.AlexandriaMedia.Info.Year <= 0 {
+		return errors.New("can't verify media - invalid info year")
+	}
+
+	return nil
 }
