@@ -18,7 +18,7 @@ func TestCheckAddress(t *testing.T) {
 	for _, c := range cases {
 		got := CheckAddress(c.in)
 		if got != c.out {
-			t.Errorf("CheckAddress(%q) == %q, want %q", c.in, got, c.out)
+			t.Errorf("CheckAddress(%s) == %t, want %t", c.in, got, c.out)
 		}
 	}
 }
@@ -37,7 +37,7 @@ func TestCheckSignature(t *testing.T) {
 	for _, c := range cases {
 		got, _ := CheckSignature(c.addr, c.sig, c.mes)
 		if got != c.out {
-			t.Errorf("CheckSignature(%q, <...>) == %q, want %q", c.mes, c.out, c.out)
+			t.Errorf("CheckSignature(%s, <...>) == %t, want %t", c.mes, c.out, c.out)
 		}
 	}
 }
@@ -56,7 +56,7 @@ func TestIsJSON(t *testing.T) {
 	for _, c := range cases {
 		got := IsJSON(c.in)
 		if got != c.out {
-			t.Errorf("IsJSON(%q) == %q, want %q", c.in, got, c.out)
+			t.Errorf("IsJSON(%s) == %t, want %t", c.in, got, c.out)
 		}
 	}
 }

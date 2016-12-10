@@ -60,7 +60,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 			t.Errorf("VerifyHistorianMessage(#%d) | err == %q, want %q", i, err, c.err)
 		}
 		if err == nil && !reflect.DeepEqual(got, c.out) {
-			t.Errorf("VerifyMediaMultipartSingle(#%d) | got == %q, want %q", i, got, c.out)
+			t.Errorf("VerifyMediaMultipartSingle(#%d) | got == %v, want %v", i, got, c.out)
 		}
 	}
 }
