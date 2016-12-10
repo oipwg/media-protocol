@@ -170,8 +170,8 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 		return v, m, err
 	}
 
-	errr := json.Unmarshal(b, &i)
-	if errr != nil {
+	err = json.Unmarshal(b, &i)
+	if err != nil {
 		return v, m, err
 	}
 
