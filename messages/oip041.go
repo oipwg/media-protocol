@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
@@ -18,34 +17,6 @@ func DecodeOIP041(s string) (Oip041, error) {
 	oip041w := Oip041Wrapper{}
 	err := json.Unmarshal([]byte(s), &oip041w)
 	return oip041w.Oip041, err
-}
-
-func StoreOIP041(o Oip041, txid string, block int, dbtx *sql.Tx) error {
-	// store in database
-	stmtStr := `INSERT INTO 'oip_artifact'
-		('active','block','json','tags','timestamp',
-		'title','txid','type','year','publisher')
-		VALUES (?,?,?,?,?,?,?,?,?,?);`
-
-	stmt, err := dbtx.Prepare(stmtStr)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	s, err := o.GetJSON()
-	if err != nil {
-		return nil
-	}
-
-	_, err = stmt.Exec(1, block, s, strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
-		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
-		o.Artifact.Info.Year, o.Artifact.Publisher)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
