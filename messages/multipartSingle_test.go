@@ -29,6 +29,8 @@ func TestVerifyMediaMultipartSingle(t *testing.T) {
 		Txid:      "682f7c4e0bfc4de3eab8558dbfc1c6ac3a6dfa7fac62e26b880744cf70766452",
 		Block:     1535952,
 	}
+	// Caused existing nodes to crash, TX: 936e2b5a9d1837e913f348677505fdc284630ee0a2d7e9ef53d51df7a7ce1126
+	s3 := `alexandria-media-multipart(5,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,undefined,undefined,):"scale":"1000:1","sugTip":[5,50,100],"tokens":{"mtmcollector":"","mtmproducer":"","happybirthdayep":"","early":"","ltbcoin":"","btc":"1GMMg2J5iUKnDf5PbRr9TcKV3R6KfUiB55"}}},"signature":"{ \"success\": true, \"message\": \"IOS7pWaCsiI6Hu7u1uh+JYOW5ZsoiohMSUW448h3qbHHbMr+`
 
 	cases := []struct {
 		in    string
@@ -39,6 +41,7 @@ func TestVerifyMediaMultipartSingle(t *testing.T) {
 	}{
 		{s, mms, mms.Txid, mms.Block, nil},
 		{s2, mms2, mms2.Txid, mms2.Block, nil},
+		{s3, MediaMultipartSingle{}, "", 0, ErrNoSignatureEnd},
 	}
 
 	for i, c := range cases {

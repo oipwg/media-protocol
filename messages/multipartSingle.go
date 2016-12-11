@@ -166,9 +166,9 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	// get and check signature
 	sigEndIndex := strings.Index(s, "):")
 
-	if sigEndIndex == -1 {
+	if sigEndIndex < 105 {
 		fmt.Println("no end of signature found, malformed tx-comment")
-		return ret, errors.New("no end of signature found, malformed tx-comment")
+		return ret, ErrNoSignatureEnd
 	}
 
 	signature := s[104:sigEndIndex]
