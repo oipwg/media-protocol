@@ -10,7 +10,16 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 	if block < 1997454 {
 		return Oip041{}, ErrTooEarly
 	}
-	return DecodeOIP041(s)
+	dec, err := DecodeOIP041(s)
+	if err != nil {
+		return dec, err
+	}
+	if dec.Signature == "" {
+		return dec, ErrBadSignature
+	}
+	// ToDo: Validate signature
+
+	return dec, nil
 }
 
 func DecodeOIP041(s string) (Oip041, error) {
