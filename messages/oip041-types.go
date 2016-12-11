@@ -44,7 +44,6 @@ type Oip041Artifact struct {
 	Type      string        `json:"type"`
 	Info      Oip041Info    `json:"info"`
 	Storage   Oip041Storage `json:"storage"`
-	Files     []Oip041Files `json:"files"`
 	Payment   Oip041Payment `json:"payment"`
 }
 
@@ -74,8 +73,9 @@ type Oip041MusicExtraInfo struct {
 }
 
 type Oip041Storage struct {
-	Network  string `json:"network,omitempty"`
-	Location string `json:"location,omitempty"`
+	Network  string        `json:"network,omitempty"`
+	Location string        `json:"location,omitempty"`
+	Files    []Oip041Files `json:"files"`
 }
 
 type Oip041Files struct {
