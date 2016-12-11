@@ -35,17 +35,17 @@ func HandleOIP041Transfer(o Oip041, txid string, processingBlock int, dbtx *sql.
 	oip_t := o.Transfer
 
 	if len(oip_t.Reference) != 64 {
-		return oip_t, ErrInvalidReference
+		return //oip_t, ErrInvalidReference
 	}
 
 	if !utility.CheckAddress(oip_t.To) {
-		return oip_t, ErrInvalidAddress
+		return //oip_t, ErrInvalidAddress
 	}
 
 	preImage := oip_t.Reference + "-" + oip_t.To + "-" + oip_t.From + "-" + strconv.FormatInt(oip_t.Timestamp, 10)
 	valid, err := utility.CheckSignature(oip_t.From, o.Signature, preImage)
 	if !valid {
-		return oip_t, err
+		return //oip_t, err
 	}
 
 	stmt, err := dbtx.Prepare(`SELECT publisher FROM media WHERE txid = ? LIMIT 1;`)
