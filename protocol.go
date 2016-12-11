@@ -50,12 +50,6 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 		return hm, nil, nil
 	}
 
-	// check for oip-transfer messages
-	oip_t, err := messages.VerifyOIPTransfer(txComment, processingBlock)
-	if err == nil {
-		return oip_t, nil, nil
-	}
-
 	// check for any oip41 data
 	oip041, err := messages.VerifyOIP041(txComment, processingBlock)
 	if err == nil {

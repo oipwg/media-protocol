@@ -7,6 +7,7 @@ type Oip041Wrapper struct {
 type Oip041 struct {
 	Artifact  Oip041Artifact `json:"artifact"`
 	Edit      Oip041Edit     `json:"edit"`
+	Transfer  Oip041Transfer `json:"transferArtifact"`
 	Signature string         `json:"signature"`
 }
 
@@ -20,6 +21,13 @@ type Oip041ArtifactAPIResult struct {
 	Type      string      `json:"type"`
 	Year      int         `json:"year"`
 	Publisher string      `json:"publisher"`
+}
+
+type Oip041Transfer struct {
+	Reference string `json:"txid"`
+	To        string `json:"to"`
+	From      string `json:"from"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 type Oip041Edit struct {
