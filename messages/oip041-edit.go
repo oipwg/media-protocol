@@ -9,6 +9,7 @@ import (
 )
 
 func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
+	return ErrNotImplemented
 
 	// ToDo: Check the signature... but first decide what to sign
 
@@ -87,7 +88,9 @@ var oip041_edit_example_obj Oip041 = Oip041{
 }
 */
 
-func updateField(key string, value string, txid string, dbtx *sql.Tx) {
+func updateField(key string, value string, txid string, dbtx *sql.Tx) error {
+	return ErrNotImplemented
+
 	stmtstr := `UPDATE oip_artifact SET ?=? WHERE txid=?`
 
 	stmt, err := dbtx.Prepare(stmtstr)
@@ -103,4 +106,6 @@ func updateField(key string, value string, txid string, dbtx *sql.Tx) {
 	}
 
 	stmt.Close()
+
+	return nil
 }
