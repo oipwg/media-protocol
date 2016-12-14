@@ -160,7 +160,8 @@ The following are the current OIP-041 JSON Standards.
                 ]
             }
         }
-    }
+    },
+    "signature":"$txid-$MD5HashOfPatch-$timestamp"
 }
 ```
 ### Transfer Artifact
