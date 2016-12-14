@@ -123,8 +123,8 @@ The following are the current OIP-041 JSON Standards.
 {  
     "oip-041":{  
         "editArtifact":{  
-            "txid":"a449b0f6a601e503e7b4fdc0ada47f55a8b2f98feb2fdb044f7a92d971ff0456",
-            "timestamp":1481420001,
+            "txid":"$artifactID",
+            "timestamp":1234567890,
             "patch":{  
                 "add":[  
                     {  
@@ -174,7 +174,7 @@ The following are the current OIP-041 JSON Standards.
             "from":"$oldPublisherAddress",
             "timestamp":1234567890
         },
-        "signature":"sign($artifactID-$newPublisherAddress-$oldPublisherAddress-$timestamp)"
+        "signature":"$artifactID-$newPublisherAddress-$oldPublisherAddress-$timestamp"
     }
 }
 ```
@@ -183,10 +183,10 @@ The following are the current OIP-041 JSON Standards.
 {  
     "oip-041":{  
         "deactivateArtifact":{  
-            "txid":"96bad8e17f908da4c695c58b0f843a03928e338b361b3035eda16a864eafc3a2",
-            "timestamp":1481697196
+            "txid":"$artifactID",
+            "timestamp":1234567890
         },
-        "signature":"H8wPKDHSTrrJIY4RVzoWuWlt5Fta4PaWbWNQvrGt9hRyBFrB2YDoVnhctC4V08KnGMD/CZKbA4cPKysStVq8jyE="
+        "signature":"$txid-$publisher-$timestamp"
     }
 }
 ```
