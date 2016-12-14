@@ -192,11 +192,11 @@ The following are the current OIP-041 JSON Standards.
 ```
 
 ### Multipart Data
-You should not have to use the Multipart Data format, however should you need to reference it, here it is. When the JSON to be published is larger than 528 characters, the JSON gets split up into multiple parts. Each of these parts are then submitted as Transaction comments to the Florincoin Blockchain. Here is an example of an OIP 6 part artifact.
+You should not have to use the Multipart Data format, however should you need to reference it, here it is. When the JSON to be published is larger than 528 characters, the JSON gets split up into multiple parts. Each of these parts are then submitted as Transaction comments to the Florincoin Blockchain. Here is an example of an OIP 7 part artifact.
 
 This data is formatted as follows:
 ```
-alexandria-media-multipart($partNumber, $numberOfParts, $publisherAddress, $firstPartTXID, $signature):$choppedStringData
+alexandria-media-multipart($partNumber, $multipartArrayLength, $publisherAddress, $firstPartTXID, $signature):$choppedStringData
 ```
 ```
 alexandria-media-multipart(0,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,0000000000000000000000000000000000000000000000000000000000000000,IBvdL1xJhvk2NIs7ckwsmK4hGGI2rnhgYwbTa6zy/FF1TxFyLuiv2fKTZYf7nmK0bHX0prUv4pl/CU/ZErvleW4=):{"oip-041":{"artifact":{"publisher":"FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q","timestamp":1481420000,"type":"music","info":{"title":"Happy Birthday EP","description":"this is the second organically grown, gluten free album released by Adam B. Levine - contact adam@tokenly.co
