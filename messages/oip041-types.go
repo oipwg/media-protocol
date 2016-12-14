@@ -13,7 +13,7 @@ type Oip041 struct {
 
 type Oip041ArtifactAPIResult struct {
 	Block     int         `json:"block"`
-	OIP041    interface{} `json:"oip041"`
+	OIP041    interface{} `json:"oip-041"`
 	Tags      string      `json:"tags"`
 	Timestamp int         `json:"timestamp"`
 	Title     string      `json:"title"`
