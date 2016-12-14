@@ -194,28 +194,28 @@ The following are the current OIP-041 JSON Standards.
 You should not have to use the Multipart Data format, however should you need to reference it, here it is. When the JSON to be published is larger than 528 characters, the JSON gets split up into multiple parts. Each of these parts are then submitted as Transaction comments to the Florincoin Blockchain. Here is an example of an OIP 6 part artifact.
 
 This data is formatted as follows:
-```javascript
+```
 alexandria-media-multipart($partNumber, $numberOfParts, $publisherAddress, $firstPartTXID, $signature):$choppedStringData
 ```
-```javascript
+```
 alexandria-media-multipart(0,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,0000000000000000000000000000000000000000000000000000000000000000,IBvdL1xJhvk2NIs7ckwsmK4hGGI2rnhgYwbTa6zy/FF1TxFyLuiv2fKTZYf7nmK0bHX0prUv4pl/CU/ZErvleW4=):{"oip-041":{"artifact":{"publisher":"FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q","timestamp":1481420000,"type":"music","info":{"title":"Happy Birthday EP","description":"this is the second organically grown, gluten free album released by Adam B. Levine - contact adam@tokenly.co
 ```
-```javascript
+```
 alexandria-media-multipart(1,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,IBnj6xxykNf3ZDpidg8dk4ioERFU3Gj2tKQ3dxFAXeIQB3gPibrWF5b4g4PIR8KimwqqmqDQ77PF4dApAhuXze4=):m with questions or comments or discuss collaborations.","year":"2016","extraInfo":{"artist":"Adam B. Levine","company":"","composers":["Adam B. Levine"],"copyright":"","usageProhibitions":"","usageRights":"","tags":[]}},"storage":{"network":"IPFS","location":"QmPukCZKe
 ```
-```javascript
+```
 alexandria-media-multipart(2,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,IMJbM7xMAVl/XWN0KpJiid/LADx+HdDNJUdiUkxm4JFyRKGCkF3VBt6cTUJ50YT3HO0heNMBCyh3HGFiunQWqis=):JD4KZFtstpvrguLaq94rsWfBxLU1QoZxvgRxA","files":[{"dname":"Skipping Stones","fame":"1 - Skipping Stones.mp3","fsize":6515667,"type":"album track","duration":1533.603293,"sugPlay":100,"minPlay":null,"sugBuy":750,"minBuy":500,"promo":10,"retail":15,"ptpFT":10,"ptpDT":20,"p
 ```
-```javascript
+```
 alexandria-media-multipart(3,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,IBdKG047JgK2XyWX86AFf9n1yT+QTtPJjgOnofP74wwBHZBYT4gJQeSNOfToIrerNkcXGr9zX+N1nTVhKLuscx0=):tpDA":50},{"dname":"Lessons","fame":"2 - Lessons with intro.mp3","fsize":6515667,"type":"album track","duration":1231.155243,"disallowPlay":1,"sugBuy":750,"minBuy":500,"promo":10,"retail":15,"ptpFT":10,"ptpDT":20,"ptpDA":50},{"dname":"Born to Roam","fame":"3 - Born to R
 ```
-```javascript
+```
 alexandria-media-multipart(4,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,H7KGidUTMG+6xBwudl1EXeFcBvGy9+UHnd9vrWC7ETTBCioioE0pphkozUgbZQx+jIldlEPMBnVuqox383P8nLI=):oam.mp3","fsize":6515667,"type":"album track","duration":2374.550714,"sugPlay":100,"minPlay":50,"disallowBuy":1,"promo":10,"retail":15,"ptpFT":10,"ptpDT":20,"ptpDA":50},{"dname":"Cover Art","fname":"birthdayepFINAL.jpg","type":"coverArt","disallowBuy":1}]},"payment":{"f
 ```
-```javascript
+```
 alexandria-media-multipart(5,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,INaPk7aMwksd9rzRXtCqND9RJYZPbUagosessK+b4D+JUfga/gT1gU25lvTs2hLZkcoqfVXGqlRsOrZ2agGYw3M=):iat":"USD","scale":"1000:1","sugTip":[5,50,100],"tokens":{"mtmcollector":"","mtmproducer":"","happybirthdayep":"","early":"","ltbcoin":"","btc":"1GMMg2J5iUKnDf5PbRr9TcKV3R6KfUiB55"}}},"signature":"H3XC/u9qz9pUP5g1+dyWUSR2euKFH3DWKd8hTdFINURvZvcdE7Q2hnNJa9QOuunCD1CPiVMOV
 ```
-```javascript
+```
 alexandria-media-multipart(6,6,FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q,5d0eb0bfb05815567717ec1d5b72c92c8bcf8d30c48785d6449970bb32a9c07b,HwRHpvyi99EM0xtA68FGLWJpd4sls/z6zNAjQh65OnQhRp19mSZNqoheYdw6a4QReUd0I0iBvMt0udgrIXLuE6Y=):q+8m+NcgMQTw60="}}
 ```
 ## License
