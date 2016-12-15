@@ -4,12 +4,18 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/dloa/media-protocol/utility"
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
 	if block < 1997454 {
 		return Oip041{}, ErrTooEarly
 	}
+
+	if !utility.IsJSON(s) {
+		return Oip041{}, ErrNotJSON
+	}
+
 	dec, err := DecodeOIP041(s)
 	if err != nil {
 		return dec, err
