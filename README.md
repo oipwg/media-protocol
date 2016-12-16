@@ -122,7 +122,7 @@ The following are the current OIP-041 JSON Standards.
 ```javascript
 {  
     "oip-041":{  
-        "editArtifact":{  
+        "edit":{  
             "txid":"$artifactID",
             "timestamp":1234567890,
             "patch":{  
