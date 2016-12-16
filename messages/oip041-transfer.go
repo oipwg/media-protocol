@@ -35,7 +35,11 @@ func StoreOIPTransfer(oip_t Oip041Transfer, dbtx *sql.Tx) {
 		row := stmt.QueryRow(oip_t.Reference)
 		err = row.Scan(&publisher)
 		if err != nil {
-			log.Fatal(err)
+			if err == sql.ErrNoRows {
+				return
+			} else {
+				log.Fatal(err)
+			}
 		}
 		stmt.Close()
 	} else {
