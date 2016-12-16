@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/evanphx/json-patch"
+	"github.com/bitspill/json-patch"
 	"log"
 	"strings"
 )
