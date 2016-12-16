@@ -4,6 +4,7 @@ dependencies:
 	# Build Dependencies
 	go get -u github.com/btcsuite/btcutil
 	go get -u github.com/bitspill/bitsig-go
+	go get -u github.com/evanphx/json-patch
 	# Dev Dependencies
 	go get -u github.com/golang/lint/golint
 	go get -u github.com/mattn/goveralls

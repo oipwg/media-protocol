@@ -1,12 +1,16 @@
 package messages
 
+import (
+	"encoding/json"
+)
+
 type Oip041Wrapper struct {
 	Oip041 Oip041 `json:"oip-041"`
 }
 
 type Oip041 struct {
 	Artifact  Oip041Artifact `json:"artifact"`
-	Edit      Oip041Edit     `json:"edit"`
+	Edit      Oip041Edit     `json:"editArtifact"`
 	Transfer  Oip041Transfer `json:"transferArtifact"`
 	Signature string         `json:"signature"`
 }
@@ -31,11 +35,9 @@ type Oip041Transfer struct {
 }
 
 type Oip041Edit struct {
-	Add       map[string]string `json:"add"`
-	Edit      map[string]string `json:"edit"`
-	Remove    []string          `json:"remove"`
-	Timestamp int               `json:"timestamp"`
-	TxID      string            `json:"txid"`
+	Patch     json.RawMessage `json:"patch"`
+	Timestamp int             `json:"timestamp"`
+	TxID      string          `json:"txid"`
 }
 
 type Oip041Artifact struct {

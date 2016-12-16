@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -26,40 +27,90 @@ func TestDecodeOIP041(t *testing.T) {
 
 var oip041_edit_example_obj Oip041 = Oip041{
 	Edit: Oip041Edit{
-		Add: map[string]string{
-			"payment.tokens": "FREEBIEOFTHEWEEK:\"1\"",
-		},
-		Edit: map[string]string{
-			"files[0].dname": "Throwing Stones",
-			"files[0].fname": "1 - Throwing Stones.mp3",
-		},
-		Remove: []string{
-			"tokens.LTBCOIN",
-		},
-		Timestamp: 1234,
-		TxID:      "96bad8e17f908da4c695c58b0f843a03928e338b361b3035ed16a864eafc31a2",
+		Timestamp: 1234567890,
+		TxID:      "$artifactID",
+		Patch:     json.RawMessage(oip041_edit_example_patch_rawmsg),
 	},
-	Signature: "<SignatureOfSomething>",
+	Signature: "$txid-$MD5HashOfPatch-$timestamp",
 }
 
+var oip041_edit_example_patch_rawmsg = []byte(`{
+                "add":[
+                    {
+                        "path":"/payment/tokens/mtcproducer",
+                        "value":""
+                    }
+                ],
+                "replace":[
+                    {
+                        "path":"/storage/files/3/fname",
+                        "value":"birthdayepFirst.jpg"
+                    },
+                    {
+                        "path":"/storage/files/3/dname",
+                        "value":"Cover Art 2"
+                    },
+                    {
+                        "path":"/info/title",
+                        "value":"Happy Birthday"
+                    },
+                    {
+                        "path":"/timestamp",
+                        "value":1481420001
+                    }
+                ],
+                "remove":[
+                    {
+                        "path":"/payment/tokens/mtmproducer"
+                    },
+                    {
+                        "path":"/storage/files/0/sugBuy"
+                    }
+                ]
+            }`)
+
 var oip041_edit_example = `{
-  "oip-041": {
-    "edit": {
-      "txid": "96bad8e17f908da4c695c58b0f843a03928e338b361b3035ed16a864eafc31a2",
-      "timestamp": 1234,
-      "add": {
-        "payment.tokens": "FREEBIEOFTHEWEEK:\"1\""
-      },
-      "edit": {
-        "files[0].dname": "Throwing Stones",
-        "files[0].fname": "1 - Throwing Stones.mp3"
-      },
-      "remove": [
-        "tokens.LTBCOIN"
-      ]
-    },
-    "signature": "<SignatureOfSomething>"
-  }
+    "oip-041":{
+        "editArtifact":{
+            "txid":"$artifactID",
+            "timestamp":1234567890,
+            "patch":{
+                "add":[
+                    {
+                        "path":"/payment/tokens/mtcproducer",
+                        "value":""
+                    }
+                ],
+                "replace":[
+                    {
+                        "path":"/storage/files/3/fname",
+                        "value":"birthdayepFirst.jpg"
+                    },
+                    {
+                        "path":"/storage/files/3/dname",
+                        "value":"Cover Art 2"
+                    },
+                    {
+                        "path":"/info/title",
+                        "value":"Happy Birthday"
+                    },
+                    {
+                        "path":"/timestamp",
+                        "value":1481420001
+                    }
+                ],
+                "remove":[
+                    {
+                        "path":"/payment/tokens/mtmproducer"
+                    },
+                    {
+                        "path":"/storage/files/0/sugBuy"
+                    }
+                ]
+            }
+        },
+    	"signature":"$txid-$MD5HashOfPatch-$timestamp"
+    }
 }`
 
 var oip041_music_example = `{

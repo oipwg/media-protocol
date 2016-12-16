@@ -4,16 +4,24 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/evanphx/json-patch"
 	"log"
 	"strings"
 )
 
 func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
-	return ErrNotImplemented
+
+	// ToDo: This is super ugly
+	patch := UnSquashPatch(strings.Replace(string(o.Edit.Patch), `"path":"/`, `"path":"/artifact/`, -1))
+	fmt.Printf("Patch:\n%s\n", patch)
+	obj, err := jsonpatch.DecodePatch([]byte(patch))
+	if err != nil {
+		log.Fatalf("Failed to decode patch:\n%v", err)
+	}
 
 	// ToDo: Check the signature... but first decide what to sign
 
-	stmtstr := `SELECT ('json','txid','publisher')
+	stmtstr := `SELECT json,txid,publisher
 		FROM oip_artifact WHERE txid=? LIMIT 1`
 
 	stmt, err := dbtx.Prepare(stmtstr)
@@ -21,9 +29,8 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 		fmt.Println("RIP Handle Edit 1")
 		log.Fatal(err)
 	}
-	row := stmt.QueryRow(txid)
+	row := stmt.QueryRow(o.Edit.TxID)
 
-	var old Oip041
 	var sJSON string
 	var publisher string
 	var txID string
@@ -33,37 +40,30 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 		fmt.Println("RIP Handle Edit 2")
 		log.Fatal(err)
 	}
+	stmt.Close()
 
-	err = json.Unmarshal([]byte(sJSON), &old)
+	fmt.Printf("Pre-Patch:\n%s\n", sJSON)
+	out, err := obj.Apply([]byte(sJSON))
 	if err != nil {
-		fmt.Println("RIP Handle Edit 3")
-		return err
+		log.Fatalf("Failed to apply patch:\n%v", err)
 	}
+	fmt.Printf("Post-Patch Result:\n%s\n", string(out))
 
-	if len(o.Edit.Add) > 0 {
-		// we got stuff to add
-	}
-	if len(o.Edit.Edit) > 0 {
-		// we got stuff to edit
-		for k, v := range o.Edit.Edit {
-			p := strings.Split(k, ".")
-			if len(p) == 1 {
-				updateField(k, v, txid, dbtx)
-				// something along these lines...
-			}
-		}
-	}
-	if len(o.Edit.Remove) > 0 {
-		// we got stuff to remove
-	}
-
-	b, err := json.Marshal(old)
+	stmtstr = `UPDATE oip_artifact SET json=? WHERE txid=?`
+	// ToDo: apply update to searchable meta-data
+	stmt, err = dbtx.Prepare(stmtstr)
 	if err != nil {
-		fmt.Println("RIP Handle Edit 4")
-		return err
+		fmt.Println("exit 600")
+		log.Fatal(err)
 	}
 
-	fmt.Println(string(b))
+	_, stmterr := stmt.Exec(string(out), o.Edit.TxID)
+	if stmterr != nil {
+		fmt.Println("exit 601")
+		log.Fatal(stmterr)
+	}
+
+	stmt.Close()
 
 	return nil
 }
@@ -108,4 +108,27 @@ func updateField(key string, value string, txid string, dbtx *sql.Tx) error {
 	stmt.Close()
 
 	return nil
+}
+
+func UnSquashPatch(sp string) string {
+	var p map[string][]map[string]*json.RawMessage // yikes
+	var up jsonpatch.Patch
+
+	err := json.Unmarshal([]byte(sp), &p)
+	fmt.Println(err)
+
+	// op="Add", arr="Array of actions"
+	for op, arr := range p {
+		// _="index", act="Action object"
+		for _, act := range arr {
+			o := json.RawMessage([]byte(`"` + op + `"`))
+			act["op"] = &o
+			up = append(up, act)
+		}
+	}
+
+	fmt.Println(up)
+	usp, err := json.Marshal(&up)
+	fmt.Println(err)
+	return string(usp)
 }
