@@ -21,7 +21,11 @@ func TestUnSquashPatch(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		// DeepEqual checks slice order
 		// Slice is built in random order so can fail
-		t.Skip("ToDo: Replace DeepEqual")
+		t.Log("Not DeepEqual, but not necessarily bad")
+		if len(expected) != len(actual) {
+			t.Error("Unsquashed Patch does not have expected number of operations")
+		}
+		// ToDo: Implement a loop that checks each value without consideration for order
 	}
 }
 
