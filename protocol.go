@@ -1,7 +1,6 @@
 package alexandriaProtocol
 
 import (
-	"errors"
 	"github.com/dloa/media-protocol/messages"
 	"strings"
 )
@@ -55,5 +54,6 @@ func Parse(txComment string, txid string, processingBlock int) (interface{}, map
 	if err == nil {
 		return oip041, nil, nil
 	}
-	return nil, nil, errors.New("Unknown media type")
+
+	return nil, nil, err
 }

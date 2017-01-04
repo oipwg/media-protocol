@@ -58,10 +58,11 @@ type Oip041Info struct {
 }
 
 type Oip041Payment struct {
-	Fiat   string       `json:"fiat"`
-	Scale  string       `json:"scale"`
-	SugTip []int        `json:"sug_tip"`
-	Tokens Oip041Tokens `json:"tokens"`
+	Fiat      string          `json:"fiat"`
+	Scale     string          `json:"scale"`
+	SugTip    []int           `json:"sug_tip"`
+	Tokens    Oip041Tokens    `json:"tokens"`
+	Addresses []Oip041Address `json:"addresses"`
 }
 
 type Oip041MusicExtraInfo struct {
@@ -101,4 +102,9 @@ type Oip041Files struct {
 	Storage      Oip041Storage `json:"storage"`
 }
 
-type Oip041Tokens map[string]string
+type Oip041Address struct {
+	Token   string `json:"token"`
+	Address string `json:"address"`
+}
+
+type Oip041Tokens map[string]int
