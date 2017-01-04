@@ -53,14 +53,14 @@ type Oip041Info struct {
 	Title           string               `json:"title"`
 	Description     string               `json:"description"`
 	Year            int                  `json:"year"`
-	ExtraInfo       Oip041MusicExtraInfo `json:"extra-info"`
+	ExtraInfo       Oip041MusicExtraInfo `json:"extraInfo"`
 	ExtraInfoString string
 }
 
 type Oip041Payment struct {
 	Fiat      string          `json:"fiat"`
 	Scale     string          `json:"scale"`
-	SugTip    []int           `json:"sug_tip"`
+	SugTip    []int           `json:"sugTip"`
 	Tokens    Oip041Tokens    `json:"tokens"`
 	Addresses []Oip041Address `json:"addresses"`
 }
@@ -95,7 +95,7 @@ type Oip041Files struct {
 	PtpDT        int           `json:"ptpDT,omitempty"`
 	PtpDA        int           `json:"ptpDA,omitempty"`
 	Type         string        `json:"type"`
-	TokenlyID    string        `json:"tokenly_ID,omitempty"`
+	TokenlyID    string        `json:"tokenlyID,omitempty"`
 	DisallowPlay int           `json:"disallowPlay"`
 	MinBuy       float64       `json:"minBuy"`
 	SugBuy       float64       `json:"sugBuy"`
