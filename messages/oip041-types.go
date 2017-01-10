@@ -9,10 +9,11 @@ type Oip041Wrapper struct {
 }
 
 type Oip041 struct {
-	Artifact  Oip041Artifact `json:"artifact"`
-	Edit      Oip041Edit     `json:"editArtifact"`
-	Transfer  Oip041Transfer `json:"transferArtifact"`
-	Signature string         `json:"signature"`
+	Artifact   Oip041Artifact   `json:"artifact"`
+	Edit       Oip041Edit       `json:"editArtifact"`
+	Deactivate Oip041Deactivate `json:"deactivateArtifact"`
+	Transfer   Oip041Transfer   `json:"transferArtifact"`
+	Signature  string           `json:"signature"`
 }
 
 type Oip041ArtifactAPIResult struct {
@@ -31,6 +32,11 @@ type Oip041Transfer struct {
 	Reference string `json:"txid"`
 	To        string `json:"to"`
 	From      string `json:"from"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+type Oip041Deactivate struct {
+	Reference string `json:"txid"`
 	Timestamp int64  `json:"timestamp"`
 }
 
