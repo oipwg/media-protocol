@@ -3,6 +3,8 @@ package messages
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"github.com/dloa/media-protocol/utility"
 	"strings"
 )
 
@@ -14,6 +16,31 @@ func (o Oip041) GetJSON() (string, error) {
 	s = string(b)
 
 	return s, err
+}
+
+func (o Oip041Artifact) CheckRequiredFields() error {
+	if !utility.CheckAddress(o.Publisher) {
+		return errors.New("Publisher not a valid address")
+	}
+	if len(o.Type) == 0 {
+		return errors.New("Artifact type is required")
+	}
+	if len(o.Info.Title) == 0 {
+		return errors.New("Artifact title is required")
+	}
+	if len(o.Info.Description) == 0 {
+		return errors.New("Artifact title is required")
+	}
+	if o.Info.Year <= 0 {
+		return errors.New("Artifact year is required")
+	}
+	if len(o.Storage.Network) == 0 {
+		return errors.New("Artifact storage network is required")
+	}
+	if len(o.Storage.Location) == 0 {
+		return errors.New("Artifact storage location is required")
+	}
+	return nil
 }
 
 func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
