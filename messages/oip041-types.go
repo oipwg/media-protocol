@@ -72,6 +72,7 @@ type Oip041MusicExtraInfo struct {
 	Copyright         string   `json:"copyright"`
 	UsageProhibitions string   `json:"usageProhibitions"`
 	UsageRights       string   `json:"usageRights"`
+	Genre             string   `json:"genre"`
 	Tags              []string `json:"tags"`
 }
 
