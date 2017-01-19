@@ -225,13 +225,13 @@ This project uses the [MIT] License.
 
 
 
-[TravisSVG]: https://travis-ci.org/dloa/media-protocol.svg?branch=master
-[TravisLink]: https://travis-ci.org/dloa/media-protocol
+[TravisSVG]: https://travis-ci.org/oipwg/media-protocol.svg?branch=master
+[TravisLink]: https://travis-ci.org/oipwg/media-protocol
 
-[CoverallsSVG]: https://coveralls.io/repos/github/dloa/media-protocol/badge.svg?branch=master
-[CoverallsLink]: https://coveralls.io/github/dloa/media-protocol?branch=master
+[CoverallsSVG]: https://coveralls.io/repos/github/oipwg/media-protocol/badge.svg?branch=master
+[CoverallsLink]: https://coveralls.io/github/oipwg/media-protocol?branch=master
 
-[GoReportCardSVG]: https://goreportcard.com/badge/github.com/dloa/media-protocol
-[GoReportCardLink]: https://goreportcard.com/report/github.com/dloa/media-protocol
+[GoReportCardSVG]: https://goreportcard.com/badge/github.com/oipwg/media-protocol
+[GoReportCardLink]: https://goreportcard.com/report/github.com/oipwg/media-protocol
 
 [MIT]:LICENSE.md
