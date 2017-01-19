@@ -19,7 +19,7 @@ type Oip041ArtifactAPIResult struct {
 	Block     int         `json:"block"`
 	OIP041    interface{} `json:"oip-041"`
 	Tags      string      `json:"tags"`
-	Timestamp int         `json:"timestamp"`
+	Timestamp int64       `json:"timestamp"`
 	Title     string      `json:"title"`
 	TxID      string      `json:"txid"`
 	Type      string      `json:"type"`
@@ -36,13 +36,13 @@ type Oip041Transfer struct {
 
 type Oip041Edit struct {
 	Patch     json.RawMessage `json:"patch"`
-	Timestamp int             `json:"timestamp"`
+	Timestamp int64           `json:"timestamp"`
 	TxID      string          `json:"txid"`
 }
 
 type Oip041Artifact struct {
 	Publisher string        `json:"publisher"`
-	Timestamp int           `json:"timestamp"`
+	Timestamp int64         `json:"timestamp"`
 	Type      string        `json:"type"`
 	Info      Oip041Info    `json:"info"`
 	Storage   Oip041Storage `json:"storage"`
