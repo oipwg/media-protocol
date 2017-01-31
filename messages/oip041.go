@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/dloa/media-protocol/utility"
+	"github.com/oipwg/media-protocol/utility"
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {

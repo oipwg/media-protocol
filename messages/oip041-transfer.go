@@ -3,7 +3,7 @@ package messages
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dloa/media-protocol/utility"
+	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"strconv"
 )

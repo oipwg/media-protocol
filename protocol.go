@@ -1,7 +1,7 @@
 package alexandriaProtocol
 
 import (
-	"github.com/dloa/media-protocol/messages"
+	"github.com/oipwg/media-protocol/messages"
 	"strings"
 )
 

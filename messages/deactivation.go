@@ -3,7 +3,7 @@ package messages
 import (
 	"encoding/json"
 	"errors"
-	"github.com/dloa/media-protocol/utility"
+	"github.com/oipwg/media-protocol/utility"
 	"regexp"
 	"strings"
 )

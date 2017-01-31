@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dloa/media-protocol/utility"
+	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"strconv"
 	"strings"

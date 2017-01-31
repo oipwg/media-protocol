@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/dloa/media-protocol/utility"
+	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"math"
 	"strconv"
