@@ -43,7 +43,7 @@ func DecodeOIP041(s string) (Oip041, error) {
 
 func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 	stmtStr := `select a.block, a.json, a.tags, a.timestamp,
-				a.title, a.txid, a.type, a.year, a.publisher
+				a.title, a.txid, a.type, a.year, a.publisher, p.name
 				from oip_artifact as a join publisher as p
 				where p.address = a.publisher and a.invalidated = 0`
 
@@ -65,7 +65,7 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 		var s string
 
 		rows.Scan(&a.Block, &s, &a.Tags, &a.Timestamp,
-			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher)
+			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher, &a.PublisherName)
 
 		json.Unmarshal([]byte(s), &a.OIP041)
 		results = append(results, a)
