@@ -47,7 +47,7 @@ cover:
 	@set +x
 	@mkdir -p cover
 	@echo "mode: count" > cover/profile.cov
-	@for package in $(go list ./... | grep -v vendor); do                                                               \
+	@for package in $(pkgs); do                                                               \
 		go test -timeout=500s -covermode=count -coverprofile=cover/$$package.out ./$$package  \
 		&& go tool cover -html=cover/$$package.out -o=cover/$$package.html;                   \
 		if [ -f cover/$$package.out ]; then                                                   \
