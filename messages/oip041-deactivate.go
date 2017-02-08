@@ -51,7 +51,7 @@ func StoreOIP041Deactivate(o Oip041, dbtx *sql.Tx) error {
 
 	fmt.Println(publisher)
 
-	preImage := oip_d.Reference + "-" + strconv.FormatInt(oip_d.Timestamp, 10)
+	preImage := oip_d.Reference + "-" + publisher + "-" + strconv.FormatInt(oip_d.Timestamp, 10)
 	valid, err := utility.CheckSignature(publisher, o.Signature, preImage)
 	if !valid {
 		fmt.Println("Signature check failed.")
