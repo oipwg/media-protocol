@@ -2,6 +2,7 @@ package messages
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/oipwg/media-protocol/utility"
 	"log"
@@ -55,7 +56,7 @@ func StoreOIP041Deactivate(o Oip041, dbtx *sql.Tx) error {
 	valid, err := utility.CheckSignature(publisher, o.Signature, preImage)
 	if !valid {
 		fmt.Println("Signature check failed.")
-		return err
+		return errors.New(fmt.Sprintf("Signature check failed: %v", err))
 	}
 
 	stmtstr := `update ` + table + ` set invalidated = 1 where publisher = ? and txid = ?`
