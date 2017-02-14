@@ -79,16 +79,25 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 
 func CreateTables(dbTx *sql.Tx) error {
 	for _, v := range oip041SqliteCreateStatements {
-		fmt.Printf("Creating %s\n", v.name)
+		fmt.Printf("\nRunning table query:  %s\n", v.name)
 		stmt, err := dbTx.Prepare(v.sql)
 		if err != nil {
-			return err
+			if v.name != "add ArtCost" {
+				// ToDo: HACK! There is no "add column if not exists"
+				// instead the duplicate column error is ignored
+				// update to utilize schema versioning and run queries
+				// as required instead of all queries every time
+				// https://stackoverflow.com/questions/3604310/alter-table-add-column-if-not-exists-in-sqlite
+				return err
+			} else {
+				fmt.Println("ArtCost already added.")
+				continue
+			}
 		}
 		_, stmt_err := stmt.Exec()
 		if stmt_err != nil {
 			return stmt_err
 		}
-		dbTx.Commit()
 		stmt.Close()
 	}
 	return nil
@@ -98,7 +107,7 @@ var oip041SqliteCreateStatements = []struct {
 	name string
 	sql  string
 }{
-	{"oip_media table",
+	{"create oip_artifact table",
 		`CREATE TABLE if not exists 'oip_artifact' (
 		'uid'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		'active'	INTEGER NOT NULL,
@@ -117,4 +126,8 @@ var oip041SqliteCreateStatements = []struct {
 		'publisher'	TEXT NOT NULL,
 		'artCost' FLOAT NOT NULL
 	);`},
+	{
+		"add ArtCost",
+		"ALTER TABLE 'oip_artifact' ADD COLUMN 'artCost' FLOAT;",
+	},
 }
