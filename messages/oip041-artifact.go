@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/oipwg/media-protocol/utility"
+	"math"
 	"strings"
 )
 
@@ -40,15 +41,36 @@ func (o Oip041Artifact) CheckRequiredFields() error {
 	if len(o.Storage.Location) == 0 {
 		return errors.New("Artifact storage location is required")
 	}
+	if len(o.Storage.Files) == 0 {
+		return errors.New("Artifact must contain at least one file")
+	}
 	return nil
+}
+
+func (o Oip041) GetArtCost() float64 {
+	var totMinPlay float64 = 0
+	var totSugBuy float64 = 0
+
+	for _, f := range o.Artifact.Storage.Files {
+		if f.DisallowPlay != 0 {
+			totMinPlay += math.Abs(f.MinPlay)
+		}
+		if f.DisallowBuy != 0 {
+			totSugBuy += math.Abs(f.SugBuy)
+		}
+	}
+
+	avg := (totMinPlay + totSugBuy) / 2
+
+	return avg
 }
 
 func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	// store in database
 	stmtStr := `INSERT INTO 'oip_artifact'
 		('active','block','json','tags','timestamp',
-		'title','txid','type','year','publisher')
-		VALUES (?,?,?,?,?,?,?,?,?,?);`
+		'title','txid','type','year','publisher', 'artCost')
+		VALUES (?,?,?,?,?,?,?,?,?,?,?);`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
@@ -61,9 +83,11 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 		return nil
 	}
 
+	artCost := o.GetArtCost()
+
 	_, err = stmt.Exec(1, block, s, strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
 		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
-		o.Artifact.Info.Year, o.Artifact.Publisher)
+		o.Artifact.Info.Year, o.Artifact.Publisher, artCost)
 	if err != nil {
 		return err
 	}

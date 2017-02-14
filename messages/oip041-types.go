@@ -27,6 +27,7 @@ type Oip041ArtifactAPIResult struct {
 	Year          int         `json:"year"`
 	Publisher     string      `json:"publisher"`
 	PublisherName string      `json:"publisherName"`
+	ArtCost       float64     `json:"artCost"`
 }
 
 type Oip041Transfer struct {
