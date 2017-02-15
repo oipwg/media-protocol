@@ -41,28 +41,49 @@ type AlexandriaMedia struct {
 func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
 	// find the "extra info" json object
 	var ret []byte
-	for k, v := range jmap {
-		if k == "alexandria-media" {
-			vm := v.(map[string]interface{})
-			for k2, v2 := range vm {
-				if k2 == "info" {
-					v2m := v2.(map[string]interface{})
-					for k3, v3 := range v2m {
-						if k3 == "extra-info" {
-							// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
-							v3json, err := json.Marshal(v3)
+
+	if am, ok := jmap["alexandria-media"]; ok { // does it exist
+		if amm, ok := am.(map[string]interface{}); ok { // is it a map
+			if i, ok := amm["info"]; ok { // does it exist
+				if im, ok := i.(map[string]interface{}); ok { // is it a map
+					if ei, ok := im["extra-info"]; ok { // does it exist
+						if eim, ok := ei.(map[string]interface{}); ok { // is it a map
+							j, err := json.Marshal(eim)
 							if err != nil {
 								return ret, err
 							}
-							return v3json, nil
+							return j, nil
 						}
 					}
-
 				}
 			}
 		}
 	}
 	return ret, errors.New("no media extra info found")
+
+	// Legacy method -- I'd like to compare later
+	//for k, v := range jmap {
+	//	if k == "alexandria-media" {
+	//		vm := v.(map[string]interface{})
+	//		for k2, v2 := range vm {
+	//			if k2 == "info" {
+	//				v2m := v2.(map[string]interface{})
+	//				for k3, v3 := range v2m {
+	//					if k3 == "extra-info" {
+	//						// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
+	//						v3json, err := json.Marshal(v3)
+	//						if err != nil {
+	//							return ret, err
+	//						}
+	//						return v3json, nil
+	//					}
+	//				}
+	//
+	//			}
+	//		}
+	//	}
+	//}
+	//return ret, errors.New("no media extra info found")
 }
 
 func extractMediaPayment(jmap map[string]interface{}) ([]byte, error) {
