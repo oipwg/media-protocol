@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/oipwg/media-protocol/utility"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -35,7 +36,8 @@ type AlexandriaMedia struct {
 		Payment interface{} `json:"payment"`
 		Extras  string      `json:"extras"`
 	} `json:"alexandria-media"`
-	Signature string `json:"signature"`
+	ArtCost   float64 `json:"artCost,omitempty"`
+	Signature string  `json:"signature"`
 }
 
 //func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
@@ -150,7 +152,7 @@ func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx
 		media.AlexandriaMedia.Extras = ""
 	}
 
-	stmtstr := `insert into media (publisher, torrent, timestamp, type, info_title, info_description, info_year, info_extra, payment, extras, txid, block, signature, multipart, active) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ` + strconv.Itoa(multipart) + `, 1)`
+	stmtstr := `insert into media (publisher, torrent, timestamp, type, info_title, info_description, info_year, info_extra, payment, extras, txid, block, signature, multipart, active, artCost) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ` + strconv.Itoa(multipart) + `, 1, ?)`
 
 	stmt, err := dbtx.Prepare(stmtstr)
 	if err != nil {
@@ -160,7 +162,7 @@ func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx
 
 	// fmt.Printf("stmt: %v\n", stmt)
 
-	_, stmterr := stmt.Exec(media.AlexandriaMedia.Publisher, media.AlexandriaMedia.Torrent, media.AlexandriaMedia.Timestamp, media.AlexandriaMedia.Type, media.AlexandriaMedia.Info.Title, media.AlexandriaMedia.Info.Description, media.AlexandriaMedia.Info.Year, extraInfoString, paymentString, media.AlexandriaMedia.Extras, media.Signature)
+	_, stmterr := stmt.Exec(media.AlexandriaMedia.Publisher, media.AlexandriaMedia.Torrent, media.AlexandriaMedia.Timestamp, media.AlexandriaMedia.Type, media.AlexandriaMedia.Info.Title, media.AlexandriaMedia.Info.Description, media.AlexandriaMedia.Info.Year, extraInfoString, paymentString, media.AlexandriaMedia.Extras, media.Signature, media.ArtCost)
 	if stmterr != nil {
 		fmt.Println("exit 103")
 		log.Fatal(stmterr)
@@ -226,9 +228,47 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 		return v, m, ErrBadSignature
 	}
 
+	v.ArtCost = calcMediaArtCost(v)
+
 	// fmt.Println(" -- VERIFIED --")
 	return v, m, nil
+}
 
+func calcMediaArtCost(v AlexandriaMedia) float64 {
+	var totMinPlay float64 = 0
+	var totSugBuy float64 = 0
+
+	// ToDo: Refactor this.
+	// It's brutal right now
+	// We're trying to extract some floats from nested interface{}s
+	if ei, ok := v.AlexandriaMedia.Info.ExtraInfo.(map[string]interface{}); ok {
+		if _files, ok := ei["files"]; ok {
+			if files, ok := _files.(map[string]interface{}); ok {
+				for _, f := range files {
+					if fm, ok := f.(map[string]interface{}); ok {
+						if dp, ok := fm["disallowPlay"]; ok && dp != 0 {
+							if mp, ok := fm["minPlay"]; ok {
+								if mpf, ok := mp.(float64); ok {
+									totMinPlay += math.Abs(mpf)
+								}
+							}
+						}
+						if db, ok := fm["disallowBuy"]; ok && db != 0 {
+							if sb, ok := fm["sugBuy"]; ok {
+								if sbf, ok := sb.(float64); ok {
+									totSugBuy += math.Abs(sbf)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	} // Wow, 8 braces
+
+	avg := (totMinPlay + totSugBuy) / 2
+
+	return avg
 }
 
 func checkRequiredMediaFields(v AlexandriaMedia, signature string) error {
