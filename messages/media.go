@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const MEDIA_ROOT_KEY = "alexandria-media"
+//const MEDIA_ROOT_KEY = "alexandria-media"
 
 type AlexandriaMedia struct {
 	AlexandriaMedia struct {
@@ -38,75 +38,75 @@ type AlexandriaMedia struct {
 	Signature string `json:"signature"`
 }
 
-func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
-	// find the "extra info" json object
-	var ret []byte
+//func extractMediaExtraInfo(jmap map[string]interface{}) ([]byte, error) {
+//	// find the "extra info" json object
+//	var ret []byte
+//
+//	if am, ok := jmap["alexandria-media"]; ok { // does it exist
+//		if amm, ok := am.(map[string]interface{}); ok { // is it a map
+//			if i, ok := amm["info"]; ok { // does it exist
+//				if im, ok := i.(map[string]interface{}); ok { // is it a map
+//					if ei, ok := im["extra-info"]; ok { // does it exist
+//						if eim, ok := ei.(map[string]interface{}); ok { // is it a map
+//							j, err := json.Marshal(eim)
+//							if err != nil {
+//								return ret, err
+//							}
+//							return j, nil
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//	return ret, errors.New("no media extra info found")
+//
+//	// Legacy method -- I'd like to compare later
+//	//for k, v := range jmap {
+//	//	if k == "alexandria-media" {
+//	//		vm := v.(map[string]interface{})
+//	//		for k2, v2 := range vm {
+//	//			if k2 == "info" {
+//	//				v2m := v2.(map[string]interface{})
+//	//				for k3, v3 := range v2m {
+//	//					if k3 == "extra-info" {
+//	//						// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
+//	//						v3json, err := json.Marshal(v3)
+//	//						if err != nil {
+//	//							return ret, err
+//	//						}
+//	//						return v3json, nil
+//	//					}
+//	//				}
+//	//
+//	//			}
+//	//		}
+//	//	}
+//	//}
+//	//return ret, errors.New("no media extra info found")
+//}
 
-	if am, ok := jmap["alexandria-media"]; ok { // does it exist
-		if amm, ok := am.(map[string]interface{}); ok { // is it a map
-			if i, ok := amm["info"]; ok { // does it exist
-				if im, ok := i.(map[string]interface{}); ok { // is it a map
-					if ei, ok := im["extra-info"]; ok { // does it exist
-						if eim, ok := ei.(map[string]interface{}); ok { // is it a map
-							j, err := json.Marshal(eim)
-							if err != nil {
-								return ret, err
-							}
-							return j, nil
-						}
-					}
-				}
-			}
-		}
-	}
-	return ret, errors.New("no media extra info found")
-
-	// Legacy method -- I'd like to compare later
-	//for k, v := range jmap {
-	//	if k == "alexandria-media" {
-	//		vm := v.(map[string]interface{})
-	//		for k2, v2 := range vm {
-	//			if k2 == "info" {
-	//				v2m := v2.(map[string]interface{})
-	//				for k3, v3 := range v2m {
-	//					if k3 == "extra-info" {
-	//						// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
-	//						v3json, err := json.Marshal(v3)
-	//						if err != nil {
-	//							return ret, err
-	//						}
-	//						return v3json, nil
-	//					}
-	//				}
-	//
-	//			}
-	//		}
-	//	}
-	//}
-	//return ret, errors.New("no media extra info found")
-}
-
-func extractMediaPayment(jmap map[string]interface{}) ([]byte, error) {
-	// find the "payment" json object
-	var ret []byte
-	for k, v := range jmap {
-		if k == "alexandria-media" {
-			vm := v.(map[string]interface{})
-			for k2, v2 := range vm {
-				if k2 == "payment" {
-					// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
-					v2json, err := json.Marshal(v2)
-					if err != nil {
-						return ret, err
-					}
-					return v2json, nil
-
-				}
-			}
-		}
-	}
-	return ret, errors.New("no payment extra info found")
-}
+//func extractMediaPayment(jmap map[string]interface{}) ([]byte, error) {
+//	// find the "payment" json object
+//	var ret []byte
+//	for k, v := range jmap {
+//		if k == "alexandria-media" {
+//			vm := v.(map[string]interface{})
+//			for k2, v2 := range vm {
+//				if k2 == "payment" {
+//					// fmt.Printf("v3(%v): %v\n\n", reflect.TypeOf(v3), v3)
+//					v2json, err := json.Marshal(v2)
+//					if err != nil {
+//						return ret, err
+//					}
+//					return v2json, nil
+//
+//				}
+//			}
+//		}
+//	}
+//	return ret, errors.New("no payment extra info found")
+//}
 
 func DeactivateMedia(deactiv AlexandriaDeactivation, dbtx *sql.Tx) error {
 	stmtstr := `update media set invalidated = 1 where publisher = "` + deactiv.AlexandriaDeactivation.Address + `" and txid = "` + deactiv.AlexandriaDeactivation.Txid + `"`
@@ -126,7 +126,8 @@ func DeactivateMedia(deactiv AlexandriaDeactivation, dbtx *sql.Tx) error {
 
 func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx, txid string, block int, multipart int) {
 	// check for media payment data
-	payment, payment_err := extractMediaPayment(jmap)
+	//payment, payment_err := extractMediaPayment(jmap)
+	payment, payment_err := json.Marshal(media.AlexandriaMedia.Payment)
 	paymentString := ""
 	if payment_err != nil {
 		fmt.Printf("payment data not found/failed - error returned: %v\n", payment_err)
@@ -135,7 +136,8 @@ func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx
 	}
 
 	// check for media info extras
-	extraInfo, ei_err := extractMediaExtraInfo(jmap)
+	//extraInfo, ei_err := extractMediaExtraInfo(jmap)
+	extraInfo, ei_err := json.Marshal(media.AlexandriaMedia.Info.ExtraInfo)
 	extraInfoString := ""
 	if ei_err != nil {
 		fmt.Printf("extra info not found/failed - error returned: %v\n", ei_err)
@@ -171,7 +173,7 @@ func StoreMedia(media AlexandriaMedia, jmap map[string]interface{}, dbtx *sql.Tx
 func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 
 	var v AlexandriaMedia
-	var i interface{}
+	//var i interface{}
 	var m map[string]interface{}
 
 	if !strings.HasPrefix(string(b), `{ "alexandria-media"`) &&
@@ -191,35 +193,35 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 		return v, m, err
 	}
 
-	err = json.Unmarshal(b, &i)
-	if err != nil {
-		return v, m, err
-	}
-
-	m = i.(map[string]interface{})
-	var signature string
-
-	// check the JSON object root key
-	// find the signature string
-	for key, val := range m {
-		if key == "signature" {
-			signature = val.(string)
-		} else {
-			if key != MEDIA_ROOT_KEY {
-				return v, m, errors.New("can't verify media - JSON object root key doesn't match accepted value")
-			}
-		}
-	}
+	//err = json.Unmarshal(b, &i)
+	//if err != nil {
+	//	return v, m, err
+	//}
+	//
+	//m = i.(map[string]interface{})
+	//var signature string
+	//
+	//// check the JSON object root key
+	//// find the signature string
+	//for key, val := range m {
+	//	if key == "signature" {
+	//		signature = val.(string)
+	//	} else {
+	//		if key != MEDIA_ROOT_KEY {
+	//			return v, m, errors.New("can't verify media - JSON object root key doesn't match accepted value")
+	//		}
+	//	}
+	//}
 
 	// fmt.Printf("*** debug: JSON object root matches, printing v:\n%v\n*** /debug ***\n", v)
-	err = checkRequiredMediaFields(v, signature)
+	err = checkRequiredMediaFields(v, v.Signature)
 	if err != nil {
 		return v, m, err
 	}
 
 	// verify signature was created by this address
 	// signature pre-image for media is <torrenthash>-<publisher>-<timestamp>
-	val, _ := utility.CheckSignature(v.AlexandriaMedia.Publisher, signature, v.AlexandriaMedia.Torrent+"-"+v.AlexandriaMedia.Publisher+"-"+strconv.FormatInt(v.AlexandriaMedia.Timestamp, 10))
+	val, _ := utility.CheckSignature(v.AlexandriaMedia.Publisher, v.Signature, v.AlexandriaMedia.Torrent+"-"+v.AlexandriaMedia.Publisher+"-"+strconv.FormatInt(v.AlexandriaMedia.Timestamp, 10))
 	if val == false {
 		return v, m, ErrBadSignature
 	}
