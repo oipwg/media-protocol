@@ -243,19 +243,19 @@ func calcMediaArtCost(v AlexandriaMedia) float64 {
 	// We're trying to extract some floats from nested interface{}s
 	if ei, ok := v.AlexandriaMedia.Info.ExtraInfo.(map[string]interface{}); ok {
 		if _files, ok := ei["files"]; ok {
-			if files, ok := _files.(map[string]interface{}); ok {
+			if files, ok := _files.([]interface{}); ok {
 				for _, f := range files {
 					if fm, ok := f.(map[string]interface{}); ok {
-						if dp, ok := fm["disallowPlay"]; ok && dp != 0 {
+						if dp, ok := fm["disallowPlay"]; !ok || dp != 0 { // maybe take this over to oip
 							if mp, ok := fm["minPlay"]; ok {
-								if mpf, ok := mp.(float64); ok {
+								if mpf, err := strconv.ParseFloat(mp.(string), 64); err == nil {
 									totMinPlay += math.Abs(mpf)
 								}
 							}
 						}
-						if db, ok := fm["disallowBuy"]; ok && db != 0 {
+						if db, ok := fm["disallowBuy"]; !ok || db != 0 {
 							if sb, ok := fm["sugBuy"]; ok {
-								if sbf, ok := sb.(float64); ok {
+								if sbf, err := strconv.ParseFloat(sb.(string), 64); err == nil {
 									totSugBuy += math.Abs(sbf)
 								}
 							}
