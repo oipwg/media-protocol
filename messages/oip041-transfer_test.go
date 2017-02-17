@@ -25,6 +25,7 @@ func TestVerifyOIPTransfer(t *testing.T) {
 			From:      "FD6qwMcfpnsKmoL2kJSfp1czBMVicmkK1Q",
 			To:        "FLuiVU5iDQ4a6ztcpBLwBNjBisyY2DvUTV",
 		},
+		artSize:   len(s),
 		Signature: "Hx6PXThfI1OTguwZHLbJ64BmMWPs2n1hYTzEjljXhwaIRBD+uNGILNAB50CJBupx19331tZUMuPRkLKrf4YFapc=",
 	}
 	s2 := `aye`
