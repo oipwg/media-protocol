@@ -14,6 +14,7 @@ type Oip041 struct {
 	Deactivate Oip041Deactivate `json:"deactivateArtifact"`
 	Transfer   Oip041Transfer   `json:"transferArtifact"`
 	Signature  string           `json:"signature"`
+	artSize    int
 }
 
 type Oip041ArtifactAPIResult struct {
@@ -28,6 +29,8 @@ type Oip041ArtifactAPIResult struct {
 	Publisher     string      `json:"publisher"`
 	PublisherName string      `json:"publisherName"`
 	ArtCost       float64     `json:"artCost"`
+	ArtSize       int         `json:"artSize"`
+	PubFeeUSD     float64     `json:"pubFeeUSD"`
 }
 
 type Oip041Transfer struct {

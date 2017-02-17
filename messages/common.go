@@ -3,6 +3,7 @@ package messages
 import (
 	"database/sql"
 	"errors"
+	"math"
 )
 
 var ErrBadSignature = errors.New("Bad signature")
@@ -46,6 +47,23 @@ func CalcAvgArtCost(dbtx *sql.Tx) (float64, int, error) {
 	}
 
 	return avgArtCost, artCount, nil
+}
+
+func CalcPubFeeUSD(artCost, avgArtCost float64, artSize int, floPerKb, USDperFLO float64) (float64, float64) {
+	var pubFeeComUSD float64
+
+	if artCost < avgArtCost {
+		pubFeeComUSD = artCost
+	} else {
+		pubFeeComUSD = (math.Log(artCost) - math.Log(avgArtCost)) * (avgArtCost / artCost) * (artCost - avgArtCost)
+	}
+
+	// pubFeeComFlo := pubFeeComUSD / USDperFLO
+	pubFeeFreeFlo := float64(artSize/1024) * floPerKb
+	pubFeeFreeUSD := pubFeeFreeFlo * USDperFLO
+	pubFeeUSD := math.Max(pubFeeFreeUSD, pubFeeComUSD)
+
+	return pubFeeUSD, pubFeeUSD / USDperFLO
 }
 
 func GetArtCount(dbtx *sql.Tx) (int, error) {

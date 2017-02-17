@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/oipwg/media-protocol/utility"
+	"strings"
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
@@ -32,6 +33,8 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 		}
 	}
 
+	dec.artSize = len(s)
+
 	return dec, nil
 }
 
@@ -43,7 +46,7 @@ func DecodeOIP041(s string) (Oip041, error) {
 
 func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 	stmtStr := `select a.block, a.json, a.tags, a.timestamp,
-				a.title, a.txid, a.type, a.year, a.publisher, p.name, a.artCost
+				a.title, a.txid, a.type, a.year, a.publisher, p.name, a.artCost, a.artSize, a.pubFeeUSD
 				from oip_artifact as a join publisher as p
 				where p.address = a.publisher and a.invalidated = 0`
 
@@ -65,7 +68,7 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 		var s string
 
 		rows.Scan(&a.Block, &s, &a.Tags, &a.Timestamp,
-			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher, &a.PublisherName, &a.ArtCost)
+			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher, &a.PublisherName, &a.ArtCost, &a.ArtSize, &a.PubFeeUSD)
 
 		json.Unmarshal([]byte(s), &a.OIP041)
 		results = append(results, a)
@@ -82,7 +85,7 @@ func CreateTables(dbTx *sql.Tx) error {
 		fmt.Printf("\nRunning table query:  %s\n", v.name)
 		stmt, err := dbTx.Prepare(v.sql)
 		if err != nil {
-			if v.name != "add ArtCost" {
+			if !strings.HasPrefix(v.name, "!addcol!") {
 				// ToDo: HACK! There is no "add column if not exists"
 				// instead the duplicate column error is ignored
 				// update to utilize schema versioning and run queries
@@ -90,7 +93,7 @@ func CreateTables(dbTx *sql.Tx) error {
 				// https://stackoverflow.com/questions/3604310/alter-table-add-column-if-not-exists-in-sqlite
 				return err
 			} else {
-				fmt.Println("ArtCost already added.")
+				fmt.Println("Column already added.")
 				continue
 			}
 		}
@@ -124,10 +127,22 @@ var oip041SqliteCreateStatements = []struct {
 		'validated' INTEGER default 0,
 		'year'	INTEGER NOT NULL,
 		'publisher'	TEXT NOT NULL,
-		'artCost' FLOAT NOT NULL
+		'artCost' FLOAT NOT NULL,
+		'artSize' INTEGER NOT NULL,
+		'pubFeeUSD' FLOAT NOT NULL
 	);`},
 	{
-		"add ArtCost",
+		"!addcol! ArtCost",
 		"ALTER TABLE 'oip_artifact' ADD COLUMN 'artCost' FLOAT;",
+	},
+	{
+		"!addcol! o.pubFeeUSD",
+		"ALTER TABLE 'oip_artifact' ADD COLUMN 'pubFeeUSD';" +
+			"ALTER TABLE 'media' ADD COLUMN FLOAT 'artSize' INTEGER;",
+	},
+	{
+		"!addcol! m.pubFeeUSD",
+		"ALTER TABLE 'media' ADD COLUMN 'pubFeeUSD' FLOAT;" +
+			"ALTER TABLE 'media' ADD COLUMN 'artSize' INTEGER;",
 	},
 }

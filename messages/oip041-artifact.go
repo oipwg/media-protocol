@@ -65,12 +65,25 @@ func (o Oip041) GetArtCost() float64 {
 	return avg
 }
 
+func (o Oip041) GetPubFeeUSD(dbtx *sql.Tx) float64 {
+	artCost := o.GetArtCost()
+
+	// ToDo: Fetch proper values.
+	avgArtCost, _, _ := CalcAvgArtCost(dbtx)
+	floPerKb := 0.01
+	USDperFLO := 0.004564
+
+	pubFeeUSD, _ := CalcPubFeeUSD(artCost, avgArtCost, o.artSize, floPerKb, USDperFLO)
+
+	return pubFeeUSD
+}
+
 func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	// store in database
 	stmtStr := `INSERT INTO 'oip_artifact'
 		('active','block','json','tags','timestamp',
-		'title','txid','type','year','publisher', 'artCost')
-		VALUES (?,?,?,?,?,?,?,?,?,?,?);`
+		'title','txid','type','year','publisher', 'artCost', 'artSize', 'pubFeeUSD')
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
@@ -84,10 +97,11 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	}
 
 	artCost := o.GetArtCost()
+	pubFeeUSD := o.GetPubFeeUSD(dbtx)
 
 	_, err = stmt.Exec(1, block, s, strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
 		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
-		o.Artifact.Info.Year, o.Artifact.Publisher, artCost)
+		o.Artifact.Info.Year, o.Artifact.Publisher, artCost, o.artSize, pubFeeUSD)
 	if err != nil {
 		return err
 	}
