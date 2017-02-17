@@ -52,7 +52,7 @@ func CalcAvgArtCost(dbtx *sql.Tx) (float64, int, error) {
 func CalcPubFeeUSD(artCost, avgArtCost float64, artSize int, floPerKb, USDperFLO float64) (float64, float64) {
 	var pubFeeComUSD float64
 
-	if artCost < avgArtCost {
+	if artCost <= avgArtCost {
 		pubFeeComUSD = artCost
 	} else {
 		pubFeeComUSD = (math.Log(artCost) - math.Log(avgArtCost)) * (avgArtCost / artCost) * (artCost - avgArtCost)
