@@ -55,7 +55,7 @@ func CalcPubFeeUSD(artCost, avgArtCost float64, artSize int, floPerKb, USDperFLO
 	if artCost <= avgArtCost {
 		pubFeeComUSD = artCost
 	} else {
-		pubFeeComUSD = (math.Log(artCost) - math.Log(avgArtCost)) * (avgArtCost / artCost) * (artCost - avgArtCost)
+		pubFeeComUSD = (math.Log(artCost)-math.Log(avgArtCost))*(avgArtCost/artCost)*(artCost-avgArtCost) + avgArtCost
 	}
 
 	// pubFeeComFlo := pubFeeComUSD / USDperFLO
