@@ -85,6 +85,7 @@ type Oip041MusicExtraInfo struct {
 	UsageRights       string   `json:"usageRights"`
 	Genre             string   `json:"genre"`
 	Tags              []string `json:"tags"`
+	ISRC              string   `json:"ISRC"`
 }
 
 type Oip041Storage struct {
