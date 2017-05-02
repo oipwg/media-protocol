@@ -136,53 +136,49 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	// trim prefix off
 	s = strings.TrimPrefix(s, prefix)
 
-	// check length
-	if len(s) < 108 {
-		return ret, errors.New("not enough data in mutlipart string")
+	comChunks := strings.Split(s, "):")
+	if len(comChunks) < 2 {
+		return ret, errors.New("Malformed multi-part")
+	}
+
+	metaString := comChunks[0]
+	dataString := strings.Join(comChunks[1:], "):")
+
+	meta := strings.Split(metaString, ",")
+	lm := len(meta)
+	// 4 if omitting reference, 5 with all fields, 6 if erroneous fluffy-enigma trailing comma
+	if lm != 4 && lm != 5 && lm != 6 {
+		return ret, errors.New("Malformed multi-part meta")
 	}
 
 	// check part and max
-	part, err := strconv.Atoi(string(s[0]))
+	partS := meta[0]
+	part, err := strconv.Atoi(partS)
 	if err != nil {
 		fmt.Println("cannot convert part to int")
 		return ret, errors.New("cannot convert part to int")
 	}
-	max, err2 := strconv.Atoi(string(s[2]))
+	maxS := meta[1]
+	max, err2 := strconv.Atoi(maxS)
 	if err2 != nil {
 		fmt.Println("cannot convert max to int")
 		return ret, errors.New("cannot convert max to int")
 	}
 
 	// get and check address
-	address := s[4:38]
+	address := meta[2]
 	if !utility.CheckAddress(address) {
 		// fmt.Println("address doesn't check out: \"" + address + "\"")
 		return ret, ErrInvalidAddress
 	}
 
-	// get reference txid
-	reference := s[39:103]
-
-	// get and check signature
-	sigEndIndex := strings.Index(s, "):")
-
-	if sigEndIndex < 105 {
-		fmt.Println("no end of signature found, malformed tx-comment")
-		return ret, ErrNoSignatureEnd
-	}
-
-	signature := s[104:sigEndIndex]
-	if signature[len(signature)-1] == ',' {
-		// strip erroneous comma added by fluffy-enigma
-		signature = signature[:len(signature)-1]
-	}
-	data := s[sigEndIndex+2:]
-	// fmt.Println("data: \"" + data + "\"")
+	reference := meta[3]
+	signature := meta[lm-1]
 
 	// signature pre-image is <part>-<max>-<address>-<txid>-<data>
 	// in the case of multipart[0], txid is 64 zeros
 	// in the case of multipart[n], where n != 0, txid is the reference txid (from multipart[0])
-	preimage := string(s[0]) + "-" + string(s[2]) + "-" + address + "-" + reference + "-" + data
+	preimage := partS + "-" + maxS + "-" + address + "-" + reference + "-" + dataString
 	// fmt.Printf("preimage: %v\n", preimage)
 
 	val, _ := utility.CheckSignature(address, signature, preimage)
@@ -191,14 +187,10 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 		return ret, ErrBadSignature
 	}
 
-	// if part == 0, reference should be submitted in the tx-comment as a string of 64 zeros
+	// if part == 0, reference is ignored and may be omitted
 	// the local DB will store reference = txid for this transaction after it's submitted
 	// in case of a reorg, the publisher must re-publish this multipart message (sorry)
 	if part == 0 {
-		if reference != "0000000000000000000000000000000000000000000000000000000000000000" {
-			// fmt.Println("reference txid should be 64 zeros for part 0 of a multipart message")
-			return ret, errors.New("reference txid should be 64 zeros for part 0")
-		}
 		reference = txid
 	}
 	// all checks passed, verified!
@@ -213,7 +205,7 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 		Reference: reference,
 		Address:   address,
 		Signature: signature,
-		Data:      data,
+		Data:      dataString,
 		Txid:      txid,
 		Block:     block,
 	}
