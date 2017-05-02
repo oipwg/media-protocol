@@ -41,7 +41,7 @@ func TestVerifyMediaMultipartSingle(t *testing.T) {
 	}{
 		{s, mms, mms.Txid, mms.Block, nil},
 		{s2, mms2, mms2.Txid, mms2.Block, nil},
-		{s3, MediaMultipartSingle{}, "", 0, ErrNoSignatureEnd},
+		{s3, MediaMultipartSingle{}, "", 0, ErrBadSignature},
 	}
 
 	for i, c := range cases {
