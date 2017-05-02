@@ -174,6 +174,10 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 
 	reference := meta[3]
 	signature := meta[lm-1]
+	if signature == "" {
+		// fluffy-enigma for a while appended an erroneous trailing comma
+		signature = meta[lm-2]
+	}
 
 	// signature pre-image is <part>-<max>-<address>-<txid>-<data>
 	// in the case of multipart[0], txid is 64 zeros
