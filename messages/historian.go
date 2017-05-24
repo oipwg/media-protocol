@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"math"
@@ -64,11 +65,11 @@ var hmPools hmPoolList = hmPoolList{
 	},
 }
 
-func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block int) {
+func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block *flojson.BlockResult) {
 	// store in database
-	stmtStr := `insert into historian (txid, block, active, version,` +
+	stmtStr := `insert into historian (txid, block, blockTime, active, version,` +
 		` url, mrrLast10, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
-		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+		` values (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
@@ -76,7 +77,7 @@ func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block
 		log.Fatal(err)
 	}
 
-	_, stmterr := stmt.Exec(txid, block, hm.Version, hm.URL, hm.Mrr_last_10,
+	_, stmterr := stmt.Exec(txid, block.Height, block.Time, hm.Version, hm.URL, hm.Mrr_last_10,
 		hm.Pool_hashrate, hm.Fbd_hashrate, hm.Fmd_weighted, hm.Fmd_usd, hm.Signature)
 	if err != nil {
 		fmt.Println("exit 201")

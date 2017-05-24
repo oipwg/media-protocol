@@ -1,6 +1,7 @@
 package alexandriaProtocol
 
 import (
+	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/messages"
 	"strings"
 )
@@ -13,11 +14,13 @@ func GetMinBlock() int {
 	return min_block
 }
 
-func Parse(txComment string, txid string, processingBlock int) (interface{}, map[string]interface{}, error) {
+func Parse(txComment string, txid string, block *flojson.BlockResult) (interface{}, map[string]interface{}, error) {
 
 	if strings.HasPrefix(txComment, "text:") {
 		txComment = txComment[5:]
 	}
+
+	processingBlock := int(block.Height)
 
 	// check for alexandria-media-multipart single protocol (new media multipart tx-comment)
 	mms, VerifyMediaMultipartSingleError := messages.VerifyMediaMultipartSingle(txComment, txid, processingBlock)
