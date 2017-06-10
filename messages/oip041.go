@@ -9,18 +9,22 @@ import (
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
+	// blocks before 1997454 didn't have OIP protocol format messages
 	if block < 1997454 {
 		return Oip041{}, ErrTooEarly
 	}
 
+	// return error if the message string isn't in JSON format
 	if !utility.IsJSON(s) {
 		return Oip041{}, ErrNotJSON
 	}
 
+	// decode OIP041 string
 	dec, err := DecodeOIP041(s)
 	if err != nil {
 		return dec, err
 	}
+
 	if dec.Signature == "" {
 		return dec, ErrBadSignature
 	}
