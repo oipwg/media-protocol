@@ -52,6 +52,12 @@ func Parse(txComment string, txid string, block *flojson.BlockResult) (interface
 		return hm, nil, nil
 	}
 
+	// check for autominer
+	autominer, err := messages.VerifyAutominerMessage([]byte(txComment), processingBlock)
+	if err == nil {
+		return autominer, nil, nil
+	}
+
 	// check for any oip41 data
 	oip041, err := messages.VerifyOIP041(txComment, processingBlock)
 	if err == nil {

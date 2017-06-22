@@ -25,6 +25,7 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 		return dec, err
 	}
 
+	// make sure signature isn't null in the decoded OIP string
 	if dec.Signature == "" {
 		return dec, ErrBadSignature
 	}
