@@ -3,16 +3,11 @@ package messages
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/utility"
-	"log"
 	"strconv"
 )
-
-var ErrAutominer = errors.New("Autominer message invalid")
-var ErrAutominerUntrusted = errors.New("Autominer message untrusted")
 
 const AUTOMINER_ROOT_KEY = "alexandria-autominer"
 
@@ -26,24 +21,25 @@ type AlexandriaAutominer struct {
 	Signature string    `json:"signature"`
 }
 
-func StoreAutominer(am AlexandriaAutominer, dbtx *sql.Tx, txid string, block *flojson.BlockResult) {
+func StoreAutominer(am AlexandriaAutominer, dbtx *sql.Tx, txid string, block *flojson.BlockResult) error {
 	// store in database
 	stmtStr := `insert into autominer (txid, block, blockTime, active, version,` +
-		` floaddress, btcaddress, signature) values (?, ?, ?, ?, 1, ?, ?, ?, ?)`
+		` floAddress, btcAddress, signature) values (?, ?, ?, 1, ?, ?, ?, ?)`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
-		fmt.Println("exit 200")
-		log.Fatal(err)
+		fmt.Printf("ERROR in StoreAutominer: autominer dbtx didn't prepare correctly: %v", err)
+		return err
 	}
 
 	_, stmterr := stmt.Exec(txid, block.Height, block.Time, am.Autominer.Version, am.Autominer.FLOAddress, am.Autominer.BTCAddress, am.Signature)
-	if err != nil {
-		fmt.Println("exit 201")
-		log.Fatal(stmterr)
+	if stmterr != nil {
+		fmt.Printf("ERROR in StoreAutominer: autominer dbtx didn't execute correctly: %v", err)
+		return stmterr
 	}
 
 	stmt.Close()
+	return nil
 }
 
 func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
