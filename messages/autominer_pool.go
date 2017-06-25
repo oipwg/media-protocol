@@ -54,8 +54,12 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 	fmt.Printf("targetMarginStr: %v\npoolShareStr: %v\nversionStr: %v\n", targetMarginStr, poolShareStr, versionStr)
 
 	// verify signature was created by this address
-	// signature pre-image for autominer is <weburl>-<version>-<targetmargin>-<poolshare>
+	// signature pre-image for autominer is <weburl>-<version>-<targetmargin>-<poolshare>-[poolname]
+	// poolname is optional
 	preImage := amp.AutominerPool.WebURL + "-" + versionStr + "-" + targetMarginStr + "-" + poolShareStr
+	if len(amp.AutominerPool.PoolName) > 0 {
+		preImage += "-" + amp.AutominerPool.PoolName
+	}
 
 	fmt.Printf("pre-image: %v", preImage)
 	fmt.Printf("\n\n\n")
