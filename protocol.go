@@ -7,7 +7,7 @@ import (
 )
 
 const Version string = "0.4.1"
-const min_block = 1045632
+const min_block = 2205000
 
 func GetMinBlock() int {
 	// TODO: find min block from multiple protocols programmatically
@@ -50,6 +50,24 @@ func Parse(txComment string, txid string, block *flojson.BlockResult) (interface
 	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock)
 	if err == nil {
 		return hm, nil, nil
+	}
+
+	// check for alexandria-autominer messages
+	am, err := messages.VerifyAutominer([]byte(txComment), processingBlock)
+	if err == nil {
+		return am, nil, nil
+	}
+
+	// check for alexandria-autominer-pool messages
+	amp, err := messages.VerifyAutominerPool([]byte(txComment), processingBlock)
+	if err == nil {
+		return amp, nil, nil
+	}
+
+	// check for alexandria-promoter messages
+	promoter, err := messages.VerifyPromoter([]byte(txComment), processingBlock)
+	if err == nil {
+		return promoter, nil, nil
 	}
 
 	// check for any oip41 data

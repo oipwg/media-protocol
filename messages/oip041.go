@@ -17,6 +17,7 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 		return Oip041{}, ErrNotJSON
 	}
 
+	// make sure signature isn't null in the decoded OIP string
 	dec, err := DecodeOIP041(s)
 	if err != nil {
 		return dec, err
