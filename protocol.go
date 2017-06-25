@@ -70,6 +70,12 @@ func Parse(txComment string, txid string, block *flojson.BlockResult) (interface
 		return promoter, nil, nil
 	}
 
+	// check for alexandria-retailer messages
+	retailer, err := messages.VerifyRetailer([]byte(txComment), processingBlock)
+	if err == nil {
+		return retailer, nil, nil
+	}
+
 	// check for any oip41 data
 	oip041, err := messages.VerifyOIP041(txComment, processingBlock)
 	if err == nil {

@@ -110,12 +110,6 @@ func StorePromoter(pr AlexandriaPromoter, dbtx *sql.Tx, txid string, block *floj
 
 func StorePromoterSocialMedia(pr []Promoter_SocialMedia, dbtx *sql.Tx, txid string, block *flojson.BlockResult, id int64) error {
 	for _, j := range pr {
-		/*
-			uid integer not null primary key AUTOINCREMENT,
-			promoter_uid integer not null,
-			network TEXT,
-			username TEXT
-		*/
 		stmtStr := `insert into promoter_socialmedia (promoter_uid, network, username) values (?, ?, ?)`
 		stmt, err := dbtx.Prepare(stmtStr)
 		if err != nil {
