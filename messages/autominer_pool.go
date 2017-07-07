@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/utility"
-	"strconv"
 )
 
 const AUTOMINER_POOL_ROOT_KEY = "alexandria-autominer-pool"
@@ -27,10 +28,10 @@ type AlexandriaAutominerPool struct {
 // Verify that the blockchain message is valid for autominer-pool
 func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 
-	fmt.Printf("starting Verify AutominerPool routine...\n")
+	//fmt.Printf("starting Verify AutominerPool routine...\n")
 
-	s := string(b[:len(b)])
-	fmt.Printf("s: %+v\n", s)
+	//s := string(b[:len(b)])
+	//fmt.Printf("s: %+v\n", s)
 
 	var amp AlexandriaAutominerPool
 

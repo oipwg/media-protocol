@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/utility"
-	"strconv"
 )
 
 const RETAILER_ROOT_KEY = "alexandria-retailer"
@@ -80,10 +81,10 @@ func StoreRetailerOptionalFields(rof Retailer_OptionalFields, dbtx *sql.Tx, txid
 
 func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 
-	fmt.Printf("starting VerifyRetailer routine...\n")
+	//fmt.Printf("starting VerifyRetailer routine...\n")
 
-	s := string(b[:len(b)])
-	fmt.Printf("s: %+v\n", s)
+	//s := string(b[:len(b)])
+	//fmt.Printf("s: %+v\n", s)
 
 	var ar AlexandriaRetailer
 

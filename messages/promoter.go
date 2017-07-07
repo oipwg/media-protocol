@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/metacoin/flojson"
-	"github.com/oipwg/media-protocol/utility"
 	"sort"
 	"strconv"
+
+	"github.com/metacoin/flojson"
+	"github.com/oipwg/media-protocol/utility"
 )
 
 const PROMOTER_ROOT_KEY = "alexandria-autominer"
@@ -129,10 +130,10 @@ func StorePromoterSocialMedia(pr []Promoter_SocialMedia, dbtx *sql.Tx, txid stri
 
 func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 
-	fmt.Printf("starting VerifyPromoter routine...\n")
+	//fmt.Printf("starting VerifyPromoter routine...\n")
 
-	s := string(b[:len(b)])
-	fmt.Printf("s: %+v\n", s)
+	//s := string(b[:len(b)])
+	//fmt.Printf("s: %+v\n", s)
 
 	var pr AlexandriaPromoter
 
@@ -145,7 +146,7 @@ func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 		return pr, err
 	}
 
-	fmt.Printf("pr: %+v\n", pr)
+	//fmt.Printf("pr: %+v\n", pr)
 
 	// verify signature was created by this address
 	// signature pre-image for promoter is <btcaddress>-<version>
@@ -160,9 +161,9 @@ func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 		}
 	}
 
-	fmt.Printf("\n###### pre-image: %v", preImage)
-	fmt.Printf("\n###### signature: %v\n", pr.Signature)
-	fmt.Printf("\n\n\n")
+	//fmt.Printf("\n###### pre-image: %v", preImage)
+	////fmt.Printf("\n###### signature: %v\n", pr.Signature)
+	//fmt.Printf("\n\n\n")
 	sigOK, _ := utility.CheckSignature(pr.Promoter.FLOAddress, pr.Signature, preImage)
 	if sigOK == false {
 		return pr, ErrBadSignature

@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/utility"
-	"strconv"
 )
 
 const AUTOMINER_ROOT_KEY = "alexandria-autominer"
@@ -44,10 +45,10 @@ func StoreAutominer(am AlexandriaAutominer, dbtx *sql.Tx, txid string, block *fl
 
 func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
 
-	fmt.Printf("starting Verify Autominer routine...\n")
+	//fmt.Printf("starting Verify Autominer routine...\n")
 
-	s := string(b[:len(b)])
-	fmt.Printf("s: %+v\n", s)
+	//s := string(b[:len(b)])
+	//fmt.Printf("s: %+v\n", s)
 
 	var am AlexandriaAutominer
 
@@ -60,14 +61,14 @@ func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
 		return am, err
 	}
 
-	fmt.Printf("am: %+v\n", am)
+	//fmt.Printf("am: %+v\n", am)
 
 	// verify signature was created by this address
 	// signature pre-image for autominer is <btcaddress>-<version>
 	preImage := am.Autominer.BTCAddress + "-" + strconv.FormatInt(am.Autominer.Version, 10)
 
-	fmt.Printf("pre-image: %v", preImage)
-	fmt.Printf("\n\n\n")
+	//fmt.Printf("pre-image: %v", preImage)
+	//fmt.Printf("\n\n\n")
 	sigOK, _ := utility.CheckSignature(am.Autominer.FLOAddress, am.Signature, preImage)
 	if sigOK == false {
 		return am, ErrBadSignature
