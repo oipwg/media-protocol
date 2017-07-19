@@ -11,7 +11,7 @@ import (
 	"github.com/oipwg/media-protocol/utility"
 )
 
-const PROMOTER_ROOT_KEY = "alexandria-autominer"
+const PROMOTER_ROOT_KEY = "alexandria-promoter"
 
 type Promoter_SocialMedias []Promoter_SocialMedia
 
