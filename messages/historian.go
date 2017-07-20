@@ -69,7 +69,7 @@ func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block
 	// store in database
 	stmtStr := `insert into historian (txid, block, blockTime, active, version,` +
 		` url, mrrLast10, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
-		` values (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
