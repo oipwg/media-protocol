@@ -3,10 +3,10 @@ package messages
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"math"
 	"reflect"
 	"testing"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -119,7 +119,6 @@ func createTestDB(t *testing.T) {
 		return
 	}
 
-
 	createTable := `CREATE TABLE autominer_pool (
                         uid integer not null primary key AUTOINCREMENT,
                         txid TEXT not null,
@@ -136,7 +135,6 @@ func createTestDB(t *testing.T) {
                         invalidated int default 0
                 );`
 	insertData := `INSERT INTO "autominer_pool" VALUES(1,'a73b37b07b96f4f5d8d23a941a0eedc2747d79f1d5e7a6cab1a1acdd00d7a4f1',2243836,1500521093,1,1,'FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU','alexandria.io',20.0,0.0,'','IGridS+M9cNrwFpitJmESfSQ33NXGCTVhoB4P9H3u+gODwnWIHG4711cxSohDx9/d700RDfYvPiOrqW3zh3Y7XI=',0);`
-
 
 	tx, err := DBH.Begin()
 	if err != nil {

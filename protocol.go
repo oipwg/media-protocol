@@ -1,10 +1,10 @@
 package alexandriaProtocol
 
 import (
+	"database/sql"
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/messages"
 	"strings"
-	"database/sql"
 )
 
 const Version string = "0.4.1"
