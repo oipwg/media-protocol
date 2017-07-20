@@ -1,14 +1,27 @@
 package messages
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"reflect"
 	"testing"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var (
+	DBH *sql.DB
 )
 
 func TestVerifyHistorianMessage(t *testing.T) {
 	fmt.Printf("***TestVerifyHistorianMessage***")
+
+	createTestDB(t)
+	dbtx, err := DBH.Begin()
+	if err != nil {
+		t.Fatal("Couldn't initialize db tx")
+	}
+
 	// signed FL4Ty99iBsGu3aPrGx6rwUtWwyNvUjb7ZD
 	// valid
 	s := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA="
@@ -36,6 +49,15 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	hm7 := HistorianMessage{
 		1, "pool.alexandria.io", 0.0001040485, 2.2320838628518352e+08, 2.214713879e+09, 4.29e-06, 0.00308, "ICyn+Wh4OxKF89+O9u0wkQULeyvJ6CDurGiZACCkNtk8Rl+QpejBmPWKYiuyt6PM5+MrUs/gDcACWjKFTSoYrxA=",
 	}
+	// invalid signature
+	s8 := "oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:signature"
+	// signed with FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU
+	// valid
+	s9 := "oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:HxsHFYL+ROlGABTxTXFVtV/g+bI8M/vimB77xvs2iEdMEiKKZ819UQeos6uBa5XNuBZspccVI6PCfB6OeJoIB/8="
+	hm9 := HistorianMessage{
+		1, "alexandria.io", 0.00011105411, 1.8600959224127597e+08, 1.3858880968e+10, 1.983e-05, 0.04655, "HxsHFYL+ROlGABTxTXFVtV/g+bI8M/vimB77xvs2iEdMEiKKZ819UQeos6uBa5XNuBZspccVI6PCfB6OeJoIB/8=",
+	}
+
 	nilHM := HistorianMessage{}
 
 	cases := []struct {
@@ -54,10 +76,12 @@ func TestVerifyHistorianMessage(t *testing.T) {
 		{s5, nilHM, 1974560, ErrBadSignature},                  // trailing :
 		{s6, nilHM, 1974560, ErrBadSignature},                  // invalid signature
 		{s7, hm7, 1974560, nil},                                // valid
+		{s8, nilHM, 2000000, ErrBadSignature},                  //invalid signature
+		{s9, hm9, 2000000, nil},                                // valid
 	}
 
 	for i, c := range cases {
-		got, err := VerifyHistorianMessage([]byte(c.in), c.block)
+		got, err := VerifyHistorianMessage([]byte(c.in), c.block, dbtx)
 		if err != c.err {
 			t.Errorf("VerifyHistorianMessage(#%d) | err == %q, want %q", i, err, c.err)
 		}
@@ -81,6 +105,45 @@ func BenchmarkVerifyHistorianMessage(b *testing.B) {
 	s := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA="
 
 	for n := 0; n < b.N; n++ {
-		hmTestHM, hmTestErr = VerifyHistorianMessage([]byte(s), 1750000)
+		// ToDo: benchmark oip-historian with database lookup
+		hmTestHM, hmTestErr = VerifyHistorianMessage([]byte(s), 1750000, nil)
 	}
+}
+
+func createTestDB(t *testing.T) {
+	var err error
+	DBH, err = sql.Open("sqlite3", ":memory:")
+
+	if err != nil || DBH == nil {
+		t.Fatal("Database couldn't be opened.")
+		return
+	}
+
+
+	createTable := `CREATE TABLE autominer_pool (
+                        uid integer not null primary key AUTOINCREMENT,
+                        txid TEXT not null,
+                        block int not null,
+                        blockTime int not null,
+                        active int not null,
+                        version int not null,
+                        floAddress TEXT not null,
+                        webURL TEXT not null,
+                        targetMargin FLOAT not null,
+                        poolShare FLOAT not null,
+                        poolName TEXT,
+                        signature TEXT not null,
+                        invalidated int default 0
+                );`
+	insertData := `INSERT INTO "autominer_pool" VALUES(1,'a73b37b07b96f4f5d8d23a941a0eedc2747d79f1d5e7a6cab1a1acdd00d7a4f1',2243836,1500521093,1,1,'FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU','alexandria.io',20.0,0.0,'','IGridS+M9cNrwFpitJmESfSQ33NXGCTVhoB4P9H3u+gODwnWIHG4711cxSohDx9/d700RDfYvPiOrqW3zh3Y7XI=',0);`
+
+
+	tx, err := DBH.Begin()
+	if err != nil {
+		t.Fatal("Couldn't initialize db tx")
+	}
+
+	tx.Exec(createTable)
+	tx.Exec(insertData)
+	tx.Commit()
 }

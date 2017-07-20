@@ -4,6 +4,7 @@ import (
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/messages"
 	"strings"
+	"database/sql"
 )
 
 const Version string = "0.4.1"
@@ -14,7 +15,7 @@ func GetMinBlock() int {
 	return min_block
 }
 
-func Parse(txComment string, txid string, block *flojson.BlockResult) (interface{}, map[string]interface{}, error) {
+func Parse(txComment string, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error) {
 
 	if strings.HasPrefix(txComment, "text:") {
 		txComment = txComment[5:]
@@ -46,8 +47,8 @@ func Parse(txComment string, txid string, block *flojson.BlockResult) (interface
 		return deactivation, nil, nil
 	}
 
-	// check for alexandria-historian messages
-	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock)
+	// check for historian messages
+	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
 	if err == nil {
 		return hm, nil, nil
 	}

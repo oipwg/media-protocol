@@ -87,10 +87,12 @@ func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block
 	stmt.Close()
 }
 
-func VerifyHistorianMessage(b []byte, block int) (HistorianMessage, error) {
+func VerifyHistorianMessage(b []byte, block int, dbtx *sql.Tx) (HistorianMessage, error) {
 	var hm HistorianMessage
 	if strings.HasPrefix(string(b), "alexandria-historian-v001") {
 		return parseV1(string(b), block)
+	} else if strings.HasPrefix(string(b), "oip-historian-1") {
+		return parseOIPHistorian(string(b), block, dbtx)
 	} else {
 		return hm, ErrWrongPrefix
 	}
@@ -155,4 +157,69 @@ func (hmp hmPoolList) GetPool(url string, block int, version int) (hmPool, error
 		}
 	}
 	return p, ErrHistorianMessagePoolUntrusted
+}
+
+func parseOIPHistorian(s string, block int, dbtx *sql.Tx) (HistorianMessage, error) {
+	// oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:signature
+	var hm HistorianMessage
+
+	hm.Version = 1
+	parts := strings.Split(s, ":")
+
+	if len(parts) != 8 {
+		return hm, ErrHistorianMessageInvalid
+	}
+
+	p, err := getAutominerPool(parts[1], dbtx)
+	if err != nil {
+		return hm, err
+	}
+	hm.URL = p.WebURL
+	hm.Signature = parts[7]
+
+	i := strings.LastIndex(s, ":")
+	val, _ := utility.CheckSignature(parts[1], s[i+1:], s[:i])
+	if !val {
+		return hm, ErrBadSignature
+	}
+
+	for i := 2; i < 7; i++ {
+		f, err := strconv.ParseFloat(parts[i], 64)
+		if err != nil {
+			f = math.Inf(-1)
+		}
+		switch i {
+		case 2:
+			hm.Mrr_last_10 = f
+		case 3:
+			hm.Pool_hashrate = f
+		case 4:
+			hm.Fbd_hashrate = f
+		case 5:
+			hm.Fmd_weighted = f
+		case 6:
+			hm.Fmd_usd = f
+		}
+	}
+
+	return hm, nil
+}
+
+func getAutominerPool(floAddr string, dbtx *sql.Tx) (pool AutominerPool, err error) {
+	stmt, err := dbtx.Prepare(`SELECT floAddress, poolName, poolShare, targetMargin, version, webURL FROM autominer_pool WHERE floAddress = ? AND active = 1 ORDER BY block DESC LIMIT 1;`)
+	if err != nil {
+		fmt.Printf("ERROR in getAutominerPool: autominer-pool dbtx didn't prepare correctly: %v", err)
+		return AutominerPool{}, err
+	}
+	row := stmt.QueryRow(floAddr)
+	err = row.Scan(&pool.FLOAddress, &pool.PoolName, &pool.PoolShare, &pool.TargetMargin, &pool.Version, &pool.WebURL)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			fmt.Printf("ERROR in getAutominerPool: autominer-pool couldn't query properly: %v", err)
+		}
+		return AutominerPool{}, err
+	}
+
+	stmt.Close()
+	return pool, nil
 }

@@ -9,6 +9,7 @@ dependencies:
 	# Dev Dependencies
 	go get -u github.com/golang/lint/golint
 	go get -u github.com/mattn/goveralls
+	go get -u github.com/mattn/go-sqlite3
 
 # pkgs changes which packages the makefile calls operate on. run changes which
 # tests are run during testing.
