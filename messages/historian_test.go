@@ -84,7 +84,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 		{s7, hm7, 1974560, nil},                                // valid
 		{s8, nilHM, 2000000, ErrBadSignature},                  //invalid signature
 		{s9, hm9, 2000000, nil},                                // valid
-		{s10, hm10, 2000000, nil},                                // valid
+		{s10, hm10, 2000000, nil},                              // valid
 	}
 
 	for i, c := range cases {
