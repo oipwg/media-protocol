@@ -19,6 +19,7 @@ type HistorianMessage struct {
 	Version       int
 	URL           string
 	Mrr_last_10   float64
+	Mrr_last_24hr float64
 	Pool_hashrate float64
 	Fbd_hashrate  float64
 	Fmd_weighted  float64
@@ -68,8 +69,8 @@ var hmPools hmPoolList = hmPoolList{
 func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block *flojson.BlockResult) {
 	// store in database
 	stmtStr := `insert into historian (txid, block, blockTime, active, version,` +
-		` url, mrrLast10, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
-		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`
+		` url, mrrLast10, mrrLast24hr, poolHashrate, fbdHashrate, fmdWeighted, fmdUSD, signature)` +
+		` values (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
@@ -77,7 +78,7 @@ func StoreHistorianMessage(hm HistorianMessage, dbtx *sql.Tx, txid string, block
 		log.Fatal(err)
 	}
 
-	_, stmterr := stmt.Exec(txid, block.Height, block.Time, hm.Version, hm.URL, hm.Mrr_last_10,
+	_, stmterr := stmt.Exec(txid, block.Height, block.Time, hm.Version, hm.URL, hm.Mrr_last_10, hm.Mrr_last_24hr,
 		hm.Pool_hashrate, hm.Fbd_hashrate, hm.Fmd_weighted, hm.Fmd_usd, hm.Signature)
 	if err != nil {
 		fmt.Println("exit 201")
@@ -92,7 +93,9 @@ func VerifyHistorianMessage(b []byte, block int, dbtx *sql.Tx) (HistorianMessage
 	if strings.HasPrefix(string(b), "alexandria-historian-v001") {
 		return parseV1(string(b), block)
 	} else if strings.HasPrefix(string(b), "oip-historian-1") {
-		return parseOIPHistorian(string(b), block, dbtx)
+		return parseOIPHistorian1(string(b), block, dbtx)
+	} else if strings.HasPrefix(string(b), "oip-historian-2") {
+		return parseOIPHistorian2(string(b), block, dbtx)
 	} else {
 		return hm, ErrWrongPrefix
 	}
@@ -159,7 +162,7 @@ func (hmp hmPoolList) GetPool(url string, block int, version int) (hmPool, error
 	return p, ErrHistorianMessagePoolUntrusted
 }
 
-func parseOIPHistorian(s string, block int, dbtx *sql.Tx) (HistorianMessage, error) {
+func parseOIPHistorian1(s string, block int, dbtx *sql.Tx) (HistorianMessage, error) {
 	// oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:signature
 	var hm HistorianMessage
 
@@ -198,6 +201,54 @@ func parseOIPHistorian(s string, block int, dbtx *sql.Tx) (HistorianMessage, err
 		case 5:
 			hm.Fmd_weighted = f
 		case 6:
+			hm.Fmd_usd = f
+		}
+	}
+
+	return hm, nil
+}
+
+func parseOIPHistorian2(s string, block int, dbtx *sql.Tx) (HistorianMessage, error) {
+	// oip-historian-2:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.001084668945:nr:415415641.6450302:3045555424:0.00002092:0.05743:IOO0GGausgoY2d38vQFr9anU1x1k7MkMZirBD9b3t+VOVjTU5tpGoYSqW8+Yb1+o/UqfiSYDZ0PaNJGIfE85+bw=
+	var hm HistorianMessage
+
+	hm.Version = 1
+	parts := strings.Split(s, ":")
+
+	if len(parts) != 9 {
+		return hm, ErrHistorianMessageInvalid
+	}
+
+	p, err := getAutominerPool(parts[1], dbtx)
+	if err != nil {
+		return hm, err
+	}
+	hm.URL = p.WebURL
+	hm.Signature = parts[8]
+
+	i := strings.LastIndex(s, ":")
+	val, _ := utility.CheckSignature(parts[1], s[i+1:], s[:i])
+	if !val {
+		return hm, ErrBadSignature
+	}
+
+	for i := 2; i < 8; i++ {
+		f, err := strconv.ParseFloat(parts[i], 64)
+		if err != nil {
+			f = math.Inf(-1)
+		}
+		switch i {
+		case 2:
+			hm.Mrr_last_10 = f
+		case 3:
+			hm.Mrr_last_24hr = f
+		case 4:
+			hm.Pool_hashrate = f
+		case 5:
+			hm.Fbd_hashrate = f
+		case 6:
+			hm.Fmd_weighted = f
+		case 7:
 			hm.Fmd_usd = f
 		}
 	}

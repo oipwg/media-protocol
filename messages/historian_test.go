@@ -26,7 +26,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	// valid
 	s := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA="
 	hm := HistorianMessage{
-		1, "pool.alexandria.io", 0.0001360085, 3.163064456533333e+08, math.Inf(-1), 5e-06, 0.00217, "IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA=",
+		1, "pool.alexandria.io", 0.0001360085, 0, 3.163064456533333e+08, math.Inf(-1), 5e-06, 0.00217, "IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA=",
 	}
 	// bad version
 	s1 := "alexandria-historian-v002:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:IN9OrF1Kpd5S0x36nXWI0lFjhnS1Z9I9k7cxWJrFUlsfcgwJytZ+GlKP1/tHCijAdGAX6LnOgOtcvI/vMQgVcwA="
@@ -37,7 +37,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	// no signature
 	s4 := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217"
 	hm4 := HistorianMessage{
-		1, "pool.alexandria.io", 0.0001360085, 3.163064456533333e+08, math.Inf(-1), 5e-06, 0.00217, "",
+		1, "pool.alexandria.io", 0.0001360085, 0, 3.163064456533333e+08, math.Inf(-1), 5e-06, 0.00217, "",
 	}
 	// trailing :
 	s5 := "alexandria-historian-v001:pool.alexandria.io:0.000136008500:316306445.6533333:nr:0.00000500:0.00217:"
@@ -47,7 +47,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	// valid
 	s7 := "alexandria-historian-v001:pool.alexandria.io:0.000104048500:223208386.28518352:2214713879:0.00000429:0.00308:ICyn+Wh4OxKF89+O9u0wkQULeyvJ6CDurGiZACCkNtk8Rl+QpejBmPWKYiuyt6PM5+MrUs/gDcACWjKFTSoYrxA="
 	hm7 := HistorianMessage{
-		1, "pool.alexandria.io", 0.0001040485, 2.2320838628518352e+08, 2.214713879e+09, 4.29e-06, 0.00308, "ICyn+Wh4OxKF89+O9u0wkQULeyvJ6CDurGiZACCkNtk8Rl+QpejBmPWKYiuyt6PM5+MrUs/gDcACWjKFTSoYrxA=",
+		1, "pool.alexandria.io", 0.0001040485, 0, 2.2320838628518352e+08, 2.214713879e+09, 4.29e-06, 0.00308, "ICyn+Wh4OxKF89+O9u0wkQULeyvJ6CDurGiZACCkNtk8Rl+QpejBmPWKYiuyt6PM5+MrUs/gDcACWjKFTSoYrxA=",
 	}
 	// invalid signature
 	s8 := "oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:signature"
@@ -55,7 +55,13 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	// valid
 	s9 := "oip-historian-1:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.000111054110:186009592.24127597:13858880968:0.00001983:0.04655:HxsHFYL+ROlGABTxTXFVtV/g+bI8M/vimB77xvs2iEdMEiKKZ819UQeos6uBa5XNuBZspccVI6PCfB6OeJoIB/8="
 	hm9 := HistorianMessage{
-		1, "alexandria.io", 0.00011105411, 1.8600959224127597e+08, 1.3858880968e+10, 1.983e-05, 0.04655, "HxsHFYL+ROlGABTxTXFVtV/g+bI8M/vimB77xvs2iEdMEiKKZ819UQeos6uBa5XNuBZspccVI6PCfB6OeJoIB/8=",
+		1, "alexandria.io", 0.00011105411, 0, 1.8600959224127597e+08, 1.3858880968e+10, 1.983e-05, 0.04655, "HxsHFYL+ROlGABTxTXFVtV/g+bI8M/vimB77xvs2iEdMEiKKZ819UQeos6uBa5XNuBZspccVI6PCfB6OeJoIB/8=",
+	}
+	// signed with FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU
+	// valid
+	s10 := "oip-historian-2:FLmic78oU6eqXsTAaHGGdrFyY7FznjHfPU:0.001084668945:nr:415415641.6450302:3045555424:0.00002092:0.05743:IOO0GGausgoY2d38vQFr9anU1x1k7MkMZirBD9b3t+VOVjTU5tpGoYSqW8+Yb1+o/UqfiSYDZ0PaNJGIfE85+bw="
+	hm10 := HistorianMessage{
+		1, "alexandria.io", 0.001084668945, math.Inf(-1), 415415641.6450302, 3045555424, 0.00002092, 0.05743, "IOO0GGausgoY2d38vQFr9anU1x1k7MkMZirBD9b3t+VOVjTU5tpGoYSqW8+Yb1+o/UqfiSYDZ0PaNJGIfE85+bw=",
 	}
 
 	nilHM := HistorianMessage{}
@@ -78,6 +84,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 		{s7, hm7, 1974560, nil},                                // valid
 		{s8, nilHM, 2000000, ErrBadSignature},                  //invalid signature
 		{s9, hm9, 2000000, nil},                                // valid
+		{s10, hm10, 2000000, nil},                                // valid
 	}
 
 	for i, c := range cases {

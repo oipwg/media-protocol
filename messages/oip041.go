@@ -146,4 +146,8 @@ var oip041SqliteCreateStatements = []struct {
 		"ALTER TABLE 'media' ADD COLUMN 'pubFeeUSD' FLOAT;" +
 			"ALTER TABLE 'media' ADD COLUMN 'artSize' INTEGER;",
 	},
+	{
+		"!addcol! mrrLast24hr",
+		"ALTER TABLE 'historian' ADD COLUMN 'mrrLast24hr' FLOAT;",
+	},
 }
