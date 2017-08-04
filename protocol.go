@@ -60,9 +60,11 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	pe = append(pe, ParseErrors{"Deactivation", VerifyDeactivationError})
 
 	// check for historian messages
-	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
-	if err == nil {
-		return hm, nil, nil, pe
+	if tx.Vin[0].IsCoinBase() {
+		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
+		if err == nil {
+			return hm, nil, nil, pe
+		}
 	}
 	pe = append(pe, ParseErrors{"Historian", err})
 
