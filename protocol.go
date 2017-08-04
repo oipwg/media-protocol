@@ -20,10 +20,11 @@ func GetMinBlock() int {
 	return min_block
 }
 
-func Parse(txComment string, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error, []ParseErrors) {
+func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error, []ParseErrors) {
 
 	var pe []ParseErrors
 
+	txComment := tx.TxComment
 	if strings.HasPrefix(txComment, "text:") {
 		txComment = txComment[5:]
 	}
