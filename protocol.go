@@ -8,7 +8,7 @@ import (
 )
 
 const Version string = "0.4.1"
-const min_block = 2205000
+const min_block = 1045632
 
 func GetMinBlock() int {
 	// TODO: find min block from multiple protocols programmatically

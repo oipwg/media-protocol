@@ -52,6 +52,10 @@ func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
 
 	var am AlexandriaAutominer
 
+	if block < 2205000 {
+		return am, ErrTooEarly
+	}
+
 	if !utility.IsJSON(string(b)) {
 		return am, ErrNotJSON
 	}

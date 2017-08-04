@@ -35,6 +35,10 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 
 	var amp AlexandriaAutominerPool
 
+	if block < 2205000 {
+		return amp, ErrTooEarly
+	}
+
 	if !utility.IsJSON(string(b)) {
 		return amp, ErrNotJSON
 	}

@@ -137,6 +137,10 @@ func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 
 	var pr AlexandriaPromoter
 
+	if block < 2205000 {
+		return pr, ErrTooEarly
+	}
+
 	if !utility.IsJSON(string(b)) {
 		return pr, ErrNotJSON
 	}
