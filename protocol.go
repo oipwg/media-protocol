@@ -15,8 +15,9 @@ func GetMinBlock() int {
 	return min_block
 }
 
-func Parse(txComment string, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error) {
+func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error) {
 
+	txComment := tx.TxComment
 	if strings.HasPrefix(txComment, "text:") {
 		txComment = txComment[5:]
 	}
