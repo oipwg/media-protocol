@@ -88,6 +88,10 @@ func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 
 	var ar AlexandriaRetailer
 
+	if block < 2205000 {
+		return ar, ErrTooEarly
+	}
+
 	if !utility.IsJSON(string(b)) {
 		return ar, ErrNotJSON
 	}
