@@ -49,9 +49,11 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 
 	// check for historian messages
-	hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
-	if err == nil {
-		return hm, nil, nil
+	if tx.Vin[0].IsCoinBase() {
+		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
+		if err == nil {
+			return hm, nil, nil
+		}
 	}
 
 	// check for alexandria-autominer messages
