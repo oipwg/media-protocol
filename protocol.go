@@ -49,7 +49,7 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 
 	// check for historian messages
-	if tx.Vin[0].IsCoinBase() {
+	if len(tx.Vin) > 0 && tx.Vin[0].IsCoinBase() {
 		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
 		if err == nil {
 			return hm, nil, nil
