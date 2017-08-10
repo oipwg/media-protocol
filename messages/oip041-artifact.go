@@ -49,18 +49,26 @@ func (o Oip041Artifact) CheckRequiredFields() error {
 
 func (o Oip041) GetArtCost() float64 {
 	var totMinPlay float64 = 0
+	var totSugPlay float64 = 0
+	var totMinBuy float64 = 0
 	var totSugBuy float64 = 0
 
 	for _, f := range o.Artifact.Storage.Files {
 		if f.DisallowPlay != 0 {
 			totMinPlay += math.Abs(f.MinPlay)
 		}
+		if f.DisallowPlay != 0 {
+			totSugPlay += math.Abs(f.SugPlay)
+		}
+		if f.DisallowBuy != 0 {
+			totMinBuy += math.Abs(f.MinBuy)
+		}
 		if f.DisallowBuy != 0 {
 			totSugBuy += math.Abs(f.SugBuy)
 		}
 	}
 
-	avg := (totMinPlay + totSugBuy) / 2
+	avg := (totMinPlay + totSugPlay + totMinBuy + totSugBuy) / 4
 
 	return avg
 }
