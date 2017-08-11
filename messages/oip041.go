@@ -94,7 +94,8 @@ func CreateTables(dbTx *sql.Tx) error {
 				// https://stackoverflow.com/questions/3604310/alter-table-add-column-if-not-exists-in-sqlite
 				return err
 			} else {
-				fmt.Println("Column already added.")
+				fmt.Println("Column already added?")
+				fmt.Print(err)
 				continue
 			}
 		}
