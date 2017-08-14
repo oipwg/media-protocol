@@ -126,15 +126,18 @@ func UpdateMediaMultipartSuccess(reference string, dbtx *sql.Tx) {
 func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipartSingle, error) {
 	var ret MediaMultipartSingle
 	prefix := "alexandria-media-multipart("
+	prefix2 := "oip-mp("
 
 	// check prefix
 	checkPrefix := strings.HasPrefix(s, prefix)
+	checkPrefix = checkPrefix || strings.HasPrefix(s, prefix2)
 	if !checkPrefix {
 		return ret, ErrWrongPrefix
 	}
 
 	// trim prefix off
 	s = strings.TrimPrefix(s, prefix)
+	s = strings.TrimPrefix(s, prefix2)
 
 	comChunks := strings.Split(s, "):")
 	if len(comChunks) < 2 {
