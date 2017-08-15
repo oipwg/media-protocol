@@ -125,19 +125,20 @@ func UpdateMediaMultipartSuccess(reference string, dbtx *sql.Tx) {
 
 func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipartSingle, error) {
 	var ret MediaMultipartSingle
-	prefix := "alexandria-media-multipart("
-	prefix2 := "oip-mp("
+	amm_prefix := "alexandria-media-multipart("
+	oip_mp_prefix := "oip-mp("
 
 	// check prefix
-	checkPrefix := strings.HasPrefix(s, prefix)
-	checkPrefix = checkPrefix || strings.HasPrefix(s, prefix2)
+	is_amm := strings.HasPrefix(s, amm_prefix)
+	is_oip_mp := strings.HasPrefix(s, oip_mp_prefix)
+	checkPrefix := is_amm || is_oip_mp
 	if !checkPrefix {
 		return ret, ErrWrongPrefix
 	}
 
 	// trim prefix off
-	s = strings.TrimPrefix(s, prefix)
-	s = strings.TrimPrefix(s, prefix2)
+	s = strings.TrimPrefix(s, amm_prefix)
+	s = strings.TrimPrefix(s, oip_mp_prefix)
 
 	comChunks := strings.Split(s, "):")
 	if len(comChunks) < 2 {
@@ -182,8 +183,17 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 		signature = meta[lm-2]
 	}
 
+	// the signed reference is either an empty string or 64 0's if it's the first one
+	if part == 0 {
+		if is_oip_mp {
+			reference = ""
+		} else {
+			reference = strings.Repeat("0", 64)
+		}
+	}
+
 	// signature pre-image is <part>-<max>-<address>-<txid>-<data>
-	// in the case of multipart[0], txid is 64 zeros
+	// in the case of multipart[0], txid is 64 zeros or omitted
 	// in the case of multipart[n], where n != 0, txid is the reference txid (from multipart[0])
 	preimage := partS + "-" + maxS + "-" + address + "-" + reference + "-" + dataString
 	// fmt.Printf("preimage: %v\n", preimage)
