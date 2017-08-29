@@ -28,11 +28,10 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 	}
 	// ToDo: Validate signature
 
-	if dec.Artifact.Info.Year <= 0 {
-		dec.Artifact.Info.Year = time.Unix(dec.Artifact.Timestamp, 0).Year()
-	}
-
 	if dec.Artifact.Timestamp != 0 {
+		if dec.Artifact.Info.Year <= 0 {
+			dec.Artifact.Info.Year = time.Unix(dec.Artifact.Timestamp, 0).Year()
+		}
 		err := dec.Artifact.CheckRequiredFields()
 		if err != nil {
 			return dec, err
