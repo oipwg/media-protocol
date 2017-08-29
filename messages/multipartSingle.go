@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/oipwg/media-protocol/utility"
 )
 
 type MediaMultipartSingle struct {
@@ -194,12 +195,20 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 		return ret, ErrBadSignature
 	}
 
+	//fmt.Printf("DEBUG: part = %v, reference = %v\n", partS, reference)
+
 	// if part == 0, reference is ignored and may be omitted
 	// the local DB will store reference = txid for this transaction after it's submitted
 	// in case of a reorg, the publisher must re-publish this multipart message (sorry)
 	if part == 0 {
 		reference = txid
+
+		// hard-fork 2017-08-25 for shorter txid reference ids
+		if block >= 2280000 {
+			reference = txid[:10]
+		}
 	}
+
 	// all checks passed, verified!
 
 	//fmt.Printf("data: %v\n", data)
