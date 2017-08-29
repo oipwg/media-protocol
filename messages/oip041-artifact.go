@@ -29,12 +29,6 @@ func (o Oip041Artifact) CheckRequiredFields() error {
 	if len(o.Info.Title) == 0 {
 		return errors.New("Artifact title is required")
 	}
-	if len(o.Info.Description) == 0 {
-		return errors.New("Artifact title is required")
-	}
-	if o.Info.Year <= 0 {
-		return errors.New("Artifact year is required")
-	}
 	if len(o.Storage.Network) == 0 {
 		return errors.New("Artifact storage network is required")
 	}

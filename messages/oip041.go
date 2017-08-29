@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/oipwg/media-protocol/utility"
 	"strings"
+	"time"
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
@@ -26,6 +27,10 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 		return dec, ErrBadSignature
 	}
 	// ToDo: Validate signature
+
+	if dec.Artifact.Info.Year <= 0 {
+		dec.Artifact.Info.Year = time.Unix(dec.Artifact.Timestamp, 0).Year()
+	}
 
 	if dec.Artifact.Timestamp != 0 {
 		err := dec.Artifact.CheckRequiredFields()
