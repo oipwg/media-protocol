@@ -3,6 +3,7 @@ package messages
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/oipwg/media-protocol/utility"
 	"strings"
@@ -155,4 +156,41 @@ var oip041SqliteCreateStatements = []struct {
 		"!addcol! mrrLast24hr",
 		"ALTER TABLE 'historian' ADD COLUMN 'mrrLast24hr' FLOAT;",
 	},
+}
+
+func (o *Oip041) MarshalJSON() ([]byte, error) {
+
+	if o.Artifact.Timestamp != 0 {
+		return json.Marshal(&struct {
+			Artifact Oip041Artifact `json:"artifact"`
+		}{
+			Artifact: o.Artifact,
+		})
+	}
+
+	if o.Edit.Timestamp != 0 {
+		return json.Marshal(&struct {
+			Edit Oip041Edit `json:"edit"`
+		}{
+			Edit: o.Edit,
+		})
+	}
+
+	if o.Transfer.Timestamp != 0 {
+		return json.Marshal(&struct {
+			Transfer Oip041Transfer `json:"transfer"`
+		}{
+			Transfer: o.Transfer,
+		})
+	}
+
+	if o.Deactivate.Timestamp != 0 {
+		return json.Marshal(&struct {
+			Deactivate Oip041Deactivate `json:"deactivate"`
+		}{
+			Deactivate: o.Deactivate,
+		})
+	}
+
+	return nil, errors.New("could not serialize OIP object to JSON")
 }
