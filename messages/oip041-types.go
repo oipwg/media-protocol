@@ -61,19 +61,22 @@ type Oip041Artifact struct {
 }
 
 type Oip041Info struct {
-	Title           string               `json:"title"`
-	Description     string               `json:"description"`
-	Year            int                  `json:"year"`
-	ExtraInfo       Oip041MusicExtraInfo `json:"extraInfo"`
+	Title           string          `json:"title"`
+	Description     string          `json:"description"`
+	Year            int             `json:"year"`
+	ExtraInfo       json.RawMessage `json:"extraInfo"`
 	ExtraInfoString string
 }
 
 type Oip041Payment struct {
-	Fiat      string          `json:"fiat"`
-	Scale     string          `json:"scale"`
-	SugTip    []int           `json:"sugTip"`
-	Tokens    Oip041Tokens    `json:"tokens"`
-	Addresses []Oip041Address `json:"addresses"`
+	Fiat        string          `json:"fiat"`
+	Scale       string          `json:"scale"`
+	SugTip      []int           `json:"sugTip"`
+	Tokens      Oip041Tokens    `json:"tokens"`
+	Addresses   []Oip041Address `json:"addresses"`
+	Retailer    int             `json:"retailer"`
+	Promoter    int             `json:"promoter"`
+	MaxDiscount int             `json:"maxdisc"`
 }
 
 type Oip041MusicExtraInfo struct {
@@ -95,7 +98,7 @@ type Oip041Storage struct {
 }
 
 type Oip041Files struct {
-	DisallowBuy  int           `json:"disallowBuy"`
+	DisallowBuy  int           `json:"disBuy"`
 	Dname        string        `json:"dname"`
 	Duration     float64       `json:"duration,omitempty"`
 	Fname        string        `json:"fname"`
@@ -109,10 +112,11 @@ type Oip041Files struct {
 	PtpDA        int           `json:"ptpDA,omitempty"`
 	Type         string        `json:"type"`
 	TokenlyID    string        `json:"tokenlyID,omitempty"`
-	DisallowPlay int           `json:"disallowPlay"`
+	DisallowPlay int           `json:"disPlay"`
 	MinBuy       float64       `json:"minBuy"`
 	SugBuy       float64       `json:"sugBuy"`
 	Storage      Oip041Storage `json:"storage"`
+	SubType      string        `json:"subtype"`
 }
 
 type Oip041Address struct {

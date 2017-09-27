@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/oipwg/media-protocol/utility"
 	"math"
-	"strings"
 )
 
 func (o Oip041) GetJSON() (string, error) {
@@ -101,7 +100,7 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	artCost := o.GetArtCost()
 	pubFeeUSD := o.GetPubFeeUSD(dbtx)
 
-	_, err = stmt.Exec(1, block, s, strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
+	_, err = stmt.Exec(1, block, s, "", // ToDo: Fix tag parsing - strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
 		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
 		o.Artifact.Info.Year, o.Artifact.Publisher, artCost, o.artSize, pubFeeUSD)
 	if err != nil {
