@@ -65,8 +65,8 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 		if err == nil {
 			return hm, nil, nil, pe
 		}
+		pe = append(pe, ParseErrors{"Historian", err})
 	}
-	pe = append(pe, ParseErrors{"Historian", err})
 
 	// check for alexandria-autominer messages
 	am, err := messages.VerifyAutominer([]byte(txComment), processingBlock)
