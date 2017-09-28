@@ -273,7 +273,7 @@ var oip041_music_example_obj Oip041 = Oip041{
 					DisallowPlay: 0,
 					MinBuy:       500,
 					SugBuy:       750,
-					Storage:      Oip041Storage{},
+					//Storage:      Oip041Storage{},
 				},
 				{
 					DisallowBuy:  0,
@@ -293,7 +293,7 @@ var oip041_music_example_obj Oip041 = Oip041{
 					DisallowPlay: 1,
 					MinBuy:       500,
 					SugBuy:       750,
-					Storage:      Oip041Storage{},
+					//Storage:      Oip041Storage{},
 				},
 				{
 					DisallowBuy:  1,
@@ -313,7 +313,7 @@ var oip041_music_example_obj Oip041 = Oip041{
 					DisallowPlay: 0,
 					MinBuy:       0,
 					SugBuy:       0,
-					Storage:      Oip041Storage{},
+					//Storage:      Oip041Storage{},
 				},
 				{
 					DisallowBuy:  1,
@@ -333,7 +333,7 @@ var oip041_music_example_obj Oip041 = Oip041{
 					DisallowPlay: 0,
 					MinBuy:       0,
 					SugBuy:       0,
-					Storage:      Oip041Storage{},
+					//Storage:      Oip041Storage{},
 				},
 			},
 		},
