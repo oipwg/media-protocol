@@ -158,7 +158,7 @@ var oip041SqliteCreateStatements = []struct {
 	},
 }
 
-func (o *Oip041) MarshalJSON() ([]byte, error) {
+func (o Oip041) MarshalJSON() ([]byte, error) {
 
 	if o.Artifact.Timestamp != 0 {
 		return json.Marshal(&struct {

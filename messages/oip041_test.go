@@ -227,26 +227,28 @@ var oip041_music_example = `{
   }
 }`
 
+var ei, _ = json.Marshal(Oip041MusicExtraInfo{
+	Artist:  "Adam B. Levine",
+	Company: "",
+	Composers: []string{
+		"Adam B. Levine",
+	},
+	Copyright:         "",
+	UsageProhibitions: "",
+	UsageRights:       "",
+	Tags:              []string{},
+})
+
 var oip041_music_example_obj Oip041 = Oip041{
 	Artifact: Oip041Artifact{
 		Publisher: "F97Tp8LYnw94CpXmAhqACXWTT36jyvLCWx",
 		Timestamp: 1470269387,
 		Type:      "music",
 		Info: Oip041Info{
-			Title:       "Happy Birthday EP",
-			Description: "this is the second organically grown, gluten free album released by Adam B. Levine - contact adam@tokenly.com with questions or comments or discuss collaborations.",
-			Year:        2016,
-			ExtraInfo: Oip041MusicExtraInfo{
-				Artist:  "Adam B. Levine",
-				Company: "",
-				Composers: []string{
-					"Adam B. Levine",
-				},
-				Copyright:         "",
-				UsageProhibitions: "",
-				UsageRights:       "",
-				Tags:              []string{},
-			},
+			Title:           "Happy Birthday EP",
+			Description:     "this is the second organically grown, gluten free album released by Adam B. Levine - contact adam@tokenly.com with questions or comments or discuss collaborations.",
+			Year:            2016,
+			ExtraInfo:       ei,
 			ExtraInfoString: "",
 		},
 		Storage: Oip041Storage{

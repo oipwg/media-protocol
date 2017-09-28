@@ -18,19 +18,19 @@ type Oip041 struct {
 }
 
 type Oip041ArtifactAPIResult struct {
-	Block         int         `json:"block"`
-	OIP041        interface{} `json:"oip-041"`
-	Tags          string      `json:"tags"`
-	Timestamp     int64       `json:"timestamp"`
-	Title         string      `json:"title"`
-	TxID          string      `json:"txid"`
-	Type          string      `json:"type"`
-	Year          int         `json:"year"`
-	Publisher     string      `json:"publisher"`
-	PublisherName string      `json:"publisherName"`
-	ArtCost       float64     `json:"artCost"`
-	ArtSize       int         `json:"artSize"`
-	PubFeeUSD     float64     `json:"pubFeeUSD"`
+	Block         int     `json:"block"`
+	OIP041        Oip041  `json:"oip-041"`
+	Tags          string  `json:"tags"`
+	Timestamp     int64   `json:"timestamp"`
+	Title         string  `json:"title"`
+	TxID          string  `json:"txid"`
+	Type          string  `json:"type"`
+	Year          int     `json:"year"`
+	Publisher     string  `json:"publisher"`
+	PublisherName string  `json:"publisherName"`
+	ArtCost       float64 `json:"artCost"`
+	ArtSize       int     `json:"artSize"`
+	PubFeeUSD     float64 `json:"pubFeeUSD"`
 }
 
 type Oip041Transfer struct {
@@ -98,25 +98,26 @@ type Oip041Storage struct {
 }
 
 type Oip041Files struct {
-	DisallowBuy  int           `json:"disBuy"`
-	Dname        string        `json:"dname"`
-	Duration     float64       `json:"duration,omitempty"`
-	Fname        string        `json:"fname"`
-	Fsize        int           `json:"fsize"`
-	MinPlay      float64       `json:"minPlay"`
-	SugPlay      float64       `json:"sugPlay"`
-	Promo        float64       `json:"promo"`
-	Retail       float64       `json:"retail"`
-	PtpFT        int           `json:"ptpFT,omitempty"`
-	PtpDT        int           `json:"ptpDT,omitempty"`
-	PtpDA        int           `json:"ptpDA,omitempty"`
-	Type         string        `json:"type"`
-	TokenlyID    string        `json:"tokenlyID,omitempty"`
-	DisallowPlay int           `json:"disPlay"`
-	MinBuy       float64       `json:"minBuy"`
-	SugBuy       float64       `json:"sugBuy"`
-	Storage      Oip041Storage `json:"storage"`
-	SubType      string        `json:"subtype"`
+	DisallowBuy  int     `json:"disBuy"`
+	Dname        string  `json:"dname"`
+	Duration     float64 `json:"duration,omitempty"`
+	Fname        string  `json:"fname"`
+	Fsize        int     `json:"fsize"`
+	MinPlay      float64 `json:"minPlay"`
+	SugPlay      float64 `json:"sugPlay"`
+	Promo        float64 `json:"promo,omitempty"`
+	Retail       float64 `json:"retail,omitempty"`
+	PtpFT        int     `json:"ptpFT,omitempty"`
+	PtpDT        int     `json:"ptpDT,omitempty"`
+	PtpDA        int     `json:"ptpDA,omitempty"`
+	Type         string  `json:"type"`
+	TokenlyID    string  `json:"tokenlyID,omitempty"`
+	DisallowPlay int     `json:"disPlay"`
+	MinBuy       float64 `json:"minBuy"`
+	SugBuy       float64 `json:"sugBuy"`
+	SubType      string  `json:"subtype"`
+	// ToDo: Add per file granularity back, requires custom json marshalling to omit
+	// Storage Oip041Storage `json:"storage"`
 }
 
 type Oip041Address struct {
