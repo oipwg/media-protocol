@@ -98,7 +98,7 @@ type Oip041Storage struct {
 }
 
 type Oip041Files struct {
-	DisallowBuy  int     `json:"disBuy"`
+	DisallowBuy  bool    `json:"disBuy"`
 	Dname        string  `json:"dname"`
 	Duration     float64 `json:"duration,omitempty"`
 	Fname        string  `json:"fname"`
@@ -112,7 +112,7 @@ type Oip041Files struct {
 	PtpDA        int     `json:"ptpDA,omitempty"`
 	Type         string  `json:"type"`
 	TokenlyID    string  `json:"tokenlyID,omitempty"`
-	DisallowPlay int     `json:"disPlay"`
+	DisallowPlay bool    `json:"disPlay"`
 	MinBuy       float64 `json:"minBuy"`
 	SugBuy       float64 `json:"sugBuy"`
 	SubType      string  `json:"subtype"`

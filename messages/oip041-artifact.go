@@ -47,16 +47,16 @@ func (o Oip041) GetArtCost() float64 {
 	var totSugBuy float64 = 0
 
 	for _, f := range o.Artifact.Storage.Files {
-		if f.DisallowPlay != 0 {
+		if !f.DisallowPlay {
 			totMinPlay += math.Abs(f.MinPlay)
 		}
-		if f.DisallowPlay != 0 {
+		if !f.DisallowPlay {
 			totSugPlay += math.Abs(f.SugPlay)
 		}
-		if f.DisallowBuy != 0 {
+		if !f.DisallowBuy {
 			totMinBuy += math.Abs(f.MinBuy)
 		}
-		if f.DisallowBuy != 0 {
+		if !f.DisallowBuy {
 			totSugBuy += math.Abs(f.SugBuy)
 		}
 	}
