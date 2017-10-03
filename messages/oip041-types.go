@@ -98,24 +98,24 @@ type Oip041Storage struct {
 }
 
 type Oip041Files struct {
-	DisallowBuy  bool    `json:"disBuy"`
-	Dname        string  `json:"dname"`
+	DisallowBuy  bool    `json:"disBuy,omitempty"`
+	Dname        string  `json:"dname,omitempty"`
 	Duration     float64 `json:"duration,omitempty"`
-	Fname        string  `json:"fname"`
-	Fsize        int     `json:"fsize"`
-	MinPlay      float64 `json:"minPlay"`
-	SugPlay      float64 `json:"sugPlay"`
+	Fname        string  `json:"fname,omitempty"`
+	Fsize        int     `json:"fsize,omitempty"`
+	MinPlay      float64 `json:"minPlay,omitempty"`
+	SugPlay      float64 `json:"sugPlay,omitempty"`
 	Promo        float64 `json:"promo,omitempty"`
 	Retail       float64 `json:"retail,omitempty"`
 	PtpFT        int     `json:"ptpFT,omitempty"`
 	PtpDT        int     `json:"ptpDT,omitempty"`
 	PtpDA        int     `json:"ptpDA,omitempty"`
-	Type         string  `json:"type"`
+	Type         string  `json:"type,omitempty"`
 	TokenlyID    string  `json:"tokenlyID,omitempty"`
-	DisallowPlay bool    `json:"disPlay"`
-	MinBuy       float64 `json:"minBuy"`
-	SugBuy       float64 `json:"sugBuy"`
-	SubType      string  `json:"subtype"`
+	DisallowPlay bool    `json:"disPlay,omitempty"`
+	MinBuy       float64 `json:"minBuy,omitempty"`
+	SugBuy       float64 `json:"sugBuy,omitempty"`
+	SubType      string  `json:"subtype,omitempty"`
 	// ToDo: Add per file granularity back, requires custom json marshalling to omit
 	// Storage Oip041Storage `json:"storage"`
 }
