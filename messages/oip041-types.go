@@ -76,7 +76,7 @@ type Oip041Payment struct {
 	Addresses   []Oip041Address `json:"addresses"`
 	Retailer    int             `json:"retailer"`
 	Promoter    int             `json:"promoter"`
-	MaxDiscount int             `json:"maxdisc"`
+	MaxDiscount float64         `json:"maxdisc"`
 }
 
 type Oip041MusicExtraInfo struct {

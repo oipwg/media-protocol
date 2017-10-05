@@ -33,6 +33,9 @@ func VerifyOIP041(s string, block int) (Oip041, error) {
 		if dec.Artifact.Info.Year <= 0 {
 			dec.Artifact.Info.Year = time.Unix(dec.Artifact.Timestamp, 0).Year()
 		}
+		if dec.Artifact.Payment.MaxDiscount < 1 {
+			dec.Artifact.Payment.MaxDiscount = dec.Artifact.Payment.MaxDiscount * 100
+		}
 		err := dec.Artifact.CheckRequiredFields()
 		if err != nil {
 			return dec, err

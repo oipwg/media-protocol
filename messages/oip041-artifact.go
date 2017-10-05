@@ -37,6 +37,9 @@ func (o Oip041Artifact) CheckRequiredFields() error {
 	if len(o.Storage.Files) == 0 {
 		return errors.New("Artifact must contain at least one file")
 	}
+	if o.Payment.MaxDiscount < 0 {
+		return errors.New("maxdisc must be >= 0")
+	}
 	return nil
 }
 
