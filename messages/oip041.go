@@ -55,7 +55,7 @@ func DecodeOIP041(s string) (Oip041, error) {
 
 func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 	stmtStr := `select a.block, a.json, a.tags, a.timestamp,
-				a.title, a.txid, a.type, a.year, a.publisher, p.name, a.artCost, a.artSize, a.pubFeeUSD
+				a.title, a.txid, a.type, a.year, a.publisher, p.name, a.artCost, a.artSize, a.pubFeeUSD, a.nsfw
 				from oip_artifact as a join publisher as p
 				where p.address = a.publisher and a.invalidated = 0`
 
@@ -77,7 +77,7 @@ func APIGetAllOIP041(dbtx *sql.Tx) ([]Oip041ArtifactAPIResult, error) {
 		var s string
 
 		rows.Scan(&a.Block, &s, &a.Tags, &a.Timestamp,
-			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher, &a.PublisherName, &a.ArtCost, &a.ArtSize, &a.PubFeeUSD)
+			&a.Title, &a.TxID, &a.Type, &a.Year, &a.Publisher, &a.PublisherName, &a.ArtCost, &a.ArtSize, &a.PubFeeUSD, &a.NSFW)
 
 		json.Unmarshal([]byte(s), &a.OIP041)
 		results = append(results, a)
@@ -139,7 +139,8 @@ var oip041SqliteCreateStatements = []struct {
 		'publisher'	TEXT NOT NULL,
 		'artCost' FLOAT NOT NULL,
 		'artSize' INTEGER NOT NULL,
-		'pubFeeUSD' FLOAT NOT NULL
+		'pubFeeUSD' FLOAT NOT NULL,
+		'nsfw' BOOLEAN default 0
 	);`},
 	{
 		"!addcol! ArtCost",
@@ -158,6 +159,10 @@ var oip041SqliteCreateStatements = []struct {
 	{
 		"!addcol! mrrLast24hr",
 		"ALTER TABLE 'historian' ADD COLUMN 'mrrLast24hr' FLOAT;",
+	},
+	{
+		"!addcol! nsfw",
+		"ALTER TABLE 'oip_artifact' ADD COLUMN 'nsfw' BOOLEAN;",
 	},
 }
 

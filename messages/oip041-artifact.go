@@ -86,8 +86,8 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	// store in database
 	stmtStr := `INSERT INTO 'oip_artifact'
 		('active','block','json','tags','timestamp',
-		'title','txid','type','year','publisher', 'artCost', 'artSize', 'pubFeeUSD')
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`
+		'title','txid','type','year','publisher', 'artCost', 'artSize', 'pubFeeUSD', 'nsfw')
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`
 
 	stmt, err := dbtx.Prepare(stmtStr)
 	if err != nil {
@@ -105,7 +105,7 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 
 	_, err = stmt.Exec(1, block, s, "", // ToDo: Fix tag parsing - strings.Join(o.Artifact.Info.ExtraInfo.Tags, ","),
 		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
-		o.Artifact.Info.Year, o.Artifact.Publisher, artCost, o.artSize, pubFeeUSD)
+		o.Artifact.Info.Year, o.Artifact.Publisher, artCost, o.artSize, pubFeeUSD, o.Artifact.Info.NSFW)
 	if err != nil {
 		return err
 	}

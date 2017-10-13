@@ -31,6 +31,7 @@ type Oip041ArtifactAPIResult struct {
 	ArtCost       float64 `json:"artCost"`
 	ArtSize       int     `json:"artSize"`
 	PubFeeUSD     float64 `json:"pubFeeUSD"`
+	NSFW          bool    `json:"nsfw"`
 }
 
 type Oip041Transfer struct {
@@ -64,6 +65,7 @@ type Oip041Info struct {
 	Title           string          `json:"title"`
 	Description     string          `json:"description"`
 	Year            int             `json:"year"`
+	NSFW            bool            `json:"nsfw"`
 	ExtraInfo       json.RawMessage `json:"extraInfo"`
 	ExtraInfoString string
 }
