@@ -6,6 +6,8 @@ import (
 	"errors"
 	"github.com/oipwg/media-protocol/utility"
 	"math"
+	"strconv"
+	"strings"
 )
 
 func (o Oip041) GetJSON() (string, error) {
@@ -65,6 +67,20 @@ func (o Oip041) GetArtCost() float64 {
 	}
 
 	avg := (totMinPlay + totSugPlay + totMinBuy + totSugBuy) / 4
+
+	splitScale := strings.Split(o.Artifact.Payment.Scale, ":")
+
+	if len(splitScale) == 2 {
+		scales := [2]float64{}
+		if s, err := strconv.ParseFloat(splitScale[0], 64); err == nil {
+			scales[0] = s
+		}
+		if s, err := strconv.ParseFloat(splitScale[1], 64); err == nil {
+			scales[1] = s
+		}
+
+		avg = avg * scales[1] / scales[0]
+	}
 
 	return avg
 }
