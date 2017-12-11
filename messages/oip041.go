@@ -165,6 +165,10 @@ var oip041SqliteCreateStatements = []struct {
 		"ALTER TABLE 'historian' ADD COLUMN 'ltcUSD' FLOAT default 0;",
 	},
 	{
+		"!addcol! publisher.extraInfo",
+		"ALTER TABLE 'publisher' ADD COLUMN 'extraInfo' TEXT;",
+	},
+	{
 		"!addcol! nsfw",
 		"ALTER TABLE 'oip_artifact' ADD COLUMN 'nsfw' BOOLEAN;",
 	},

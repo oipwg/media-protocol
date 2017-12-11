@@ -21,8 +21,9 @@ type AlexandriaPublisher struct {
 		Timestamp int64  `json:"timestamp"`
 
 		// optional fields
-		Emailmd5   string `json:"emailmd5"`
-		Bitmessage string `json:"bitmessage"`
+		Emailmd5   string          `json:"emailmd5"`
+		Bitmessage string          `json:"bitmessage"`
+		ExtraInfo  json.RawMessage `json:"extraInfo"`
 	} `json:"alexandria-publisher"`
 	Signature string `json:"signature"`
 }
@@ -54,7 +55,7 @@ func CreateNewPublisherTxComment(b []byte) {
 
 func StorePublisher(publisher AlexandriaPublisher, dbtx *sql.Tx, txid string, block int, hash string) {
 	// store in database
-	stmtstr := `insert into publisher (name, address, timestamp, txid, block, emailmd5, bitmessage, hash, signature, active) values (?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ?, "` + hash + `", ?, 1)`
+	stmtstr := `insert into publisher (name, address, timestamp, txid, block, emailmd5, bitmessage, extraInfo, hash, signature, active) values (?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ?, ?, "` + hash + `", ?, 1)`
 
 	stmt, err := dbtx.Prepare(stmtstr)
 	if err != nil {
@@ -62,7 +63,7 @@ func StorePublisher(publisher AlexandriaPublisher, dbtx *sql.Tx, txid string, bl
 		log.Fatal(err)
 	}
 
-	_, stmterr := stmt.Exec(publisher.AlexandriaPublisher.Name, publisher.AlexandriaPublisher.Address, publisher.AlexandriaPublisher.Timestamp, publisher.AlexandriaPublisher.Emailmd5, publisher.AlexandriaPublisher.Bitmessage, publisher.Signature)
+	_, stmterr := stmt.Exec(publisher.AlexandriaPublisher.Name, publisher.AlexandriaPublisher.Address, publisher.AlexandriaPublisher.Timestamp, publisher.AlexandriaPublisher.Emailmd5, publisher.AlexandriaPublisher.Bitmessage, publisher.AlexandriaPublisher.ExtraInfo, publisher.Signature)
 	if err != nil {
 		fmt.Println("exit 101")
 		log.Fatal(stmterr)
