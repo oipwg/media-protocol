@@ -161,6 +161,10 @@ var oip041SqliteCreateStatements = []struct {
 		"ALTER TABLE 'historian' ADD COLUMN 'mrrLast24hr' FLOAT;",
 	},
 	{
+		"!addcol! ltcUSD",
+		"ALTER TABLE 'historian' ADD COLUMN 'ltcUSD' FLOAT default 0;",
+	},
+	{
 		"!addcol! nsfw",
 		"ALTER TABLE 'oip_artifact' ADD COLUMN 'nsfw' BOOLEAN;",
 	},
