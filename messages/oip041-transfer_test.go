@@ -47,10 +47,10 @@ func TestVerifyOIPTransfer(t *testing.T) {
 			o, err = VerifyOIP041Transfer(o)
 		}
 		if err != c.err {
-			t.Errorf("VerifyOIP041Transfer(#%d) | err == %q, want %q", i, err, c.err)
+			t.Errorf("VerifyOIP041Transfer(#%d) | err == %v, want %v", i, err, c.err)
 		}
 		if err == nil && !reflect.DeepEqual(o, c.out) {
-			t.Errorf("VerifyOIP041Transfer(#%d) | got == %q, want %q", i, o, c.out)
+			t.Errorf("VerifyOIP041Transfer(#%d) | got == %#v, want %#v", i, o, c.out)
 		}
 	}
 }

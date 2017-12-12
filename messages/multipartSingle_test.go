@@ -47,10 +47,10 @@ func TestVerifyMediaMultipartSingle(t *testing.T) {
 	for i, c := range cases {
 		got, err := VerifyMediaMultipartSingle(c.in, c.txid, c.block)
 		if err != c.err {
-			t.Errorf("VerifyMediaMultipartSingle(#%d) | err == %q, want %q", i, err, c.err)
+			t.Errorf("VerifyMediaMultipartSingle(#%d) | err == %v, want %v", i, err, c.err)
 		}
 		if err == nil && !reflect.DeepEqual(got, c.out) {
-			t.Errorf("VerifyMediaMultipartSingle(#%d) | got == %q, want %q", i, got, c.out)
+			t.Errorf("VerifyMediaMultipartSingle(#%d) | got == %#v, want %#v", i, got, c.out)
 		}
 	}
 }

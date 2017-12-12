@@ -96,7 +96,7 @@ func TestVerifyHistorianMessage(t *testing.T) {
 	for i, c := range cases {
 		got, err := VerifyHistorianMessage([]byte(c.in), c.block, dbtx)
 		if err != c.err {
-			t.Errorf("VerifyHistorianMessage(#%d) | err == %q, want %q", i, err, c.err)
+			t.Errorf("VerifyHistorianMessage(#%d) | err == %v, want %v", i, err, c.err)
 		}
 		if err == nil && !reflect.DeepEqual(got, c.out) {
 			t.Errorf("VerifyMediaMultipartSingle(#%d) | got == %v, want %v", i, got, c.out)
