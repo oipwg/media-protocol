@@ -45,7 +45,8 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	fmt.Printf("Pre-Patch:\n%s\n", sJSON)
 	out, err := obj.Apply([]byte(sJSON))
 	if err != nil {
-		log.Fatalf("Failed to apply patch:\n%v", err)
+		fmt.Printf("Failed to apply patch:\n%v\n", err)
+		return err
 	}
 	fmt.Printf("Post-Patch Result:\n%s\n", string(out))
 
