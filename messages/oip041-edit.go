@@ -12,7 +12,11 @@ import (
 func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 
 	// ToDo: This is super ugly
-	patch := UnSquashPatch(strings.Replace(string(o.Edit.Patch), `"path":"/`, `"path":"/artifact/`, -1))
+	err, patch := UnSquashPatch(strings.Replace(string(o.Edit.Patch), `"path":"/`, `"path":"/artifact/`, -1))
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("Patch:\n%s\n", patch)
 	obj, err := jsonpatch.DecodePatch([]byte(patch))
 	if err != nil {
@@ -111,12 +115,14 @@ func updateField(key string, value string, txid string, dbtx *sql.Tx) error {
 	return nil
 }
 
-func UnSquashPatch(sp string) string {
+func UnSquashPatch(sp string) (error, string) {
 	var p map[string][]map[string]*json.RawMessage // yikes
 	var up jsonpatch.Patch
 
 	err := json.Unmarshal([]byte(sp), &p)
-	fmt.Println(err)
+	if err != nil {
+		return err, ""
+	}
 
 	// op="Add", arr="Array of actions"
 	for op, arr := range p {
@@ -131,5 +137,5 @@ func UnSquashPatch(sp string) string {
 	fmt.Println(up)
 	usp, err := json.Marshal(&up)
 	fmt.Println(err)
-	return string(usp)
+	return nil, string(usp)
 }
