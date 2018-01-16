@@ -80,7 +80,7 @@ func StoreOIP041Deactivate(o Oip041, dbtx *sql.Tx) error {
 func VerifyOIP041Deactivate(o Oip041) (Oip041, error) {
 	oip_d := o.Deactivate
 
-	if len(oip_d.Reference) != 64 {
+	if len(oip_d.Reference) != 64 && len(oip_d.Reference) != 10 {
 		return o, ErrInvalidReference
 	}
 	return o, nil
