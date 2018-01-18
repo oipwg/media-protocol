@@ -9,12 +9,12 @@ import (
 )
 
 func TestUnSquashPatch(t *testing.T) {
-	uj := UnSquashPatch(squash_json)
+	err, uj := UnSquashPatch(squash_json)
 
 	var expected jsonpatch.Patch
 	var actual jsonpatch.Patch
 	json.Unmarshal([]byte(unsquash_json), &expected)
-	err := json.Unmarshal([]byte(uj), &actual)
+	err = json.Unmarshal([]byte(uj), &actual)
 	if err != nil {
 		t.Errorf("Error during unsquash: %v", err)
 	}
