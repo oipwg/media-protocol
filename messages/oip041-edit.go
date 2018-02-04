@@ -3,6 +3,7 @@ package messages
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/bitspill/json-patch"
 	"log"
@@ -25,15 +26,18 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 
 	// ToDo: Check the signature... but first decide what to sign
 
+	if len(txid) < 10 {
+		return errors.New("edit reference must be at least 10 characters")
+	}
+
 	stmtstr := `SELECT json,txid,publisher
-		FROM oip_artifact WHERE txid=? LIMIT 1`
+		FROM oip_artifact WHERE txid LIKE ? LIMIT 1`
 
 	stmt, err := dbtx.Prepare(stmtstr)
 	if err != nil {
-		fmt.Println("RIP Handle Edit 1")
-		log.Fatal(err)
+		return err
 	}
-	row := stmt.QueryRow(o.Edit.TxID)
+	row := stmt.QueryRow(o.Edit.TxID + "%")
 
 	var sJSON string
 	var publisher string
@@ -41,8 +45,8 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 
 	err = row.Scan(&sJSON, &txID, &publisher)
 	if err != nil {
-		fmt.Println("RIP Handle Edit 2")
-		log.Fatal(err)
+		fmt.Printf("Failed to find txid (%s) for edit", o.Edit.TxID)
+		return err
 	}
 	stmt.Close()
 
