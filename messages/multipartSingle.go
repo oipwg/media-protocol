@@ -22,12 +22,17 @@ type MediaMultipartSingle struct {
 	Block     int
 }
 
-func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error) {
+func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, string, error) {
 	// using the reference tx, check how many different txs we have and determine if we have all transactions
 	// if we have a valid media-multipart complete instance, let's return the byte array it consists of
 	var ret []byte
+	var ref string
 
-	stmtstr := `select part, max, data from media_multipart where active = 1 and complete = 0 and reference = "` + reference + `" order by part asc`
+	if len(reference) < 10 {
+		return ret, ref, errors.New("multipart reference must be at least 10 characters")
+	}
+
+	stmtstr := `select part, max, data, txid from media_multipart where active = 1 and complete = 0 and reference like "` + reference + `%" order by part asc`
 
 	stmt, err := dbtx.Prepare(stmtstr)
 	if err != nil {
@@ -49,11 +54,16 @@ func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error)
 		var part int
 		var max int
 		var data string
-		rows.Scan(&part, &max, &data)
+		var txid string
+		rows.Scan(&part, &max, &data, &txid)
+
+		if part == 0 {
+			ref = txid
+		}
 
 		// TODO: require signature verification for multipart messages
 		if rowsCount > max {
-			return ret, errors.New("too many rows in multipart message - check for reorg/bogus multipart data")
+			return ret, ref, errors.New("too many rows in multipart message - check for reorg/bogus multipart data")
 		}
 		rowsCount++
 
@@ -62,7 +72,7 @@ func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error)
 	}
 
 	if rowsCount != pmax+1 {
-		return ret, errors.New("only found " + strconv.Itoa(rowsCount) + "/" + strconv.Itoa(pmax+1) + " multipart messages")
+		return ret, ref, errors.New("only found " + strconv.Itoa(rowsCount) + "/" + strconv.Itoa(pmax+1) + " multipart messages")
 	}
 
 	stmt.Close()
@@ -83,7 +93,7 @@ func CheckMediaMultipartComplete(reference string, dbtx *sql.Tx) ([]byte, error)
 	}
 	updatestmt.Close()
 
-	return []byte(fullData), nil
+	return []byte(fullData), ref, nil
 }
 
 func StoreMediaMultipartSingle(mms MediaMultipartSingle, dbtx *sql.Tx) {
@@ -203,10 +213,10 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	if part == 0 {
 		reference = txid
 
-		// hard-fork 2017-08-25 for shorter txid reference ids
-		if block >= 2280000 {
-			reference = txid[:10]
-		}
+		//// hard-fork 2017-08-25 for shorter txid reference ids
+		//if block >= 2280000 {
+		//	reference = txid[:10]
+		//}
 	}
 
 	// all checks passed, verified!
