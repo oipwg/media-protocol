@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bitspill/json-patch"
+	"github.com/oipwg/media-protocol/utility"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -23,8 +25,6 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	if err != nil {
 		log.Fatalf("Failed to decode patch:\n%v", err)
 	}
-
-	// ToDo: Check the signature... but first decide what to sign
 
 	if len(txid) < 10 {
 		return errors.New("edit reference must be at least 10 characters")
@@ -49,6 +49,13 @@ func HandleOIP041Edit(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 		return err
 	}
 	stmt.Close()
+
+	// signature pre-image is artifactID-address-timestamp
+	preimage := o.Edit.TxID + "-" + publisher + "-" + strconv.FormatInt(o.Edit.Timestamp, 10)
+	val, _ := utility.CheckSignature(publisher, o.Signature, preimage)
+	if !val {
+		return ErrBadSignature
+	}
 
 	fmt.Printf("Pre-Patch:\n%s\n", sJSON)
 	out, err := obj.Apply([]byte(sJSON))
