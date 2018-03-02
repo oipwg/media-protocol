@@ -64,6 +64,7 @@ type Oip041Artifact struct {
 type Oip041Info struct {
 	Title           string          `json:"title"`
 	Description     string          `json:"description"`
+	Tags            string          `json:"tags"`
 	Year            int             `json:"year"`
 	NSFW            bool            `json:"nsfw"`
 	ExtraInfo       json.RawMessage `json:"extraInfo"`
