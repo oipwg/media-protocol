@@ -6,8 +6,19 @@ import (
 	"github.com/btcsuite/btcutil"
 )
 
+var utilIsTestnet bool = false
+
+func SetTestnet(testnet bool) {
+	utilIsTestnet = testnet
+}
+
 func CheckAddress(address string) bool {
-	_, err := btcutil.DecodeAddress(address, &FloParams)
+	var err error
+	if utilIsTestnet {
+		_, err = btcutil.DecodeAddress(address, &FloTestnetParams)
+	} else {
+		_, err = btcutil.DecodeAddress(address, &FloParams)
+	}
 	if err != nil {
 		return false
 	}
@@ -15,7 +26,10 @@ func CheckAddress(address string) bool {
 }
 
 func CheckSignature(address string, signature string, message string) (bool, error) {
-	return bitsig_go.CheckSignature(address, signature, message, "Florincoin", &FloParams)
+	if utilIsTestnet {
+		return bitsig_go.CheckSignature(address, signature, message, "testFlo", &FloTestnetParams)
+	}
+	return bitsig_go.CheckSignature(address, signature, message, "flo", &FloParams)
 }
 
 // reference: Cory LaNou, Mar 2 '14 at 15:21, http://stackoverflow.com/a/22129435/2576956
