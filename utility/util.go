@@ -12,6 +12,10 @@ func SetTestnet(testnet bool) {
 	utilIsTestnet = testnet
 }
 
+func Testnet() bool {
+	return utilIsTestnet
+}
+
 func CheckAddress(address string) bool {
 	var err error
 	if utilIsTestnet {

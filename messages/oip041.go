@@ -11,7 +11,7 @@ import (
 )
 
 func VerifyOIP041(s string, block int) (Oip041, error) {
-	if block < 1997454 {
+	if !utility.Testnet() && block < 1997454 {
 		return Oip041{}, ErrTooEarly
 	}
 

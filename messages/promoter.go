@@ -137,7 +137,7 @@ func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 
 	var pr AlexandriaPromoter
 
-	if block < 2205000 {
+	if !utility.Testnet() && block < 2205000 {
 		return pr, ErrTooEarly
 	}
 

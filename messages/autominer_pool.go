@@ -35,7 +35,7 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 
 	var amp AlexandriaAutominerPool
 
-	if block < 2205000 {
+	if !utility.Testnet() && block < 2205000 {
 		return amp, ErrTooEarly
 	}
 
@@ -48,15 +48,15 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 		return amp, err
 	}
 
-	fmt.Printf("amp: %+v\n", amp)
+	//fmt.Printf("amp: %+v\n", amp)
 
 	// parse float into string for signature
 	targetMarginStr := strconv.FormatFloat(amp.AutominerPool.TargetMargin, 'f', -1, 64)
 	poolShareStr := strconv.FormatFloat(amp.AutominerPool.PoolShare, 'f', -1, 64)
 	versionStr := strconv.FormatInt(amp.AutominerPool.Version, 10)
 
-	fmt.Printf("preimage components")
-	fmt.Printf("targetMarginStr: %v\npoolShareStr: %v\nversionStr: %v\n", targetMarginStr, poolShareStr, versionStr)
+	//fmt.Printf("preimage components")
+	//fmt.Printf("targetMarginStr: %v\npoolShareStr: %v\nversionStr: %v\n", targetMarginStr, poolShareStr, versionStr)
 
 	// verify signature was created by this address
 	// signature pre-image for autominer is <weburl>-<version>-<targetmargin>-<poolshare>-[poolname]
@@ -66,8 +66,8 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 		preImage += "-" + amp.AutominerPool.PoolName
 	}
 
-	fmt.Printf("pre-image: %v", preImage)
-	fmt.Printf("\n\n\n")
+	//fmt.Printf("pre-image: %v", preImage)
+	//fmt.Printf("\n\n\n")
 	sigOK, _ := utility.CheckSignature(amp.AutominerPool.FLOAddress, amp.Signature, preImage)
 	if sigOK == false {
 		return amp, ErrBadSignature

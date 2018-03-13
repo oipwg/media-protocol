@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/messages"
+	"github.com/oipwg/media-protocol/utility"
 	"strings"
 )
 
@@ -17,6 +18,9 @@ type ParseErrors struct {
 
 func GetMinBlock() int {
 	// TODO: find min block from multiple protocols programmatically
+	if utility.Testnet() {
+		return 1
+	}
 	return min_block
 }
 

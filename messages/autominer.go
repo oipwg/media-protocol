@@ -52,7 +52,7 @@ func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
 
 	var am AlexandriaAutominer
 
-	if block < 2205000 {
+	if !utility.Testnet() && block < 2205000 {
 		return am, ErrTooEarly
 	}
 

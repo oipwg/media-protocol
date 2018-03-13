@@ -88,7 +88,7 @@ func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 
 	var ar AlexandriaRetailer
 
-	if block < 2205000 {
+	if !utility.Testnet() && block < 2205000 {
 		return ar, ErrTooEarly
 	}
 
@@ -101,7 +101,7 @@ func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 		return ar, err
 	}
 
-	fmt.Printf("ar: %+v\n", ar)
+	//fmt.Printf("ar: %+v\n", ar)
 
 	// verify signature was created by this address
 	// signature pre-image for retailer is <btcaddress>-<weburl>-<version>
@@ -113,9 +113,9 @@ func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 		preImage += "-" + ar.Retailer.OptionalFields.Name + "-" + strconv.FormatFloat(ar.Retailer.OptionalFields.MinimumShare, 'f', -1, 64)
 	}
 
-	fmt.Printf("\n###### pre-image: %v", preImage)
-	fmt.Printf("\n###### signature: %v\n", ar.Signature)
-	fmt.Printf("\n\n\n")
+	//fmt.Printf("\n###### pre-image: %v", preImage)
+	//fmt.Printf("\n###### signature: %v\n", ar.Signature)
+	//fmt.Printf("\n\n\n")
 	sigOK, _ := utility.CheckSignature(ar.Retailer.FLOAddress, ar.Signature, preImage)
 	if sigOK == false {
 		return ar, ErrBadSignature
