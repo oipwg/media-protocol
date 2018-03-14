@@ -31,9 +31,9 @@ func CheckAddress(address string) bool {
 
 func CheckSignature(address string, signature string, message string) (bool, error) {
 	if utilIsTestnet {
-		return bitsig_go.CheckSignature(address, signature, message, "FLO", &FloTestnetParams)
+		return bitsig_go.CheckSignature(address, signature, message, "Florincoin", &FloTestnetParams)
 	}
-	return bitsig_go.CheckSignature(address, signature, message, "FLO", &FloParams)
+	return bitsig_go.CheckSignature(address, signature, message, "Florincoin", &FloParams)
 }
 
 // reference: Cory LaNou, Mar 2 '14 at 15:21, http://stackoverflow.com/a/22129435/2576956
