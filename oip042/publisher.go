@@ -1,0 +1,59 @@
+package oip042
+
+import (
+	"encoding/json"
+	"github.com/jmoiron/sqlx"
+	"github.com/oipwg/media-protocol/utility"
+	"strconv"
+	"strings"
+)
+
+type RegisterPub struct {
+	Alias      string   `json:"alias"`
+	FloAddress string   `json:"floAddress"`
+	Timestamp  int64    `json:"timestamp"`
+	Authorized []string `json:"authorized"`
+	Info       struct {
+		Emailmd5           string `json:"emailmd5"`
+		AvatarNetwork      string `json:"avatarNetwork"`
+		Avatar             string `json:"avatar"`
+		HeaderImageNetwork string `json:"headerImageNetwork"`
+		HeaderImage        string `json:"headerImage"`
+		Bitmessage         string `json:"bitmessage"`
+	} `json:"info"`
+	Verification struct {
+		Imdb        string `json:"imdb"`
+		Musicbrainz string `json:"musicbrainz"`
+		Twitter     string `json:"twitter"`
+		Facebook    string `json:"facebook"`
+	} `json:"verification"`
+}
+
+func (rp RegisterPub) Store(context OipContext, dbtx *sqlx.Tx) error {
+	panic("implement me")
+}
+
+type EditPub struct {
+	Address   string          `json:"address"`
+	Timestamp int64           `json:"timestamp"`
+	Patch     json.RawMessage `json:"patch"`
+}
+
+func (ep EditPub) Store(context OipContext, dbtx *sqlx.Tx) error {
+	panic("implement me")
+}
+
+func (rp RegisterPub) Validate(context OipContext) (OipAction, error) {
+	v := []string{rp.Alias, rp.FloAddress, strconv.FormatInt(rp.Timestamp, 10)}
+	preImage := strings.Join(v, "-")
+	sigOk, _ := utility.CheckSignature(rp.FloAddress, context.signature, preImage)
+	if !sigOk {
+		return rp, ErrBadSignature
+	}
+
+	return rp, nil
+}
+
+func (ep EditPub) Validate(context OipContext) (OipAction, error) {
+	return ep, ErrNotImplemented
+}

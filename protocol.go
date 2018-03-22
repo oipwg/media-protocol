@@ -1,9 +1,12 @@
 package alexandriaProtocol
 
 import (
-	"database/sql"
+	"encoding/json"
+	"errors"
+	"github.com/jmoiron/sqlx"
 	"github.com/metacoin/flojson"
 	"github.com/oipwg/media-protocol/messages"
+	"github.com/oipwg/media-protocol/oip042"
 	"github.com/oipwg/media-protocol/utility"
 	"strings"
 )
@@ -16,6 +19,8 @@ type ParseErrors struct {
 	Error       error
 }
 
+var ErrUnknownType = errors.New("unknown type")
+
 func GetMinBlock() int {
 	// TODO: find min block from multiple protocols programmatically
 	if utility.Testnet() {
@@ -24,13 +29,19 @@ func GetMinBlock() int {
 	return min_block
 }
 
-func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbtx *sql.Tx) (interface{}, map[string]interface{}, error, []ParseErrors) {
+func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbtx *sqlx.Tx) (interface{}, map[string]interface{}, error, []ParseErrors) {
 
 	var pe []ParseErrors
 
 	txComment := tx.TxComment
 	if strings.HasPrefix(txComment, "text:") {
 		txComment = txComment[5:]
+	}
+
+	if strings.HasPrefix(txComment, "json:") {
+		txComment = txComment[5:]
+		res, err := ParseJson(tx, txComment, txid, block, dbtx)
+		return res, nil, err, pe
 	}
 
 	processingBlock := int(block.Height)
@@ -65,7 +76,7 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 
 	// check for historian messages
 	if len(tx.Vin) > 0 && tx.Vin[0].IsCoinBase() {
-		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx)
+		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx.Tx)
 		if err == nil {
 			return hm, nil, nil, pe
 		}
@@ -107,5 +118,37 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 	pe = append(pe, ParseErrors{"OIP041", err})
 
+	res, err := ParseJson(tx, txComment, txid, block, dbtx)
+	if err == nil {
+		return res, nil, err, pe
+	}
+	pe = append(pe, ParseErrors{"OIP042", err})
+
 	return nil, nil, err, pe
+}
+
+func ParseJson(tx *flojson.TxRawResult, txComment string, txid string, block *flojson.BlockResult, dbtx *sqlx.Tx) (interface{}, error) {
+	type supportedJsonTypes struct {
+		Oip042 *oip042.Oip042 `json:"oip042,omitempty"`
+	}
+
+	var dec supportedJsonTypes
+	err := json.Unmarshal([]byte(txComment), &dec)
+	if err != nil {
+		return nil, messages.ErrNotJSON
+	}
+
+	// only process the first match, disregard remaining
+	// otherwise there's order of operations to consider
+
+	if dec.Oip042 != nil {
+		return dec.Oip042.ValidateIncoming(tx, txComment, txid, block, dbtx)
+	}
+
+	// if dec.type2 != nil {
+	//   err := dec.type2.ValidateIncoming(...)
+	//   return dec.type2, err
+	// }
+
+	return nil, ErrUnknownType
 }

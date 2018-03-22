@@ -73,7 +73,7 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 		return amp, ErrBadSignature
 	}
 
-	fmt.Println(" -- VERIFIED --")
+	//fmt.Println(" -- VERIFIED --")
 	return amp, nil
 }
 
