@@ -1,8 +1,10 @@
 package oip042
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/metacoin/flojson"
 )
@@ -50,4 +52,30 @@ func (o Oip042) ValidateIncoming(tx *flojson.TxRawResult, txComment string, txid
 func SetupTables(dbtx *sqlx.Tx) error {
 	_, err := dbtx.Exec(createTomogramTable)
 	return err
+}
+
+func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
+	sql, args, err := squirrel.Select("json").
+		From("artifactsResearchTomogram").
+		Where(squirrel.Eq{"txid": artId}).Where(squirrel.Eq{"active": 1}).ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+	row := dbh.QueryRow(sql, args...)
+
+	var j json.RawMessage
+	err = row.Scan(&j)
+	if err != nil {
+		return nil, err
+	}
+
+	type OipInner struct {
+		Artifact json.RawMessage `json:"artifact"`
+	}
+	type rWrap struct {
+		OipInner `json:"oip042"`
+	}
+
+	return rWrap{OipInner{j}}, nil
 }
