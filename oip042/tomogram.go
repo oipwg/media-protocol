@@ -10,19 +10,17 @@ import (
 )
 
 type TomogramDetails struct {
-	Date           int64  `json:"date,omitempty"`
-	NBCItaxID      uint64 `json:"NBCItaxID,omitempty"`
-	Etdbid         string `json:"etdbid,omitempty"`
-	ArtNotes       string `json:"artNotes,omitempty"`
-	ScopeName      string `json:"scopeName,omitempty"`
-	SpeciesName    string `json:"speciesName,omitempty"`
-	Strain         string `json:"strain,omitempty"`
-	TiltSingleDual string `json:"tiltSingleDual,omitempty"`
-	Defocus        string `json:"defocus,omitempty"`
-	Magnification  string `json:"magnification,omitempty"`
-	SwAcquisition  string `json:"swAcquisition,omitempty"`
-	SwProcess      string `json:"swProcess,omitempty"`
-	Emdb           string `json:"emdb,omitempty"`
+	Date           int64   `json:"date,omitempty"`
+	NBCItaxID      int64   `json:"NBCItaxID,omitempty"`
+	Etdbid         int64   `json:"etdbid,omitempty"`
+	ArtNotes       string  `json:"artNotes,omitempty"`
+	ScopeName      string  `json:"scopeName,omitempty"`
+	SpeciesName    string  `json:"speciesName,omitempty"`
+	Strain         string  `json:"strain,omitempty"`
+	TiltSingleDual int64   `json:"tiltSingleDual,omitempty"`
+	Defocus        float64 `json:"defocus,omitempty"`
+	Magnification  float64 `json:"magnification,omitempty"`
+	Emdb           string  `json:"emdb,omitempty"`
 }
 
 type PublishTomogram struct {
@@ -36,7 +34,7 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 		return nil, err
 	}
 
-	if len(pt.TomogramDetails.Etdbid) == 0 {
+	if pt.TomogramDetails.Etdbid == 0 {
 		return nil, errors.New("tomogram: missing ETDB ID")
 	}
 	if len(pt.TomogramDetails.ScopeName) == 0 {
@@ -68,12 +66,12 @@ func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
 	q := sq.Insert("artifactsResearchTomogram").
 		Columns("ScanDate", "NBCItaxID", "Etdbid", "ArtNotes",
 			"ScopeName", "SpeciesName", "TiltSingleDual", "Defocus",
-			"Magnification", "SwAcquisition", "SwProcess", "Emdb",
+			"Magnification", "Emdb",
 			"active", "block", "json", "tags", "timestamp",
 			"title", "txid", "type", "subType", "publisher").
 		Values(pt.Date, pt.NBCItaxID, pt.Etdbid, pt.ArtNotes,
 			pt.ScopeName, pt.SpeciesName, pt.TiltSingleDual, pt.Defocus,
-			pt.Magnification, pt.SwAcquisition, pt.SwProcess, pt.Emdb,
+			pt.Magnification, pt.Emdb,
 			1, context.BlockHeight, j, pt.Info.Tags, pt.Timestamp,
 			pt.Info.Title, context.TxId, pt.Type, pt.SubType, pt.FloAddress)
 
@@ -93,8 +91,13 @@ func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
 }
 
 func (pt PublishTomogram) MarshalJSON() ([]byte, error) {
-	fmt.Println("wut")
-	return json.Marshal(pt.PublishArtifact)
+	pa := pt.PublishArtifact
+	buf, err := json.Marshal(pt.TomogramDetails)
+	if err != nil {
+		return nil, err
+	}
+	pa.Details = buf
+	return json.Marshal(pa)
 }
 
 func GetAllTomograms(dbtx *sqlx.Tx) ([]interface{}, error) {

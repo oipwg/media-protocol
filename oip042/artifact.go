@@ -36,6 +36,7 @@ type ArtifactStorage struct {
 }
 
 type ArtifactFiles struct {
+	Software     string  `json:"software,omitempty"`
 	DisallowBuy  bool    `json:"disBuy,omitempty"`
 	Dname        string  `json:"dname,omitempty"`
 	Duration     float64 `json:"duration,omitempty"`
@@ -54,6 +55,8 @@ type ArtifactFiles struct {
 	MinBuy       float64 `json:"minBuy,omitempty"`
 	SugBuy       float64 `json:"sugBuy,omitempty"`
 	SubType      string  `json:"subtype,omitempty"`
+	CType        string  `json:"cType,omitempty"`
+	Fnotes       string  `json:"fNotes,omitempty"`
 }
 
 type PaymentAddress map[string]string
