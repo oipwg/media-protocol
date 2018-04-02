@@ -34,12 +34,9 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 		return nil, err
 	}
 
-	if pt.TomogramDetails.Etdbid == 0 {
-		return nil, errors.New("tomogram: missing ETDB ID")
-	}
-	if len(pt.TomogramDetails.ScopeName) == 0 {
-		return nil, errors.New("tomogram: missing Scope Name")
-	}
+	//if len(pt.TomogramDetails.ScopeName) == 0 {
+	//	return nil, errors.New("tomogram: missing Scope Name")
+	//}
 	if len(pt.TomogramDetails.SpeciesName) == 0 {
 		return nil, errors.New("tomogram: missing Species Name")
 	}
