@@ -98,7 +98,7 @@ func (pt PublishTomogram) MarshalJSON() ([]byte, error) {
 }
 
 func GetAllTomograms(dbtx *sqlx.Tx) ([]interface{}, error) {
-	q := sq.Select("json").From("artifactsResearchTomogram").Where("active = ?", 1)
+	q := sq.Select("json", "txid", "publisher").From("artifactsResearchTomogram").Where("active = ?", 1)
 	sql, args, err := q.ToSql()
 	if err != nil {
 		return nil, err
@@ -112,16 +112,20 @@ func GetAllTomograms(dbtx *sqlx.Tx) ([]interface{}, error) {
 		Artifact json.RawMessage `json:"artifact"`
 	}
 	type rWrap struct {
-		OipInner `json:"oip042"`
+		OipInner  `json:"oip042"`
+		Txid      string `json:"txid"`
+		Publisher string `json:"publisher"`
 	}
 	var res []interface{}
 	for rows.Next() {
 		var j json.RawMessage
-		err := rows.Scan(&j)
+		var txid string
+		var publisher string
+		err := rows.Scan(&j, &txid, &publisher)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, rWrap{OipInner{j}})
+		res = append(res, rWrap{OipInner{j}, txid, publisher})
 	}
 
 	return res, nil
