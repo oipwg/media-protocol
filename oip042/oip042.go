@@ -55,17 +55,23 @@ func SetupTables(dbtx *sqlx.Tx) error {
 }
 
 func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
-	sql, args, err := squirrel.Select("json").
-		From("artifactsResearchTomogram").
-		Where(squirrel.Eq{"txid": artId}).Where(squirrel.Eq{"active": 1}).ToSql()
-
+	q := squirrel.Select("json", "txid", "publisher").
+		From("artifactsResearchTomogram").Where(squirrel.Eq{"active": 1})
+	if len(artId) == 64 {
+		q = q.Where(squirrel.Eq{"txid": artId})
+	} else {
+		q = q.Where("txid LIKE ?", fmt.Sprint(artId, "%"))
+	}
+	sql, args, err := q.ToSql()
 	if err != nil {
 		return nil, err
 	}
 	row := dbh.QueryRow(sql, args...)
 
 	var j json.RawMessage
-	err = row.Scan(&j)
+	var txid string
+	var publisher string
+	err = row.Scan(&j, &txid, &publisher)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +80,10 @@ func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 		Artifact json.RawMessage `json:"artifact"`
 	}
 	type rWrap struct {
-		OipInner `json:"oip042"`
+		OipInner  `json:"oip042"`
+		Txid      string `json:"txid"`
+		Publisher string `json:"publisher"`
 	}
 
-	return rWrap{OipInner{j}}, nil
+	return rWrap{OipInner{j}, txid, publisher}, nil
 }
