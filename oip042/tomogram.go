@@ -21,6 +21,9 @@ type TomogramDetails struct {
 	Defocus        float64 `json:"defocus,omitempty"`
 	Magnification  float64 `json:"magnification,omitempty"`
 	Emdb           string  `json:"emdb,omitempty"`
+	Microscopist   string  `json:"microscopist,omitempty"`
+	Institution    string  `json:"institution,omitempty"`
+	Lab            string  `json:"lab,omitempty"`
 }
 
 type PublishTomogram struct {
