@@ -56,7 +56,7 @@ type ArtifactFiles struct {
 	SugBuy       float64 `json:"sugBuy,omitempty"`
 	SubType      string  `json:"subtype,omitempty"`
 	CType        string  `json:"cType,omitempty"`
-	Fnotes       string  `json:"fNotes,omitempty"`
+	FNotes       string  `json:"fNotes,omitempty"`
 }
 
 type PaymentAddress map[string]string
@@ -134,6 +134,15 @@ func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
 
 	if pa.Type == "research" && pa.SubType == "tomogram" {
 		return PublishTomogram{PublishArtifact: pa}.Validate(context)
+	}
+	if pa.Type == "property" && pa.SubType == "party" {
+		return PublishPropertyParty{PublishArtifact: pa}.Validate(context)
+	}
+	if pa.Type == "property" && pa.SubType == "tenure" {
+		return PublishPropertyTenure{PublishArtifact: pa}.Validate(context)
+	}
+	if pa.Type == "property" && pa.SubType == "spatialUnit" {
+		return PublishPropertySpatialUnit{PublishArtifact: pa}.Validate(context)
 	}
 
 	return pa, nil
