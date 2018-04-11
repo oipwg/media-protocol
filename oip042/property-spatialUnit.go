@@ -110,7 +110,7 @@ func (ppsu PublishPropertySpatialUnit) MarshalJSON() ([]byte, error) {
 	return json.Marshal(pa)
 }
 
-func GetAllPropertyspatialUnit(dbtx *sqlx.Tx) ([]interface{}, error) {
+func GetAllPropertySpatialUnit(dbtx *sqlx.Tx) ([]interface{}, error) {
 	// ToDo combine/simplify these GetAll functions similar to GetById
 	q := sq.Select("json", "txid", "publisher").
 		From("artifactPropertySpatialUnit").

@@ -76,6 +76,33 @@ func SetupTables(dbtx *sqlx.Tx) error {
 	return nil
 }
 
+func GetAllArtifacts(dbtx *sqlx.Tx) ([]interface{}, error) {
+	var res []interface{}
+
+	tomo, err := GetAllTomograms(dbtx)
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, tomo...)
+	party, err := GetAllPropertyParty(dbtx)
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, party...)
+	tenure, err := GetAllPropertyTenure(dbtx)
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, tenure...)
+	spatial, err := GetAllPropertySpatialUnit(dbtx)
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, spatial...)
+
+	return res, nil
+}
+
 func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 	// ToDo this function would appreciate the unified table structure
 	var err error
