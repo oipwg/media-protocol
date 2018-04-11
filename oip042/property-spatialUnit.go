@@ -2,48 +2,63 @@ package oip042
 
 import (
 	"encoding/json"
-	"errors"
+	//"errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
 
 type SpatialUnitDetails struct {
-	Ns           string          `json:"ns"`
-	Geometry     Geometry        `json:"geometry"`
-	SpatialType  string          `json:"spatialType"`
-	SpatialUnits []string        `json:"spatialUnits"`
-	Attrs        json.RawMessage `json:"attrs"`
+	Ns           string          `json:"ns,omitempty"`
+	Geometry     *Geometry       `json:"geometry,omitempty"`
+	SpatialType  string          `json:"spatialType,omitempty"`
+	SpatialUnits []string        `json:"spatialUnits,omitempty"`
+	BBox         []float64       `json:"bbox,omitempty"`
+	Attrs        json.RawMessage `json:"attrs,omitempty"`
 }
 
 type DecimalDegrees struct {
+	// ToDo
 }
 type DegreesMinutesSeconds struct {
+	// ToDo
 }
 
 type Geometry struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
-	dd   DecimalDegrees
-	dms  DegreesMinutesSeconds
+	// ToDo reconsider how this is structured, should Data be an interface?
+	dd   *DecimalDegrees
+	dms  *DegreesMinutesSeconds
+	text string
 }
 
-var ErrUnknownGeometryType = errors.New("unknown geometry type")
-
-func (u *Geometry) UnmarshalJSON(data []byte) error {
-	var err error
-	switch u.Type {
-	case "dd":
-		err = json.Unmarshal(data, &u.dd)
-	case "dms":
-		err = json.Unmarshal(data, &u.dms)
-	default:
-		err = ErrUnknownGeometryType
-	}
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// ToDo: Currently has infinite recursion,
+//var ErrUnknownGeometryType = errors.New("unknown geometry type")
+//
+//func (u *Geometry) UnmarshalJSON(data []byte) error {
+//	var err error
+//
+// // ToDo as is need a temp struct to unmarshal to then copy values back to Geometry
+//	err = json.Unmarshal(data, &u)
+//	if err != nil {
+//		return err
+//	}
+//
+//	switch u.Type {
+//	case "dd":
+//		err = json.Unmarshal(u.Data, &u.dd)
+//	case "dms":
+//		err = json.Unmarshal(u.Data, &u.dms)
+//	case "text":
+//		u.text = string(u.Data)
+//	default:
+//		err = ErrUnknownGeometryType
+//	}
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 type PublishPropertySpatialUnit struct {
 	PublishArtifact

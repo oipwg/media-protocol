@@ -3,6 +3,7 @@ package oip042
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
@@ -76,7 +77,10 @@ type PublishArtifact struct {
 }
 
 func (pa PublishArtifact) Store(context OipContext, dbtx *sqlx.Tx) error {
-	panic("implement me")
+	// ToDo store generic publishes without indexing details
+	fmt.Println("Attempted to store unknown PublishArtifact type")
+	fmt.Println("Disregarding for now.")
+	return ErrNotImplemented
 }
 
 type EditArtifact struct {
@@ -125,7 +129,7 @@ func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
 	if len(strings.TrimSpace(pa.Type)) == 0 {
 		return nil, ErrTypeMissing
 	}
-	if pa.Storage != nil && pa.Storage.Network != "ipfs" {
+	if pa.Storage != nil && strings.ToLower(pa.Storage.Network) != "ipfs" {
 		return nil, errors.New("artifact: only IPFS network is supported")
 	}
 	if pa.Timestamp <= 0 {
@@ -135,14 +139,16 @@ func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
 	if pa.Type == "research" && pa.SubType == "tomogram" {
 		return PublishTomogram{PublishArtifact: pa}.Validate(context)
 	}
-	if pa.Type == "property" && pa.SubType == "party" {
-		return PublishPropertyParty{PublishArtifact: pa}.Validate(context)
-	}
-	if pa.Type == "property" && pa.SubType == "tenure" {
-		return PublishPropertyTenure{PublishArtifact: pa}.Validate(context)
-	}
-	if pa.Type == "property" && pa.SubType == "spatialUnit" {
-		return PublishPropertySpatialUnit{PublishArtifact: pa}.Validate(context)
+	if pa.Type == "property" {
+		if pa.SubType == "party" {
+			return PublishPropertyParty{PublishArtifact: pa}.Validate(context)
+		}
+		if pa.SubType == "tenure" {
+			return PublishPropertyTenure{PublishArtifact: pa}.Validate(context)
+		}
+		if pa.SubType == "spatialUnit" {
+			return PublishPropertySpatialUnit{PublishArtifact: pa}.Validate(context)
+		}
 	}
 
 	return pa, nil

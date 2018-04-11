@@ -5,17 +5,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oipwg/media-protocol"
+	"github.com/metacoin/flojson"
+	mp "github.com/oipwg/media-protocol"
 	"github.com/oipwg/media-protocol/oip042"
 )
 
 func TestPublishTomogram_Validate(t *testing.T) {
-	a, err := alexandriaProtocol.ParseJson(nil, sampleJson, "", nil, nil)
+	a, err := mp.ParseJson(nil, sampleJson, "", &flojson.BlockResult{Height: 1}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	pt := a.(oip042.PublishTomogram)
-	j, errr := json.Marshal(pt)
-	fmt.Println(err)
+	j, err := json.Marshal(pt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("Publish Research-Tomogram:")
 	fmt.Println(string(j))
-	fmt.Println(errr)
 }
 
 const sampleJson = `{
@@ -29,17 +35,16 @@ const sampleJson = `{
         "details": {
           "scopeName": "string",
           "speciesName": "string",
-          "tiltSingleDual": "string",
+          "tiltSingleDual": 1,
           "strain": "string",
           "swAcquisition": "string",
           "swProcess": "string",
           "emdb": "string",
-          "magnification": "string",
-          "defocus": "string",
+          "magnification": 1.0,
+          "defocus": 1.0,
           "date": 13,
           "NBCItaxID": 14,
-          "artNotes": "string",
-          "etdbid": "string"
+          "artNotes": "string"
         },
         "info": {
           "title": "string",

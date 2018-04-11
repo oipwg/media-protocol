@@ -37,7 +37,6 @@ func (o Oip042) ValidateIncoming(tx *flojson.TxRawResult, txComment string, txid
 	}
 
 	if o.Publish != nil {
-		fmt.Println("publish 42")
 		return o.Publish.Validate(ctx)
 	}
 
@@ -81,8 +80,7 @@ func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 	// ToDo this function would appreciate the unified table structure
 	var err error
 	var res interface{}
-
-	res, err = GetByIdFromTable(dbh, artId, "artifactResearchTomogram")
+	res, err = GetByIdFromTable(dbh, artId, "artifactsResearchTomogram")
 	if err == nil || err != sql.ErrNoRows {
 		return res, err
 	}

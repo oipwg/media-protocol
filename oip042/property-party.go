@@ -7,12 +7,13 @@ import (
 )
 
 type PartyDetails struct {
-	Ns        string          `json:"ns"`
-	PartyRole string          `json:"partyRole"`
-	PartyType string          `json:"partyType"`
-	Tenures   []string        `json:"tenures"`
-	Groups    []string        `json:"groups"`
-	Attrs     json.RawMessage `json:"attrs"`
+	Ns        string          `json:"ns,omitempty"`
+	PartyRole string          `json:"partyRole,omitempty"`
+	PartyType string          `json:"partyType,omitempty"`
+	Tenures   []string        `json:"tenures,omitempty"`
+	Groups    []string        `json:"groups,omitempty"`
+	Members   []string        `json:"members,omitempty"`
+	Attrs     json.RawMessage `json:"attrs,omitempty"`
 }
 
 type PublishPropertyParty struct {
