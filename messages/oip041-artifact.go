@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/oipwg/media-protocol/oip042"
 	"github.com/oipwg/media-protocol/utility"
@@ -110,71 +109,74 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	artCost := 0   // o.GetArtCost()
 	pubFeeUSD := 0 // o.GetPubFeeUSD(dbtx)
 
-	//a := o.Artifact
-	//pa := oip042.PublishArtifact{
-	//	Type:    a.Type,
-	//	SubType: "",
-	//	Info: &oip042.ArtifactInfo{
-	//		Title:       a.Info.Title,
-	//		Tags:        a.Info.Tags,
-	//		Description: a.Info.Description,
-	//		Year:        a.Info.Year,
-	//		NSFW:        a.Info.NSFW,
-	//	},
-	//	FloAddress: a.Publisher,
-	//	Timestamp:  a.Timestamp,
-	//	Storage: &oip042.ArtifactStorage{
-	//		Location: a.Storage.Location,
-	//		Network:  a.Storage.Network,
-	//	},
-	//	Payment: &oip042.ArtifactPayment{
-	//		Scale:a.Payment.Scale,
-	//		MaxDiscount: a.Payment.MaxDiscount,
-	//		Tokens: nil,
-	//		Fiat: a.Payment.Fiat,
-	//		Addresses: nil,
-	//
-	//		},
-	//	Signature: o.Signature,
-	//}
-	//
-	//for _, f := range a.Storage.Files {
-	//	pa.Storage.Files = append(pa.Storage.Files, oip042.ArtifactFiles{
-	//		DisallowBuy:  f.DisallowBuy,
-	//		Dname:        f.Dname,
-	//		Duration:     f.Duration,
-	//		Fname:        f.Fname,
-	//		Fsize:        f.Fsize,
-	//		MinPlay:      f.MinPlay,
-	//		SugPlay:      f.SugPlay,
-	//		Promo:        f.Promo,
-	//		Retail:       f.Retail,
-	//		PtpFT:        f.PtpFT,
-	//		PtpDT:        f.PtpDT,
-	//		PtpDA:        f.PtpDA,
-	//		Type:         f.Type,
-	//		TokenlyID:    f.TokenlyID,
-	//		DisallowPlay: f.DisallowPlay,
-	//		MinBuy:       f.MinBuy,
-	//		SugBuy:       f.SugBuy,
-	//		SubType:      f.SubType,
-	//	})
-	//}
+	a := o.Artifact
 
-	var pa oip042.PublishArtifact
+	var t, st string
+	slices := strings.SplitN(a.Type, "-", 2)
+	if len(slices) == 1 {
+		t = slices[0]
+		st = ""
+	} else if len(slices) == 2 {
+		t = slices[0]
+		st = slices[1]
+	} else {
+		t = ""
+		st = ""
+	}
 
-	jt1, err := json.MarshalIndent(o.Artifact, " ", " ")
+	pa := oip042.PublishArtifact{
+		Type:    t,
+		SubType: st,
+		Info: &oip042.ArtifactInfo{
+			Title:       a.Info.Title,
+			Tags:        a.Info.Tags,
+			Description: a.Info.Description,
+			Year:        a.Info.Year,
+			NSFW:        a.Info.NSFW,
+		},
+		FloAddress: a.Publisher,
+		Timestamp:  a.Timestamp,
+		Storage: &oip042.ArtifactStorage{
+			Location: a.Storage.Location,
+			Network:  a.Storage.Network,
+			// Files is handled below
+		},
+		// ToDo: Convert payments
+		// ToDo: Convert details
+		Signature: o.Signature,
+	}
+
+	for _, f := range a.Storage.Files {
+		pa.Storage.Files = append(pa.Storage.Files, oip042.ArtifactFiles{
+			DisallowBuy:  f.DisallowBuy,
+			Dname:        f.Dname,
+			Duration:     f.Duration,
+			Fname:        f.Fname,
+			Fsize:        f.Fsize,
+			MinPlay:      f.MinPlay,
+			SugPlay:      f.SugPlay,
+			Promo:        f.Promo,
+			Retail:       f.Retail,
+			PtpFT:        f.PtpFT,
+			PtpDT:        f.PtpDT,
+			PtpDA:        f.PtpDA,
+			Type:         f.Type,
+			TokenlyID:    f.TokenlyID, // ToDo move to a file[n].details section
+			DisallowPlay: f.DisallowPlay,
+			MinBuy:       f.MinBuy,
+			SugBuy:       f.SugBuy,
+			SubType:      f.SubType,
+			CType:        "",
+			Software:     "", // ToDo move to a file[n].details section
+			FNotes:       "",
+		})
+	}
+
+	j, err := json.Marshal /*Indent*/ (pa) //, " ", " ")
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(jt1))
-	err = json.Unmarshal(jt1, &pa)
-
-	j, err := json.MarshalIndent(pa, " ", " ")
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(j))
+	//fmt.Println(string(j))
 
 	return nil
 	q := squirrel.Insert("artifact").
