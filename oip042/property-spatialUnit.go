@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	//"errors"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 type SpatialUnitDetails struct {
@@ -74,7 +73,7 @@ func (ppsu PublishPropertySpatialUnit) Validate(context OipContext) (OipAction, 
 	return ppsu, nil
 }
 
-func (ppsu PublishPropertySpatialUnit) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ppsu PublishPropertySpatialUnit) Store(context OipContext) error {
 	j, err := json.Marshal(ppsu)
 	if err != nil {
 		return err
@@ -91,7 +90,7 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext, dbtx *sqlx.Tx) 
 		return err
 	}
 
-	res, err := dbtx.Exec(sql, args...)
+	res, err := context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}
@@ -110,7 +109,7 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext, dbtx *sqlx.Tx) 
 		return err
 	}
 
-	_, err = dbtx.Exec(sql, args...)
+	_, err = context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}

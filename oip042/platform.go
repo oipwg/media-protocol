@@ -2,7 +2,6 @@ package oip042
 
 import (
 	"encoding/json"
-	"github.com/jmoiron/sqlx"
 )
 
 type RegisterPlatform struct {
@@ -16,7 +15,7 @@ type RegisterPlatform struct {
 	Info         PlatformInfo      `json:"info"`
 }
 
-func (rp RegisterPlatform) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (rp RegisterPlatform) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -31,7 +30,7 @@ type EditPlatform struct {
 	Patch      json.RawMessage `json:"patch"`
 }
 
-func (platform *EditPlatform) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (platform *EditPlatform) Store(context OipContext) error {
 	panic("implement me")
 }
 

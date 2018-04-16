@@ -2,7 +2,6 @@ package oip042
 
 import (
 	"encoding/json"
-	"github.com/jmoiron/sqlx"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
 	"strings"
@@ -29,7 +28,7 @@ type RegisterPub struct {
 	} `json:"verification"`
 }
 
-func (rp RegisterPub) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (rp RegisterPub) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -39,7 +38,7 @@ type EditPub struct {
 	Patch     json.RawMessage `json:"patch"`
 }
 
-func (ep EditPub) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ep EditPub) Store(context OipContext) error {
 	panic("implement me")
 }
 

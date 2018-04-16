@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 type TomogramDetails struct {
@@ -55,7 +54,7 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 	return pt, nil
 }
 
-func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (pt PublishTomogram) Store(context OipContext) error {
 
 	j, err := json.Marshal(pt)
 	if err != nil {
@@ -73,7 +72,7 @@ func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	res, err := dbtx.Exec(sql, args...)
+	res, err := context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}
@@ -96,7 +95,7 @@ func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	_, err = dbtx.Exec(sql, args...)
+	_, err = context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}

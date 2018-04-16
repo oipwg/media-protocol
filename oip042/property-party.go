@@ -3,7 +3,6 @@ package oip042
 import (
 	"encoding/json"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 type PartyDetails struct {
@@ -30,7 +29,7 @@ func (ppp PublishPropertyParty) Validate(context OipContext) (OipAction, error) 
 	return ppp, nil
 }
 
-func (ppp PublishPropertyParty) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ppp PublishPropertyParty) Store(context OipContext) error {
 	j, err := json.Marshal(ppp)
 	if err != nil {
 		return err
@@ -47,7 +46,7 @@ func (ppp PublishPropertyParty) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	res, err := dbtx.Exec(query, args...)
+	res, err := context.DbTx.Exec(query, args...)
 	if err != nil {
 		return err
 	}
@@ -66,7 +65,7 @@ func (ppp PublishPropertyParty) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	res, err = dbtx.Exec(query, args...)
+	res, err = context.DbTx.Exec(query, args...)
 	if err != nil {
 		return err
 	}

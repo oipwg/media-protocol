@@ -1,10 +1,11 @@
 package oip042
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
+	"github.com/Masterminds/squirrel"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
 	"strings"
@@ -76,7 +77,7 @@ type PublishArtifact struct {
 	Signature  string           `json:"signature,omitempty"`
 }
 
-func (pa PublishArtifact) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (pa PublishArtifact) Store(context OipContext) error {
 	// ToDo store generic publishes without indexing details
 	fmt.Println("Attempted to store unknown PublishArtifact type")
 	fmt.Println("Disregarding for now.")
@@ -89,7 +90,7 @@ type EditArtifact struct {
 	Patch      json.RawMessage `json:"patch"`
 }
 
-func (ea EditArtifact) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ea EditArtifact) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -100,7 +101,7 @@ type TransferArtifact struct {
 	Timestamp      int64  `json:"timestamp"`
 }
 
-func (ta TransferArtifact) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ta TransferArtifact) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -109,8 +110,22 @@ type DeactivateArtifact struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
-func (da DeactivateArtifact) Store(context OipContext, dbtx *sqlx.Tx) error {
-	panic("implement me")
+func (da DeactivateArtifact) Store(context OipContext) error {
+	q := squirrel.Update("artifact").
+		Set("invalidated", 1).
+		Where(squirrel.Eq{"txid": da.ArtifactID})
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = context.DbTx.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 var ErrDescriptionMissing = errors.New("artifact missing description")
@@ -179,11 +194,24 @@ func (ta TransferArtifact) Validate(context OipContext) (OipAction, error) {
 }
 
 func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
-	return nil, ErrNotImplemented
+	q := squirrel.Select("artifact").
+		Columns("publisher").
+		Where(squirrel.Eq{"txid": da.ArtifactID})
 
-	v := []string{da.ArtifactID, "ToDo", strconv.FormatInt(da.Timestamp, 10)}
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var publisher string
+	row := context.DbTx.QueryRow(query, args...)
+	if err := row.Scan(&publisher); err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	v := []string{da.ArtifactID, publisher, strconv.FormatInt(da.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature("ToDo", context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(publisher, context.signature, preImage)
 	if !sigOk {
 		return nil, ErrBadSignature
 	}

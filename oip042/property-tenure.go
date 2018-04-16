@@ -3,7 +3,6 @@ package oip042
 import (
 	"encoding/json"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 type TenureDetails struct {
@@ -28,7 +27,7 @@ func (ppt PublishPropertyTenure) Validate(context OipContext) (OipAction, error)
 	return ppt, nil
 }
 
-func (ppt PublishPropertyTenure) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ppt PublishPropertyTenure) Store(context OipContext) error {
 	j, err := json.Marshal(ppt)
 	if err != nil {
 		return err
@@ -45,7 +44,7 @@ func (ppt PublishPropertyTenure) Store(context OipContext, dbtx *sqlx.Tx) error 
 		return err
 	}
 
-	res, err := dbtx.Exec(sql, args...)
+	res, err := context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}
@@ -64,7 +63,7 @@ func (ppt PublishPropertyTenure) Store(context OipContext, dbtx *sqlx.Tx) error 
 		return err
 	}
 
-	_, err = dbtx.Exec(sql, args...)
+	_, err = context.DbTx.Exec(sql, args...)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package oip042
 
 import (
 	"encoding/json"
-	"github.com/jmoiron/sqlx"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
 	"strings"
@@ -18,7 +17,7 @@ type RegisterAutominer struct {
 	Info       AutominerInfo    `json:"info"`
 }
 
-func (ram RegisterAutominer) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ram RegisterAutominer) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -33,7 +32,7 @@ type EditAutominer struct {
 	Patch      json.RawMessage `json:"patch"`
 }
 
-func (autominer *EditAutominer) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (autominer *EditAutominer) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -48,7 +47,7 @@ type RegisterAutominerPool struct {
 	Info         AutominerInfo     `json:"info"`
 }
 
-func (ramp RegisterAutominerPool) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (ramp RegisterAutominerPool) Store(context OipContext) error {
 	panic("implement me")
 }
 
@@ -64,7 +63,7 @@ type EditAutominerPool struct {
 	Patch      json.RawMessage `json:"patch"`
 }
 
-func (autominerPool *EditAutominerPool) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (autominerPool *EditAutominerPool) Store(context OipContext) error {
 	panic("implement me")
 }
 

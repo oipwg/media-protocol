@@ -2,7 +2,6 @@ package oip042
 
 import (
 	"encoding/json"
-	"github.com/jmoiron/sqlx"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
 	"strings"
@@ -24,7 +23,7 @@ type EditAffiliate struct {
 	Patch      json.RawMessage `json:"patch"`
 }
 
-func (affiliate *EditAffiliate) Store(context OipContext, dbtx *sqlx.Tx) error {
+func (affiliate *EditAffiliate) Store(context OipContext) error {
 	panic("implement me")
 }
 
