@@ -105,7 +105,7 @@ type Oip041Files struct {
 	Dname        string  `json:"dname,omitempty"`
 	Duration     float64 `json:"duration,omitempty"`
 	Fname        string  `json:"fname,omitempty"`
-	Fsize        int     `json:"fsize,omitempty"`
+	Fsize        int64   `json:"fsize,omitempty"`
 	MinPlay      float64 `json:"minPlay,omitempty"`
 	SugPlay      float64 `json:"sugPlay,omitempty"`
 	Promo        float64 `json:"promo,omitempty"`
