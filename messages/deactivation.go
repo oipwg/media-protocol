@@ -29,9 +29,9 @@ func VerifyDeactivation(b []byte) (AlexandriaDeactivation, error) {
 		return v, errors.New("Not alexandria-deactivation")
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return v, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return v, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &v)
 	if err != nil {

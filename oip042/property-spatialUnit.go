@@ -80,15 +80,32 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext, dbtx *sqlx.Tx) 
 		return err
 	}
 
-	q := sq.Insert("artifactPropertySpatialUnit").
-		Columns("ns", "spatialType",
-			"active", "block", "json", "tags", "timestamp",
-			"title", "txid", "type", "subType", "publisher").
-		Values(ppsu.Ns, ppsu.SpatialType,
-			1, context.BlockHeight, j, ppsu.Info.Tags, ppsu.Timestamp,
-			ppsu.Info.Title, context.TxId, ppsu.Type, ppsu.SubType, ppsu.FloAddress)
+	q := sq.Insert("artifact").
+		Columns("active", "block", "json", "tags", "unixtime",
+			"title", "txid", "type", "subType", "publisher", "hasDetails").
+		Values(1, context.BlockHeight, j, ppsu.Info.Tags, ppsu.Timestamp,
+			ppsu.Info.Title, context.TxId, ppsu.Type, ppsu.SubType, ppsu.FloAddress, 1)
 
 	sql, args, err := q.ToSql()
+	if err != nil {
+		return err
+	}
+
+	res, err := dbtx.Exec(sql, args...)
+	if err != nil {
+		return err
+	}
+
+	artifactId, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	q = sq.Insert("detailsPropertySpatialUnit").
+		Columns("artifactId", "ns", "spatialType").
+		Values(artifactId, ppsu.Ns, ppsu.SpatialType)
+
+	sql, args, err = q.ToSql()
 	if err != nil {
 		return err
 	}
@@ -97,6 +114,7 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext, dbtx *sqlx.Tx) 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -110,63 +128,16 @@ func (ppsu PublishPropertySpatialUnit) MarshalJSON() ([]byte, error) {
 	return json.Marshal(pa)
 }
 
-func GetAllPropertySpatialUnit(dbtx *sqlx.Tx) ([]interface{}, error) {
-	// ToDo combine/simplify these GetAll functions similar to GetById
-	q := sq.Select("json", "txid", "publisher").
-		From("artifactPropertySpatialUnit").
-		Where("active = ?", 1)
-	sql, args, err := q.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := dbtx.Queryx(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	type OipInner struct {
-		Artifact json.RawMessage `json:"artifact"`
-	}
-	type rWrap struct {
-		OipInner  `json:"oip042"`
-		Txid      string `json:"txid"`
-		Publisher string `json:"publisher"`
-	}
-	var res []interface{}
-	for rows.Next() {
-		var j json.RawMessage
-		var txid string
-		var publisher string
-		err := rows.Scan(&j, &txid, &publisher)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, rWrap{OipInner{j}, txid, publisher})
-	}
-
-	return res, nil
-}
-
-const createPropertySpatialUnitTable = `CREATE TABLE IF NOT EXISTS artifactPropertySpatialUnit
+const createPropertySpatialUnitTable = `
+-- Property-SpatialUnit details
+CREATE TABLE IF NOT EXISTS detailsPropertySpatialUnit
 (
-  uid            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-
-  -- Property-SpatialUnit Fields
-  ns             TEXT NOT NULL,
-  spatialType    TEXT NOT NULL,
-
-  -- General OIP Fields
-  active         INTEGER NOT NULL,
-  block          INTEGER NOT NULL,
-  invalidated    INTEGER                      DEFAULT 0,
-  json           INTEGER NOT NULL,
-  tags           TEXT    NOT NULL,
-  timestamp      INTEGER NOT NULL,
-  title          TEXT    NOT NULL,
-  txid           TEXT    NOT NULL,
-  type           TEXT    NOT NULL,
-  subType        TEXT    NOT NULL,
-  validated      INTEGER                      DEFAULT 0,
-  publisher      TEXT    NOT NULL,
-  nsfw           BOOLEAN                      DEFAULT 0
-)`
+    uid INTEGER PRIMARY KEY AUTOINCREMENT,
+    artifactId INT NOT NULL,
+    ns TEXT NOT NULL,
+    spatialType TEXT NOT NULL,
+    CONSTRAINT detailsPropertySpatialUnit_artifactId_uid_fk FOREIGN KEY (artifactId) REFERENCES artifact (uid) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS detailsPropertySpatialUnit_artifactId_uindex  ON detailsPropertySpatialUnit (artifactId);
+CREATE INDEX IF NOT EXISTS detailsPropertySpatialUnit_spatialType_index  ON detailsPropertySpatialUnit (spatialType);
+`

@@ -185,9 +185,9 @@ func VerifyMedia(b []byte) (AlexandriaMedia, map[string]interface{}, error) {
 		return v, nil, ErrWrongPrefix
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return v, m, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return v, m, ErrNotJSON
+	//}
 
 	// fmt.Printf("Attempting to verify alexandria-media JSON...")
 	err := json.Unmarshal(b, &v)

@@ -56,9 +56,9 @@ func VerifyAutominer(b []byte, block int) (AlexandriaAutominer, error) {
 		return am, ErrTooEarly
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return am, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return am, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &am)
 	if err != nil {

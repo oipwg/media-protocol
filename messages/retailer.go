@@ -92,9 +92,9 @@ func VerifyRetailer(b []byte, block int) (AlexandriaRetailer, error) {
 		return ar, ErrTooEarly
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return ar, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return ar, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &ar)
 	if err != nil {

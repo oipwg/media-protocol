@@ -86,9 +86,9 @@ func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
 
 	// fmt.Printf("Attempting to verify alexandria-publisher JSON...")
 
-	if !utility.IsJSON(string(b)) {
-		return v, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return v, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &v)
 	if err != nil {

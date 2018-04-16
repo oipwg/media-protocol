@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/Masterminds/squirrel"
+	"github.com/oipwg/media-protocol/oip042"
 	"github.com/oipwg/media-protocol/utility"
 	"math"
 	"strconv"
@@ -99,29 +102,95 @@ func (o Oip041) GetPubFeeUSD(dbtx *sql.Tx) float64 {
 }
 
 func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
-	// store in database
-	stmtStr := `INSERT INTO 'oip_artifact'
-		('active','block','json','tags','timestamp',
-		'title','txid','type','year','publisher', 'artCost', 'artSize', 'pubFeeUSD', 'nsfw')
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`
+	//s, err := o.GetJSON()
+	//if err != nil {
+	//	return err
+	//}
 
-	stmt, err := dbtx.Prepare(stmtStr)
+	artCost := 0   // o.GetArtCost()
+	pubFeeUSD := 0 // o.GetPubFeeUSD(dbtx)
+
+	//a := o.Artifact
+	//pa := oip042.PublishArtifact{
+	//	Type:    a.Type,
+	//	SubType: "",
+	//	Info: &oip042.ArtifactInfo{
+	//		Title:       a.Info.Title,
+	//		Tags:        a.Info.Tags,
+	//		Description: a.Info.Description,
+	//		Year:        a.Info.Year,
+	//		NSFW:        a.Info.NSFW,
+	//	},
+	//	FloAddress: a.Publisher,
+	//	Timestamp:  a.Timestamp,
+	//	Storage: &oip042.ArtifactStorage{
+	//		Location: a.Storage.Location,
+	//		Network:  a.Storage.Network,
+	//	},
+	//	Payment: &oip042.ArtifactPayment{
+	//		Scale:a.Payment.Scale,
+	//		MaxDiscount: a.Payment.MaxDiscount,
+	//		Tokens: nil,
+	//		Fiat: a.Payment.Fiat,
+	//		Addresses: nil,
+	//
+	//		},
+	//	Signature: o.Signature,
+	//}
+	//
+	//for _, f := range a.Storage.Files {
+	//	pa.Storage.Files = append(pa.Storage.Files, oip042.ArtifactFiles{
+	//		DisallowBuy:  f.DisallowBuy,
+	//		Dname:        f.Dname,
+	//		Duration:     f.Duration,
+	//		Fname:        f.Fname,
+	//		Fsize:        f.Fsize,
+	//		MinPlay:      f.MinPlay,
+	//		SugPlay:      f.SugPlay,
+	//		Promo:        f.Promo,
+	//		Retail:       f.Retail,
+	//		PtpFT:        f.PtpFT,
+	//		PtpDT:        f.PtpDT,
+	//		PtpDA:        f.PtpDA,
+	//		Type:         f.Type,
+	//		TokenlyID:    f.TokenlyID,
+	//		DisallowPlay: f.DisallowPlay,
+	//		MinBuy:       f.MinBuy,
+	//		SugBuy:       f.SugBuy,
+	//		SubType:      f.SubType,
+	//	})
+	//}
+
+	var pa oip042.PublishArtifact
+
+	jt1, err := json.MarshalIndent(o.Artifact, " ", " ")
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	fmt.Println(string(jt1))
+	err = json.Unmarshal(jt1, &pa)
 
-	s, err := o.GetJSON()
+	j, err := json.MarshalIndent(pa, " ", " ")
 	if err != nil {
-		return nil
+		return err
+	}
+	fmt.Println(string(j))
+
+	return nil
+	q := squirrel.Insert("artifact").
+		Columns("active", "block", "json", "tags", "unixtime",
+			"title", "txid", "type", "subType", "publisher", "hasDetails",
+			"artCost", "pubFeeUsd", "artSize").
+		Values(1, block, string(j), o.Artifact.Info.Tags, o.Artifact.Timestamp,
+			o.Artifact.Info.Title, txid, o.Artifact.Type, "", o.Artifact.Publisher, 0,
+			artCost, pubFeeUSD, o.artSize)
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return err
 	}
 
-	artCost := o.GetArtCost()
-	pubFeeUSD := o.GetPubFeeUSD(dbtx)
-
-	_, err = stmt.Exec(1, block, s, o.Artifact.Info.Tags,
-		o.Artifact.Timestamp, o.Artifact.Info.Title, txid, o.Artifact.Type,
-		o.Artifact.Info.Year, o.Artifact.Publisher, artCost, o.artSize, pubFeeUSD, o.Artifact.Info.NSFW)
+	_, err = dbtx.Exec(query, args...)
 	if err != nil {
 		return err
 	}

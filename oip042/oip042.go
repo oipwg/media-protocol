@@ -60,6 +60,9 @@ func (o Oip042) ValidateIncoming(tx *flojson.TxRawResult, txComment string, txid
 }
 
 func SetupTables(dbtx *sqlx.Tx) error {
+	if _, err := dbtx.Exec(createArtifactTable); err != nil {
+		return err
+	}
 	if _, err := dbtx.Exec(createTomogramTable); err != nil {
 		return err
 	}
@@ -77,62 +80,52 @@ func SetupTables(dbtx *sqlx.Tx) error {
 }
 
 func GetAllArtifacts(dbtx *sqlx.Tx) ([]interface{}, error) {
-	var res []interface{}
+	q := squirrel.Select("json", "txid", "publisher").
+		From("artifact").
+		Where(squirrel.Eq{"active": 1}).
+		Where(squirrel.Eq{"invalidated": 0})
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
 
-	tomo, err := GetAllTomograms(dbtx)
+	rows, err := dbtx.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
-	res = append(res, tomo...)
-	party, err := GetAllPropertyParty(dbtx)
-	if err != nil {
-		return nil, err
+	type OipInner struct {
+		Artifact json.RawMessage `json:"artifact"`
 	}
-	res = append(res, party...)
-	tenure, err := GetAllPropertyTenure(dbtx)
-	if err != nil {
-		return nil, err
+	type rWrap struct {
+		OipInner  `json:"oip042"`
+		Txid      string `json:"txid"`
+		Publisher string `json:"publisher"`
 	}
-	res = append(res, tenure...)
-	spatial, err := GetAllPropertySpatialUnit(dbtx)
-	if err != nil {
-		return nil, err
+	var res []interface{}
+	for rows.Next() {
+		var j json.RawMessage
+		var txid string
+		var publisher string
+		err := rows.Scan(&j, &txid, &publisher)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, rWrap{OipInner{j}, txid, publisher})
 	}
-	res = append(res, spatial...)
 
 	return res, nil
 }
 
 func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
-	// ToDo this function would appreciate the unified table structure
-	var err error
-	var res interface{}
-	res, err = GetByIdFromTable(dbh, artId, "artifactsResearchTomogram")
-	if err == nil || err != sql.ErrNoRows {
-		return res, err
-	}
-	res, err = GetByIdFromTable(dbh, artId, "artifactPropertyParty")
-	if err == nil || err != sql.ErrNoRows {
-		return res, err
-	}
-	res, err = GetByIdFromTable(dbh, artId, "artifactPropertySpatialUnit")
-	if err == nil || err != sql.ErrNoRows {
-		return res, err
-	}
-	res, err = GetByIdFromTable(dbh, artId, "artifactPropertyTenure")
-	if err == nil || err != sql.ErrNoRows {
-		return res, err
-	}
-	return nil, sql.ErrNoRows
-}
-
-func GetByIdFromTable(dbh *sqlx.DB, artId string, table string) (interface{}, error) {
-	q := squirrel.Select("json", "txid", "publisher").
-		From(table).Where(squirrel.Eq{"active": 1})
+	q := squirrel.Select("a.json", "a.txid", "a.publisher", "p.name").
+		From("artifact AS a").
+		LeftJoin("publisher AS p ON p.address = a.publisher").
+		Where(squirrel.Eq{"a.active": 1}).
+		Where(squirrel.Eq{"a.invalidated": 0})
 	if len(artId) == 64 {
-		q = q.Where(squirrel.Eq{"txid": artId})
+		q = q.Where(squirrel.Eq{"a.txid": artId})
 	} else {
-		q = q.Where("txid LIKE ?", fmt.Sprint(artId, "%"))
+		q = q.Where("a.txid LIKE ?", fmt.Sprint(artId, "%"))
 	}
 	query, args, err := q.ToSql()
 	if err != nil {
@@ -143,19 +136,55 @@ func GetByIdFromTable(dbh *sqlx.DB, artId string, table string) (interface{}, er
 	var j json.RawMessage
 	var txid string
 	var publisher string
-	err = row.Scan(&j, &txid, &publisher)
+	var publisherNameN sql.NullString
+	err = row.Scan(&j, &txid, &publisher, &publisherNameN)
 	if err != nil {
 		return nil, err
+	}
+
+	publisherName := ""
+	if publisherNameN.Valid {
+		publisherName = publisherNameN.String
 	}
 
 	type OipInner struct {
 		Artifact json.RawMessage `json:"artifact"`
 	}
 	type rWrap struct {
-		OipInner  `json:"oip042"`
-		Txid      string `json:"txid"`
-		Publisher string `json:"publisher"`
+		OipInner      `json:"oip042"`
+		Txid          string `json:"txid"`
+		Publisher     string `json:"publisher"`
+		PublisherName string `json:"publisherName"`
 	}
 
-	return rWrap{OipInner{j}, txid, publisher}, nil
+	return rWrap{OipInner{j}, txid, publisher, publisherName}, nil
 }
+
+const createArtifactTable = `
+-- General artifact information
+CREATE TABLE IF NOT EXISTS artifact
+(
+  uid         INTEGER PRIMARY KEY AUTOINCREMENT,
+  block       INT  NOT NULL,
+  txid        TEXT NOT NULL,
+  json        TEXT NOT NULL,
+  unixtime    INT  NOT NULL,
+  title       TEXT NOT NULL,
+  type        TEXT NOT NULL,
+  subType     TEXT NOT NULL,
+  publisher   TEXT NOT NULL,
+  tags        TEXT NOT NULL,
+  artCost	  FLOAT NOT NULL DEFAULT 0,
+  pubFeeUsd   FLOAT NOT NULL DEFAULT 0,
+  artSize     INT NOT NULL DEFAULT 0,
+  invalidated BOOLEAN             DEFAULT 0 NOT NULL,
+  active      BOOLEAN             DEFAULT 0 NOT NULL,
+  nsfw        BOOLEAN             DEFAULT 0 NOT NULL,
+  hasDetails  BOOLEAN             DEFAULT 0 NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS artifact_txid_uindex  ON artifact (txid);
+CREATE INDEX IF NOT EXISTS artifact_subtype_index  ON artifact (subtype);
+CREATE INDEX IF NOT EXISTS artifact_type_index  ON artifact (type);
+CREATE INDEX IF NOT EXISTS artifact_publisher_index  ON artifact (publisher);
+CREATE INDEX IF NOT EXISTS artifact_block_index ON artifact (block);
+`

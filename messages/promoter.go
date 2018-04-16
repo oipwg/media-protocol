@@ -141,9 +141,9 @@ func VerifyPromoter(b []byte, block int) (AlexandriaPromoter, error) {
 		return pr, ErrTooEarly
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return pr, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return pr, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &pr)
 	if err != nil {

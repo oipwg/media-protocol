@@ -36,20 +36,37 @@ func (ppp PublishPropertyParty) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	q := sq.Insert("artifactPropertyParty").
-		Columns("ns", "partyRole", "partyType",
-			"active", "block", "json", "tags", "timestamp",
-			"title", "txid", "type", "subType", "publisher").
-		Values(ppp.Ns, ppp.PartyRole, ppp.PartyType,
-			1, context.BlockHeight, j, ppp.Info.Tags, ppp.Timestamp,
-			ppp.Info.Title, context.TxId, ppp.Type, ppp.SubType, ppp.FloAddress)
+	q := sq.Insert("artifact").
+		Columns("active", "block", "json", "tags", "unixtime",
+			"title", "txid", "type", "subType", "publisher", "hasDetails").
+		Values(1, context.BlockHeight, j, ppp.Info.Tags, ppp.Timestamp,
+			ppp.Info.Title, context.TxId, ppp.Type, ppp.SubType, ppp.FloAddress, 1)
 
-	sql, args, err := q.ToSql()
+	query, args, err := q.ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = dbtx.Exec(sql, args...)
+	res, err := dbtx.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	artifactId, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	q = sq.Insert("detailsPropertyParty").
+		Columns("artifactId", "ns", "partyRole", "partyType").
+		Values(artifactId, ppp.Ns, ppp.PartyRole, ppp.PartyType)
+
+	query, args, err = q.ToSql()
+	if err != nil {
+		return err
+	}
+
+	res, err = dbtx.Exec(query, args...)
 	if err != nil {
 		return err
 	}
@@ -66,64 +83,18 @@ func (ppp PublishPropertyParty) MarshalJSON() ([]byte, error) {
 	return json.Marshal(pa)
 }
 
-func GetAllPropertyParty(dbtx *sqlx.Tx) ([]interface{}, error) {
-	// ToDo combine/simplify these GetAll functions similar to GetById
-	q := sq.Select("json", "txid", "publisher").
-		From("artifactPropertyParty").
-		Where("active = ?", 1)
-	sql, args, err := q.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := dbtx.Queryx(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	type OipInner struct {
-		Artifact json.RawMessage `json:"artifact"`
-	}
-	type rWrap struct {
-		OipInner  `json:"oip042"`
-		Txid      string `json:"txid"`
-		Publisher string `json:"publisher"`
-	}
-	var res []interface{}
-	for rows.Next() {
-		var j json.RawMessage
-		var txid string
-		var publisher string
-		err := rows.Scan(&j, &txid, &publisher)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, rWrap{OipInner{j}, txid, publisher})
-	}
-
-	return res, nil
-}
-
-const createPropertyPartyTable = `CREATE TABLE IF NOT EXISTS artifactPropertyParty
+const createPropertyPartyTable = `
+-- Property-Party details
+CREATE TABLE IF NOT EXISTS detailsPropertyParty
 (
-  uid            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-
-  -- Property-Party Fields
-  ns             TEXT NOT NULL,
-  partyRole      TEXT NOT NULL,
-  partyType      TEXT NOT NULL,
-
-  -- General OIP Fields
-  active         INTEGER NOT NULL,
-  block          INTEGER NOT NULL,
-  invalidated    INTEGER                      DEFAULT 0,
-  json           INTEGER NOT NULL,
-  tags           TEXT    NOT NULL,
-  timestamp      INTEGER NOT NULL,
-  title          TEXT    NOT NULL,
-  txid           TEXT    NOT NULL,
-  type           TEXT    NOT NULL,
-  subType        TEXT    NOT NULL,
-  validated      INTEGER                      DEFAULT 0,
-  publisher      TEXT    NOT NULL,
-  nsfw           BOOLEAN                      DEFAULT 0
-)`
+  uid         INTEGER PRIMARY KEY AUTOINCREMENT,
+  artifactId  INT  NOT NULL,
+  ns          TEXT NOT NULL,
+  partyRole   TEXT NOT NULL,
+  partyType   TEXT NOT NULL,
+  CONSTRAINT detailsPropertyParty_artifactId_uid_fk FOREIGN KEY (artifactId) REFERENCES artifact (uid) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS detailsPropertyParty_artifactId_uindex  ON detailsPropertyParty (artifactId);
+CREATE INDEX IF NOT EXISTS detailsPropertyParty_partyRole_index  ON detailsPropertyParty (partyRole);
+CREATE INDEX IF NOT EXISTS detailsPropertyParty_partyType_index  ON detailsPropertyParty (partyType);
+`

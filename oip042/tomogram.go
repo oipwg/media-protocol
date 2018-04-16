@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 
-	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 )
@@ -63,22 +62,36 @@ func (pt PublishTomogram) Store(context OipContext, dbtx *sqlx.Tx) error {
 		return err
 	}
 
-	q := sq.Insert("artifactsResearchTomogram").
-		Columns("ScanDate", "NBCItaxID", "Etdbid", "ArtNotes",
-			"ScopeName", "SpeciesName", "TiltSingleDual", "Defocus",
-			"Magnification", "Emdb",
-			"active", "block", "json", "tags", "timestamp",
-			"title", "txid", "type", "subType", "publisher").
-		Values(pt.Date, pt.NBCItaxID, pt.Etdbid, pt.ArtNotes,
-			pt.ScopeName, pt.SpeciesName, pt.TiltSingleDual, pt.Defocus,
-			pt.Magnification, pt.Emdb,
-			1, context.BlockHeight, j, pt.Info.Tags, pt.Timestamp,
-			pt.Info.Title, context.TxId, pt.Type, pt.SubType, pt.FloAddress)
+	q := sq.Insert("artifact").
+		Columns("active", "block", "json", "tags", "unixtime",
+			"title", "txid", "type", "subType", "publisher", "hasDetails").
+		Values(1, context.BlockHeight, j, pt.Info.Tags, pt.Timestamp,
+			pt.Info.Title, context.TxId, pt.Type, pt.SubType, pt.FloAddress, 1)
 
 	sql, args, err := q.ToSql()
-	fmt.Println("Storing Tomogram Publish")
-	fmt.Println(sql)
-	fmt.Println(args)
+	if err != nil {
+		return err
+	}
+
+	res, err := dbtx.Exec(sql, args...)
+	if err != nil {
+		return err
+	}
+
+	artifactId, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	q = sq.Insert("detailsResearchTomogram").
+		Columns("artifactId", "ScanDate", "NBCItaxID", "Etdbid", "ArtNotes",
+			"ScopeName", "SpeciesName", "TiltSingleDual", "Defocus",
+			"Magnification", "Emdb", "SwAcquisition", "SwProcess").
+		Values(artifactId, pt.Date, pt.NBCItaxID, pt.Etdbid, pt.ArtNotes,
+			pt.ScopeName, pt.SpeciesName, pt.TiltSingleDual, pt.Defocus,
+			pt.Magnification, pt.Emdb, "", "")
+
+	sql, args, err = q.ToSql()
 	if err != nil {
 		return err
 	}
@@ -100,70 +113,27 @@ func (pt PublishTomogram) MarshalJSON() ([]byte, error) {
 	return json.Marshal(pa)
 }
 
-func GetAllTomograms(dbtx *sqlx.Tx) ([]interface{}, error) {
-	q := sq.Select("json", "txid", "publisher").From("artifactsResearchTomogram").Where("active = ?", 1)
-	sql, args, err := q.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := dbtx.Queryx(sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	type OipInner struct {
-		Artifact json.RawMessage `json:"artifact"`
-	}
-	type rWrap struct {
-		OipInner  `json:"oip042"`
-		Txid      string `json:"txid"`
-		Publisher string `json:"publisher"`
-	}
-	var res []interface{}
-	for rows.Next() {
-		var j json.RawMessage
-		var txid string
-		var publisher string
-		err := rows.Scan(&j, &txid, &publisher)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, rWrap{OipInner{j}, txid, publisher})
-	}
-
-	return res, nil
-}
-
-const createTomogramTable = `CREATE TABLE IF NOT EXISTS artifactsResearchTomogram
+const createTomogramTable = `
+-- Research-Tomogram details
+CREATE TABLE IF NOT EXISTS detailsResearchTomogram
 (
   uid            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-
-  -- Tomogram Fields
+  artifactId     INT     NOT NULL,
   ScanDate       INT     NOT NULL,
   NBCItaxID      INT     NOT NULL,
   Etdbid         TEXT    NOT NULL,
-  ArtNotes       TEXT,
+  ArtNotes       TEXT    NOT NULL,
   ScopeName      TEXT    NOT NULL,
   SpeciesName    TEXT    NOT NULL,
   TiltSingleDual TEXT    NOT NULL,
-  Defocus        TEXT,
-  Magnification  TEXT,
-  SwAcquisition  TEXT,
-  SwProcess      TEXT,
-  Emdb           TEXT,
-
-  -- General OIP Fields
-  active         INTEGER NOT NULL,
-  block          INTEGER NOT NULL,
-  invalidated    INTEGER                      DEFAULT 0,
-  json           INTEGER NOT NULL,
-  tags           TEXT    NOT NULL,
-  timestamp      INTEGER NOT NULL,
-  title          TEXT    NOT NULL,
-  txid           TEXT    NOT NULL,
-  type           TEXT    NOT NULL,
-  subType        TEXT    NOT NULL,
-  validated      INTEGER                      DEFAULT 0,
-  publisher      TEXT    NOT NULL,
-  nsfw           BOOLEAN                      DEFAULT 0
-)`
+  Defocus        TEXT    NOT NULL,
+  Magnification  TEXT    NOT NULL,
+  SwAcquisition  TEXT    NOT NULL,
+  SwProcess      TEXT    NOT NULL,
+  Emdb           TEXT    NOT NULL,
+  CONSTRAINT detailsResearchTomogram_artifactId_uid_fk FOREIGN KEY (artifactId) REFERENCES artifact (uid) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS detailsResearchTomogram_artifactId_uindex ON detailsResearchTomogram (artifactId);
+CREATE INDEX IF NOT EXISTS detailsResearchTomogram_speciesName_index ON detailsResearchTomogram (SpeciesName);
+CREATE INDEX IF NOT EXISTS detailsResearchTomogram_emdb_index ON detailsResearchTomogram (Emdb);
+`

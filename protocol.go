@@ -53,6 +53,20 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 	pe = append(pe, ParseErrors{"MediaMultipartSingle", VerifyMediaMultipartSingleError})
 
+	// check for historian messages
+	if len(tx.Vin) > 0 && tx.Vin[0].IsCoinBase() {
+		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx.Tx)
+		if err == nil {
+			return hm, nil, nil, pe
+		}
+		pe = append(pe, ParseErrors{"Historian", err})
+	}
+
+	if !utility.IsJSON(txComment) {
+		pe = append(pe, ParseErrors{"JSON", messages.ErrNotJSON})
+		return nil, nil, messages.ErrNotJSON, pe
+	}
+
 	// check for alexandria-media protocol (new media)
 	media, jmap, VerifyMediaErr := messages.VerifyMedia([]byte(txComment))
 	if VerifyMediaErr == nil {
@@ -74,42 +88,34 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 	pe = append(pe, ParseErrors{"Deactivation", VerifyDeactivationError})
 
-	// check for historian messages
-	if len(tx.Vin) > 0 && tx.Vin[0].IsCoinBase() {
-		hm, err := messages.VerifyHistorianMessage([]byte(txComment), processingBlock, dbtx.Tx)
-		if err == nil {
-			return hm, nil, nil, pe
-		}
-		pe = append(pe, ParseErrors{"Historian", err})
-	}
-
-	// check for alexandria-autominer messages
-	am, err := messages.VerifyAutominer([]byte(txComment), processingBlock)
-	if err == nil {
-		return am, nil, nil, pe
-	}
-	pe = append(pe, ParseErrors{"Autominer", err})
-
-	// check for alexandria-autominer-pool messages
-	amp, err := messages.VerifyAutominerPool([]byte(txComment), processingBlock)
-	if err == nil {
-		return amp, nil, nil, pe
-	}
-	pe = append(pe, ParseErrors{"AutominerPool", err})
-
-	// check for alexandria-promoter messages
-	promoter, err := messages.VerifyPromoter([]byte(txComment), processingBlock)
-	if err == nil {
-		return promoter, nil, nil, pe
-	}
-	pe = append(pe, ParseErrors{"Promoter", err})
-
-	// check for alexandria-retailer messages
-	retailer, err := messages.VerifyRetailer([]byte(txComment), processingBlock)
-	if err == nil {
-		return retailer, nil, nil, pe
-	}
-	pe = append(pe, ParseErrors{"Retailer", err})
+	// Only tests have actually made it to chain, all future items will be of oip042 format
+	//// check for alexandria-autominer messages
+	//am, err := messages.VerifyAutominer([]byte(txComment), processingBlock)
+	//if err == nil {
+	//	return am, nil, nil, pe
+	//}
+	//pe = append(pe, ParseErrors{"Autominer", err})
+	//
+	//// check for alexandria-autominer-pool messages
+	//amp, err := messages.VerifyAutominerPool([]byte(txComment), processingBlock)
+	//if err == nil {
+	//	return amp, nil, nil, pe
+	//}
+	//pe = append(pe, ParseErrors{"AutominerPool", err})
+	//
+	//// check for alexandria-promoter messages
+	//promoter, err := messages.VerifyPromoter([]byte(txComment), processingBlock)
+	//if err == nil {
+	//	return promoter, nil, nil, pe
+	//}
+	//pe = append(pe, ParseErrors{"Promoter", err})
+	//
+	//// check for alexandria-retailer messages
+	//retailer, err := messages.VerifyRetailer([]byte(txComment), processingBlock)
+	//if err == nil {
+	//	return retailer, nil, nil, pe
+	//}
+	//pe = append(pe, ParseErrors{"Retailer", err})
 
 	// check for any oip41 data
 	oip041, err := messages.VerifyOIP041(txComment, processingBlock)
@@ -118,11 +124,11 @@ func Parse(tx *flojson.TxRawResult, txid string, block *flojson.BlockResult, dbt
 	}
 	pe = append(pe, ParseErrors{"OIP041", err})
 
-	res, err := ParseJson(tx, txComment, txid, block, dbtx)
-	if err == nil {
-		return res, nil, err, pe
-	}
-	pe = append(pe, ParseErrors{"OIP042", err})
+	//res, err := ParseJson(tx, txComment, txid, block, dbtx)
+	//if err == nil {
+	//	return res, nil, err, pe
+	//}
+	//pe = append(pe, ParseErrors{"OIP042", err})
 
 	return nil, nil, err, pe
 }

@@ -39,9 +39,9 @@ func VerifyAutominerPool(b []byte, block int) (AlexandriaAutominerPool, error) {
 		return amp, ErrTooEarly
 	}
 
-	if !utility.IsJSON(string(b)) {
-		return amp, ErrNotJSON
-	}
+	//if !utility.IsJSON(string(b)) {
+	//	return amp, ErrNotJSON
+	//}
 
 	err := json.Unmarshal(b, &amp)
 	if err != nil {
