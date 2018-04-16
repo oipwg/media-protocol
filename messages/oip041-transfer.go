@@ -27,7 +27,7 @@ func StoreOIPTransfer(oip_t Oip041Transfer, dbtx *sql.Tx) {
 
 		// Check oip table
 		fmt.Println("Might be an OIP")
-		table = "oip_artifact"
+		table = "artifact"
 		stmt, err := dbtx.Prepare(`SELECT publisher FROM ` + table + ` WHERE txid = ? LIMIT 1;`)
 		if err != nil {
 			log.Fatal(err)
