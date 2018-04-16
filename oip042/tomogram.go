@@ -13,6 +13,7 @@ type TomogramDetails struct {
 	Etdbid         int64   `json:"etdbid,omitempty"`
 	ArtNotes       string  `json:"artNotes,omitempty"`
 	ScopeName      string  `json:"scopeName,omitempty"`
+	Roles          string  `json:"roles,omitempty"`
 	SpeciesName    string  `json:"speciesName,omitempty"`
 	Strain         string  `json:"strain,omitempty"`
 	TiltSingleDual int64   `json:"tiltSingleDual,omitempty"`
