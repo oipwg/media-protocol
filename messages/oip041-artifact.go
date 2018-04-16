@@ -178,7 +178,6 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 	}
 	//fmt.Println(string(j))
 
-	return nil
 	q := squirrel.Insert("artifact").
 		Columns("active", "block", "json", "tags", "unixtime",
 			"title", "txid", "type", "subType", "publisher", "hasDetails",
