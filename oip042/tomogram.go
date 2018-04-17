@@ -18,6 +18,11 @@ type TomogramDetails struct {
 	Strain         string  `json:"strain,omitempty"`
 	TiltSingleDual int64   `json:"tiltSingleDual,omitempty"`
 	Defocus        float64 `json:"defocus,omitempty"`
+	Dosage         float64 `json:"dosage,omitempty"`
+	TiltConstant   float64 `json:"tiltConstant,omitempty"`
+	TiltMin        float64 `json:"tiltMin,omitempty"`
+	TiltMax        float64 `json:"tiltMax,omitempty"`
+	TiltStep       float64 `json:"tiltStep,omitempty"`
 	Magnification  float64 `json:"magnification,omitempty"`
 	Emdb           string  `json:"emdb,omitempty"`
 	Microscopist   string  `json:"microscopist,omitempty"`
