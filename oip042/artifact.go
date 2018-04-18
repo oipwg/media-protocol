@@ -194,8 +194,8 @@ func (ta TransferArtifact) Validate(context OipContext) (OipAction, error) {
 }
 
 func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
-	q := squirrel.Select("artifact").
-		Columns("publisher").
+	q := squirrel.Select("publisher").
+		From("artifact").
 		Where(squirrel.Eq{"txid": da.ArtifactID})
 
 	query, args, err := q.ToSql()
