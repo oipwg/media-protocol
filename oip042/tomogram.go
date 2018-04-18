@@ -10,7 +10,6 @@ import (
 type TomogramDetails struct {
 	Date           int64   `json:"date,omitempty"`
 	NBCItaxID      int64   `json:"NBCItaxID,omitempty"`
-	Etdbid         int64   `json:"etdbid,omitempty"`
 	ArtNotes       string  `json:"artNotes,omitempty"`
 	ScopeName      string  `json:"scopeName,omitempty"`
 	Roles          string  `json:"roles,omitempty"`
@@ -28,6 +27,7 @@ type TomogramDetails struct {
 	Microscopist   string  `json:"microscopist,omitempty"`
 	Institution    string  `json:"institution,omitempty"`
 	Lab            string  `json:"lab,omitempty"`
+	Sid            string  `json:"sid,omitempty"`
 }
 
 type PublishTomogram struct {
@@ -89,12 +89,14 @@ func (pt PublishTomogram) Store(context OipContext) error {
 	}
 
 	q = sq.Insert("detailsResearchTomogram").
-		Columns("artifactId", "ScanDate", "NBCItaxID", "Etdbid", "ArtNotes",
+		Columns("artifactId", "ScanDate", "NBCItaxID", "ArtNotes",
 			"ScopeName", "SpeciesName", "TiltSingleDual", "Defocus",
-			"Magnification", "Emdb", "SwAcquisition", "SwProcess").
-		Values(artifactId, pt.Date, pt.NBCItaxID, pt.Etdbid, pt.ArtNotes,
+			"Magnification", "Emdb", "SwAcquisition", "SwProcess",
+			"Institution", "Lab", "sid").
+		Values(artifactId, pt.Date, pt.NBCItaxID, pt.ArtNotes,
 			pt.ScopeName, pt.SpeciesName, pt.TiltSingleDual, pt.Defocus,
-			pt.Magnification, pt.Emdb, "", "")
+			pt.Magnification, pt.Emdb, "", "",
+			pt.Institution, pt.Lab, pt.Sid)
 
 	sql, args, err = q.ToSql()
 	if err != nil {
@@ -126,7 +128,6 @@ CREATE TABLE IF NOT EXISTS detailsResearchTomogram
   artifactId     INT     NOT NULL,
   ScanDate       INT     NOT NULL,
   NBCItaxID      INT     NOT NULL,
-  Etdbid         TEXT    NOT NULL,
   ArtNotes       TEXT    NOT NULL,
   ScopeName      TEXT    NOT NULL,
   SpeciesName    TEXT    NOT NULL,
@@ -136,6 +137,9 @@ CREATE TABLE IF NOT EXISTS detailsResearchTomogram
   SwAcquisition  TEXT    NOT NULL,
   SwProcess      TEXT    NOT NULL,
   Emdb           TEXT    NOT NULL,
+  Institution    TEXT    NOT NULL,
+  Lab            TEXT    NOT NULL,
+  sid            TEXT    NOT NULL,
   CONSTRAINT detailsResearchTomogram_artifactId_uid_fk FOREIGN KEY (artifactId) REFERENCES artifact (uid) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS detailsResearchTomogram_artifactId_uindex ON detailsResearchTomogram (artifactId);
