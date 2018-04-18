@@ -19,12 +19,12 @@ type Register struct {
 	Affiliate     *RegisterAffiliate     `json:"affiliate,omitempty"`
 	Autominer     *RegisterAutominer     `json:"autominer,omitempty"`
 	AutominerPool *RegisterAutominerPool `json:"autominerPool,omitempty"`
-	Signature     string                 `json:"signature"`
+	//Signature     string                 `json:"signature"`
 }
 
 type Publish struct {
-	Artifact  *PublishArtifact `json:"artifact,omitempty"`
-	Signature string           `json:"signature"`
+	Artifact *PublishArtifact `json:"artifact,omitempty"`
+	//Signature string           `json:"signature"`
 }
 
 type Edit struct {
@@ -34,17 +34,17 @@ type Edit struct {
 	Autominer     *EditAutominer     `json:"autominer,omitempty"`
 	AutominerPool *EditAutominerPool `json:"autominerPool,omitempty"`
 	Artifact      *EditArtifact      `json:"artifact,omitempty"`
-	Signature     string             `json:"signature"`
+	//Signature     string             `json:"signature"`
 }
 
 type Transfer struct {
-	Artifact  *TransferArtifact `json:"artifact,omitempty"`
-	Signature string            `json:"signature"`
+	Artifact *TransferArtifact `json:"artifact,omitempty"`
+	//Signature string            `json:"signature"`
 }
 
 type Deactivate struct {
-	Artifact  *DeactivateArtifact `json:"artifact,omitempty"`
-	Signature string              `json:"signature"`
+	Artifact *DeactivateArtifact `json:"artifact,omitempty"`
+	//Signature string              `json:"signature"`
 }
 
 type OipContext struct {

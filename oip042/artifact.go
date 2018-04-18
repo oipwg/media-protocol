@@ -108,6 +108,7 @@ func (ta TransferArtifact) Store(context OipContext) error {
 type DeactivateArtifact struct {
 	ArtifactID string `json:"artifactID"`
 	Timestamp  int64  `json:"timestamp"`
+	Signature  string `json:"signature"`
 }
 
 func (da DeactivateArtifact) Store(context OipContext) error {
@@ -211,7 +212,8 @@ func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
 
 	v := []string{da.ArtifactID, publisher, strconv.FormatInt(da.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(publisher, context.signature, preImage)
+	fmt.Println(preImage)
+	sigOk, _ := utility.CheckSignature(publisher, da.Signature, preImage)
 	if !sigOk {
 		return nil, ErrBadSignature
 	}
