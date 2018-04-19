@@ -41,14 +41,8 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 		return nil, err
 	}
 
-	//if len(pt.TomogramDetails.ScopeName) == 0 {
-	//	return nil, errors.New("tomogram: missing Scope Name")
-	//}
 	if len(pt.TomogramDetails.SpeciesName) == 0 {
 		return nil, errors.New("tomogram: missing Species Name")
-	}
-	if len(pt.TomogramDetails.Strain) == 0 {
-		return nil, errors.New("tomogram: missing Strain")
 	}
 	if pt.Date <= 0 {
 		return nil, errors.New("tomogram: invalid Date")
