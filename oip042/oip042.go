@@ -161,14 +161,21 @@ func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 }
 
 func GetByType(dbtx *sqlx.Tx, t string, st string) ([]interface{}, error) {
-	q := squirrel.Select("json", "txid", "publisher").
-		From("artifact").
+	q := squirrel.Select("a.json", "a.txid", "a.publisher").
+		From("artifact as a").
 		Where(squirrel.Eq{"active": 1}).
 		Where(squirrel.Eq{"invalidated": 0})
-	if t != "*" {
+
+	if t != "*" && t != "" {
+		if t == "-" {
+			t = ""
+		}
 		q = q.Where(squirrel.Eq{"a.type": t})
 	}
-	if st != "*" {
+	if st != "*" && st != "" {
+		if st == "-" {
+			st = ""
+		}
 		q = q.Where(squirrel.Eq{"a.subType": st})
 	}
 
