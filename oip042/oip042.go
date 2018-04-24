@@ -211,6 +211,51 @@ func GetByType(dbtx *sqlx.Tx, t string, st string) ([]interface{}, error) {
 	return res, nil
 }
 
+func GetByPublisher(dbtx *sqlx.Tx, publisher string) ([]interface{}, error) {
+	q := squirrel.Select("a.json", "a.txid", "a.publisher").
+		From("artifact as a").
+		Where(squirrel.Eq{"active": 1}).
+		Where(squirrel.Eq{"invalidated": 0})
+
+	if publisher != "*" && publisher != "" {
+		if publisher == "-" {
+			publisher = ""
+		}
+		q = q.Where(squirrel.Eq{"a.publisher": publisher})
+	}
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := dbtx.Queryx(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	type OipInner struct {
+		Artifact json.RawMessage `json:"artifact"`
+	}
+	type rWrap struct {
+		OipInner  `json:"oip042"`
+		Txid      string `json:"txid"`
+		Publisher string `json:"publisher"`
+	}
+	var res []interface{}
+	for rows.Next() {
+		var j json.RawMessage
+		var txid string
+		var publisher string
+		err := rows.Scan(&j, &txid, &publisher)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, rWrap{OipInner{j}, txid, publisher})
+	}
+
+	return res, nil
+}
+
 const createArtifactTable = `
 -- General artifact information
 CREATE TABLE IF NOT EXISTS artifact
