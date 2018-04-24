@@ -1,7 +1,6 @@
 package oip042
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -185,7 +184,7 @@ func (ea EditArtifact) Validate(context OipContext) (OipAction, error) {
 
 	var publisher string
 	row := context.DbTx.QueryRow(query, args...)
-	if err := row.Scan(&publisher); err != nil && err != sql.ErrNoRows {
+	if err := row.Scan(&publisher); err != nil {
 		return nil, err
 	}
 
@@ -228,7 +227,7 @@ func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
 
 	var publisher string
 	row := context.DbTx.QueryRow(query, args...)
-	if err := row.Scan(&publisher); err != nil && err != sql.ErrNoRows {
+	if err := row.Scan(&publisher); err != nil {
 		return nil, err
 	}
 
