@@ -93,6 +93,7 @@ func GetAllArtifacts(dbtx *sqlx.Tx) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	type OipInner struct {
 		Artifact json.RawMessage `json:"artifact"`
 	}
@@ -188,6 +189,7 @@ func GetByType(dbtx *sqlx.Tx, t string, st string) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	type OipInner struct {
 		Artifact json.RawMessage `json:"artifact"`
 	}
@@ -233,6 +235,7 @@ func GetByPublisher(dbtx *sqlx.Tx, publisher string) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	type OipInner struct {
 		Artifact json.RawMessage `json:"artifact"`
 	}
