@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Masterminds/squirrel"
+	"github.com/bitspill/json-patch"
 	"github.com/oipwg/media-protocol/utility"
 	"strconv"
 	"strings"
@@ -87,10 +88,12 @@ func (pa PublishArtifact) Store(context OipContext) error {
 type EditArtifact struct {
 	ArtifactID string          `json:"artifactID"`
 	Timestamp  int64           `json:"timestamp"`
-	Patch      json.RawMessage `json:"patch"`
+	RawPatch   json.RawMessage `json:"patch"`
+	Patch      jsonpatch.Patch
 }
 
 func (ea EditArtifact) Store(context OipContext) error {
+
 	panic("implement me")
 }
 
@@ -171,13 +174,32 @@ func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
 }
 
 func (ea EditArtifact) Validate(context OipContext) (OipAction, error) {
-	return nil, ErrNotImplemented
+	q := squirrel.Select("publisher").
+		From("artifact").
+		Where(squirrel.Eq{"txid": ea.ArtifactID})
 
-	v := []string{ea.ArtifactID, "ToDo", strconv.FormatInt(ea.Timestamp, 10)}
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var publisher string
+	row := context.DbTx.QueryRow(query, args...)
+	if err := row.Scan(&publisher); err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	v := []string{ea.ArtifactID, publisher, strconv.FormatInt(ea.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature("ToDo", context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(publisher, context.signature, preImage)
 	if !sigOk {
 		return nil, ErrBadSignature
+	}
+
+	rp := ea.RawPatch
+	ea.Patch, err = jsonpatch.DecodePatch(rp)
+	if err != nil {
+		return ea, err
 	}
 
 	return ea, nil
