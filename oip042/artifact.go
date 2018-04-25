@@ -92,8 +92,52 @@ type EditArtifact struct {
 }
 
 func (ea EditArtifact) Store(context OipContext) error {
+	sq := squirrel.Select("publisher", "json", "title", "type", "subType", "nsfw", "hasDetails").
+		From("artifact").
+		Where(squirrel.Eq{"txid": ea.ArtifactID})
 
-	panic("implement me")
+	query, args, err := sq.ToSql()
+	if err != nil {
+		return err
+	}
+
+	type data struct {
+		Publisher  string `db:"publisher"`
+		Json       []byte `db:"json"`
+		Title      string `db:"title"`
+		Type       string `db:"type"`
+		SubType    string `db:"subType"`
+		Nsfw       bool   `db:"nsfw"`
+		HasDetails bool   `db:"hasDetails"`
+	}
+	var d data
+	row := context.DbTx.QueryRowx(query, args...)
+	if err := row.StructScan(&d); err != nil {
+		return err
+	}
+
+	pp, err := ea.Patch.Apply(d.Json)
+	if err != nil {
+		return err
+	}
+
+	// ToDo: compare new values to those stored in the DB: title, details, etc
+
+	uq := squirrel.Update("artifact").
+		Set("json", string(pp)).
+		Where(squirrel.Eq{"txid": ea.ArtifactID})
+
+	query, args, err = uq.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = context.DbTx.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type TransferArtifact struct {
@@ -195,8 +239,7 @@ func (ea EditArtifact) Validate(context OipContext) (OipAction, error) {
 		return nil, ErrBadSignature
 	}
 
-	rp := ea.RawPatch
-	ea.Patch, err = jsonpatch.DecodePatch(rp)
+	ea.Patch, err = UnSquashPatch(ea.RawPatch)
 	if err != nil {
 		return ea, err
 	}
@@ -240,4 +283,27 @@ func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
 	}
 
 	return da, nil
+}
+
+// ToDo: Move to a more appropriate location
+func UnSquashPatch(sp []byte) (jsonpatch.Patch, error) {
+	var p map[string][]map[string]*json.RawMessage // yikes
+	var up jsonpatch.Patch
+
+	err := json.Unmarshal(sp, &p)
+	if err != nil {
+		return up, err
+	}
+
+	// op="Add", arr="Array of actions"
+	for op, arr := range p {
+		// _="index", act="Action object"
+		for _, act := range arr {
+			o := json.RawMessage([]byte(`"` + op + `"`))
+			act["op"] = &o
+			up = append(up, act)
+		}
+	}
+
+	return up, err
 }
