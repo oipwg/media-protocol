@@ -2,3 +2,6 @@ coverage.out
 cover/
 parse
 release/
+
+.idea/
+*.iml
