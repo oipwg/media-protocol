@@ -328,7 +328,7 @@ CREATE TABLE IF NOT EXISTS artifact
   nsfw        BOOLEAN             DEFAULT 0 NOT NULL,
   hasDetails  BOOLEAN             DEFAULT 0 NOT NULL
 );
-CREATE UNIQUE INDEX IF NOT EXISTS artifact_txid_uindex  ON artifact (txid);
+CREATE INDEX IF NOT EXISTS artifact_txid_uindex  ON artifact (txid);
 CREATE INDEX IF NOT EXISTS artifact_subtype_index  ON artifact (subtype);
 CREATE INDEX IF NOT EXISTS artifact_type_index  ON artifact (type);
 CREATE INDEX IF NOT EXISTS artifact_publisher_index  ON artifact (publisher);
