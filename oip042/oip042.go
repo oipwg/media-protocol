@@ -184,9 +184,10 @@ func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, 
 	}
 	if results != 0 {
 		q = q.Limit(results)
-	}
-	if page != 0 {
-		q = q.Offset((page - 1) * results)
+		// page only makes sense if there are result limits
+		if page != 0 {
+			q = q.Offset((page - 1) * results)
+		}
 	}
 
 	query, args, err := q.ToSql()
