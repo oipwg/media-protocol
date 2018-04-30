@@ -161,26 +161,33 @@ func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 	return rWrap{OipInner{j}, txid, publisher, publisherName}, nil
 }
 
-func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, pub string) ([]interface{}, error) {
+func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, pub string) (interface{}, error) {
 	q := squirrel.Select("a.json", "a.txid", "a.publisher").
 		From("artifact as a").
-		Where(squirrel.Eq{"active": 1}).
-		Where(squirrel.Eq{"invalidated": 0})
+		Where(squirrel.Eq{"a.active": 1}).
+		Where(squirrel.Eq{"a.invalidated": 0})
+	qc := squirrel.Select("count(*)").
+		From("artifact as a").
+		Where(squirrel.Eq{"a.active": 1}).
+		Where(squirrel.Eq{"a.invalidated": 0})
 
 	if t != "*" && t != "" {
 		if t == "-" {
 			t = ""
 		}
 		q = q.Where(squirrel.Eq{"a.type": t})
+		qc = qc.Where(squirrel.Eq{"a.type": t})
 	}
 	if st != "*" && st != "" {
 		if st == "-" {
 			st = ""
 		}
 		q = q.Where(squirrel.Eq{"a.subType": st})
+		qc = qc.Where(squirrel.Eq{"a.subType": st})
 	}
 	if pub != "*" && pub != "" {
 		q = q.Where(squirrel.Eq{"a.publisher": pub})
+		qc = qc.Where(squirrel.Eq{"a.publisher": pub})
 	}
 	if results != 0 {
 		q = q.Limit(results)
@@ -200,6 +207,21 @@ func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, 
 		return nil, err
 	}
 	defer rows.Close()
+
+	query, args, err = qc.ToSql()
+	if err != nil {
+		return nil, err
+	}
+	var total uint64
+	err = dbtx.QueryRow(query, args...).Scan(&total)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			total = 0
+		} else {
+			return nil, err
+		}
+	}
+
 	type OipInner struct {
 		Artifact json.RawMessage `json:"artifact"`
 	}
@@ -220,7 +242,22 @@ func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, 
 		res = append(res, rWrap{OipInner{j}, txid, publisher})
 	}
 
-	return res, nil
+	type ret struct {
+		Total   uint64        `json:"total"`
+		Count   uint64        `json:"count"`
+		Pages   uint64        `json:"pages"`
+		Results []interface{} `json:"results"`
+	}
+
+	count := uint64(len(res))
+	pages := uint64(1)
+	if count != 0 {
+		pages = total / count
+		if total%count != 0 {
+			pages++ // trailing partial page
+		}
+	}
+	return ret{Total: total, Count: count, Pages: pages, Results: res}, nil
 }
 
 func GetByPublisher(dbtx *sqlx.Tx, publisher string) ([]interface{}, error) {
