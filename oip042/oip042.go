@@ -161,7 +161,7 @@ func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
 	return rWrap{OipInner{j}, txid, publisher, publisherName}, nil
 }
 
-func GetByType(dbtx *sqlx.Tx, t string, st string) ([]interface{}, error) {
+func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, pub string) ([]interface{}, error) {
 	q := squirrel.Select("a.json", "a.txid", "a.publisher").
 		From("artifact as a").
 		Where(squirrel.Eq{"active": 1}).
@@ -178,6 +178,15 @@ func GetByType(dbtx *sqlx.Tx, t string, st string) ([]interface{}, error) {
 			st = ""
 		}
 		q = q.Where(squirrel.Eq{"a.subType": st})
+	}
+	if pub != "*" && pub != "" {
+		q = q.Where(squirrel.Eq{"a.publisher": pub})
+	}
+	if results != 0 {
+		q = q.Limit(results)
+	}
+	if page != 0 {
+		q = q.Offset((page - 1) * results)
 	}
 
 	query, args, err := q.ToSql()
