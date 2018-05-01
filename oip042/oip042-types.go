@@ -52,6 +52,9 @@ type OipContext struct {
 	TxComment   string
 	TxId        string
 	BlockHeight int64
+	Block       *flojson.BlockResult
 	DbTx        *sqlx.Tx
+	IsEdit      bool
+	Reference   string
 	signature   string
 }

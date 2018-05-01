@@ -79,11 +79,26 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext) error {
 		return err
 	}
 
-	q := sq.Insert("artifact").
-		Columns("active", "block", "json", "tags", "unixtime",
-			"title", "txid", "type", "subType", "publisher", "hasDetails").
-		Values(1, context.BlockHeight, j, ppsu.Info.Tags, ppsu.Timestamp,
-			ppsu.Info.Title, context.TxId, ppsu.Type, ppsu.SubType, ppsu.FloAddress, 1)
+	cv := map[string]interface{}{
+		"active":     1,
+		"block":      context.BlockHeight,
+		"json":       j,
+		"tags":       ppsu.Info.Tags,
+		"unixtime":   ppsu.Timestamp,
+		"title":      ppsu.Info.Title,
+		"txid":       context.TxId,
+		"type":       ppsu.Type,
+		"subType":    ppsu.SubType,
+		"publisher":  ppsu.FloAddress,
+		"hasDetails": 1,
+	}
+
+	var q sq.Sqlizer
+	if context.IsEdit {
+		q = sq.Update("artifact").SetMap(cv)
+	} else {
+		q = sq.Insert("artifact").SetMap(cv)
+	}
 
 	sql, args, err := q.ToSql()
 	if err != nil {
@@ -100,9 +115,17 @@ func (ppsu PublishPropertySpatialUnit) Store(context OipContext) error {
 		return err
 	}
 
-	q = sq.Insert("detailsPropertySpatialUnit").
-		Columns("artifactId", "ns", "spatialType").
-		Values(artifactId, ppsu.Ns, ppsu.SpatialType)
+	cv = map[string]interface{}{
+		"artifactId":  artifactId,
+		"ns":          ppsu.Ns,
+		"spatialType": ppsu.SpatialType,
+	}
+
+	if context.IsEdit {
+		q = sq.Update("detailsPropertySpatialUnit").SetMap(cv)
+	} else {
+		q = sq.Insert("detailsPropertySpatialUnit").SetMap(cv)
+	}
 
 	sql, args, err = q.ToSql()
 	if err != nil {

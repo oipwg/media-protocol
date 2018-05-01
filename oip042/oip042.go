@@ -33,6 +33,7 @@ func (o Oip042) ValidateIncoming(tx *flojson.TxRawResult, txComment string, txid
 		TxComment:   txComment,
 		TxId:        txid,
 		BlockHeight: block.Height,
+		Block:       block,
 		DbTx:        dbtx,
 	}
 

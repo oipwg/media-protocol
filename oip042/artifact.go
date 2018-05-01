@@ -121,18 +121,23 @@ func (ea EditArtifact) Store(context OipContext) error {
 		return err
 	}
 
-	// ToDo: compare new values to those stored in the DB: title, details, etc
-
-	uq := squirrel.Update("artifact").
-		Set("json", string(pp)).
-		Where(squirrel.Eq{"txid": ea.ArtifactID})
-
-	query, args, err = uq.ToSql()
+	var o Oip042
+	err = json.Unmarshal(pp, &o)
 	if err != nil {
 		return err
 	}
 
-	_, err = context.DbTx.Exec(query, args...)
+	if o.Publish == nil || o.Publish.Artifact == nil {
+		return errors.New("edit removed publish message")
+	}
+	context.IsEdit = true
+	context.Reference = ea.ArtifactID
+	ep, err := o.Publish.Artifact.Validate(context)
+	if err != nil {
+		return err
+	}
+
+	err = ep.Store(context)
 	if err != nil {
 		return err
 	}
@@ -179,11 +184,14 @@ var ErrDescriptionMissing = errors.New("artifact missing description")
 var ErrTypeMissing = errors.New("artifact missing type")
 
 func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
-	v := []string{pa.Storage.Location, pa.FloAddress, strconv.FormatInt(pa.Timestamp, 10)}
-	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(pa.FloAddress, pa.Signature, preImage)
-	if !sigOk {
-		return nil, ErrBadSignature
+	if !context.IsEdit {
+		// only validate signatures if it's the first go 'round, edits may have changed signed values
+		v := []string{pa.Storage.Location, pa.FloAddress, strconv.FormatInt(pa.Timestamp, 10)}
+		preImage := strings.Join(v, "-")
+		sigOk, _ := utility.CheckSignature(pa.FloAddress, pa.Signature, preImage)
+		if !sigOk {
+			return nil, ErrBadSignature
+		}
 	}
 	if len(strings.TrimSpace(pa.Info.Description)) == 0 {
 		return nil, ErrDescriptionMissing

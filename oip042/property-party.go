@@ -35,11 +35,26 @@ func (ppp PublishPropertyParty) Store(context OipContext) error {
 		return err
 	}
 
-	q := sq.Insert("artifact").
-		Columns("active", "block", "json", "tags", "unixtime",
-			"title", "txid", "type", "subType", "publisher", "hasDetails").
-		Values(1, context.BlockHeight, j, ppp.Info.Tags, ppp.Timestamp,
-			ppp.Info.Title, context.TxId, ppp.Type, ppp.SubType, ppp.FloAddress, 1)
+	cv := map[string]interface{}{
+		"active":     1,
+		"block":      context.BlockHeight,
+		"json":       j,
+		"tags":       ppp.Info.Tags,
+		"unixtime":   ppp.Timestamp,
+		"title":      ppp.Info.Title,
+		"txid":       context.TxId,
+		"type":       ppp.Type,
+		"subType":    ppp.SubType,
+		"publisher":  ppp.FloAddress,
+		"hasDetails": 1,
+	}
+
+	var q sq.Sqlizer
+	if context.IsEdit {
+		q = sq.Update("artifact").SetMap(cv)
+	} else {
+		q = sq.Insert("artifact").SetMap(cv)
+	}
 
 	query, args, err := q.ToSql()
 	if err != nil {
@@ -56,9 +71,18 @@ func (ppp PublishPropertyParty) Store(context OipContext) error {
 		return err
 	}
 
-	q = sq.Insert("detailsPropertyParty").
-		Columns("artifactId", "ns", "partyRole", "partyType").
-		Values(artifactId, ppp.Ns, ppp.PartyRole, ppp.PartyType)
+	cv = map[string]interface{}{
+		"artifactId": artifactId,
+		"ns":         ppp.Ns,
+		"partyType":  ppp.PartyType,
+		"partyRole":  ppp.PartyRole,
+	}
+
+	if context.IsEdit {
+		q = sq.Update("detailsPropertyParty").SetMap(cv)
+	} else {
+		q = sq.Insert("detailsPropertyParty").SetMap(cv)
+	}
 
 	query, args, err = q.ToSql()
 	if err != nil {

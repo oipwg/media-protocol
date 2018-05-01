@@ -33,11 +33,26 @@ func (ppt PublishPropertyTenure) Store(context OipContext) error {
 		return err
 	}
 
-	q := sq.Insert("artifact").
-		Columns("active", "block", "json", "tags", "unixtime",
-			"title", "txid", "type", "subType", "publisher", "hasDetails").
-		Values(1, context.BlockHeight, j, ppt.Info.Tags, ppt.Timestamp,
-			ppt.Info.Title, context.TxId, ppt.Type, ppt.SubType, ppt.FloAddress, 1)
+	cv := map[string]interface{}{
+		"active":     1,
+		"block":      context.BlockHeight,
+		"json":       j,
+		"tags":       ppt.Info.Tags,
+		"unixtime":   ppt.Timestamp,
+		"title":      ppt.Info.Title,
+		"txid":       context.TxId,
+		"type":       ppt.Type,
+		"subType":    ppt.SubType,
+		"publisher":  ppt.FloAddress,
+		"hasDetails": 1,
+	}
+
+	var q sq.Sqlizer
+	if context.IsEdit {
+		q = sq.Update("artifact").SetMap(cv)
+	} else {
+		q = sq.Insert("artifact").SetMap(cv)
+	}
 
 	sql, args, err := q.ToSql()
 	if err != nil {
@@ -54,9 +69,17 @@ func (ppt PublishPropertyTenure) Store(context OipContext) error {
 		return err
 	}
 
-	q = sq.Insert("detailsPropertyTenure").
-		Columns("artifactId", "ns", "tenureType").
-		Values(artifactId, ppt.Ns, ppt.TenureType)
+	cv = map[string]interface{}{
+		"artifactId":  artifactId,
+		"ns":          ppt.Ns,
+		"spatialType": ppt.TenureType,
+	}
+
+	if context.IsEdit {
+		q = sq.Update("detailsPropertyTenure").SetMap(cv)
+	} else {
+		q = sq.Insert("detailsPropertyTenure").SetMap(cv)
+	}
 
 	sql, args, err = q.ToSql()
 	if err != nil {

@@ -61,11 +61,26 @@ func (pt PublishTomogram) Store(context OipContext) error {
 		return err
 	}
 
-	q := sq.Insert("artifact").
-		Columns("active", "block", "json", "tags", "unixtime",
-			"title", "txid", "type", "subType", "publisher", "hasDetails").
-		Values(1, context.BlockHeight, j, pt.Info.Tags, pt.Timestamp,
-			pt.Info.Title, context.TxId, pt.Type, pt.SubType, pt.FloAddress, 1)
+	cv := map[string]interface{}{
+		"active":     1,
+		"block":      context.BlockHeight,
+		"json":       j,
+		"tags":       pt.Info.Tags,
+		"unixtime":   pt.Timestamp,
+		"title":      pt.Info.Title,
+		"txid":       context.TxId,
+		"type":       pt.Type,
+		"subType":    pt.SubType,
+		"publisher":  pt.FloAddress,
+		"hasDetails": 1,
+	}
+
+	var q sq.Sqlizer
+	if context.IsEdit {
+		q = sq.Update("artifact").SetMap(cv)
+	} else {
+		q = sq.Insert("artifact").SetMap(cv)
+	}
 
 	sql, args, err := q.ToSql()
 	if err != nil {
@@ -82,15 +97,29 @@ func (pt PublishTomogram) Store(context OipContext) error {
 		return err
 	}
 
-	q = sq.Insert("detailsResearchTomogram").
-		Columns("artifactId", "ScanDate", "NBCItaxID", "ArtNotes",
-			"ScopeName", "SpeciesName", "TiltSingleDual", "Defocus",
-			"Magnification", "Emdb", "SwAcquisition", "SwProcess",
-			"Institution", "Lab", "sid").
-		Values(artifactId, pt.Date, pt.NBCItaxID, pt.ArtNotes,
-			pt.ScopeName, pt.SpeciesName, pt.TiltSingleDual, pt.Defocus,
-			pt.Magnification, pt.Emdb, "", "",
-			pt.Institution, pt.Lab, pt.Sid)
+	cv = map[string]interface{}{
+		"artifactId":     artifactId,
+		"ScanDate":       pt.Date,
+		"NBCItaxID":      pt.NBCItaxID,
+		"ArtNotes":       pt.ArtNotes,
+		"ScopeName":      pt.ScopeName,
+		"SpeciesName":    pt.SpeciesName,
+		"TiltSingleDual": pt.TiltSingleDual,
+		"Defocus":        pt.Defocus,
+		"Magnification":  pt.Magnification,
+		"Emdb":           pt.Emdb,
+		"SwAcquisition":  "",
+		"SwProcess":      "",
+		"Institution":    pt.Institution,
+		"Lab":            pt.Lab,
+		"sid":            pt.Sid,
+	}
+
+	if context.IsEdit {
+		q = sq.Update("detailsResearchTomogram").SetMap(cv)
+	} else {
+		q = sq.Insert("detailsResearchTomogram").SetMap(cv)
+	}
 
 	sql, args, err = q.ToSql()
 	if err != nil {
