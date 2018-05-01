@@ -70,9 +70,9 @@ func (ppt PublishPropertyTenure) Store(context OipContext) error {
 	}
 
 	cv = map[string]interface{}{
-		"artifactId":  artifactId,
-		"ns":          ppt.Ns,
-		"spatialType": ppt.TenureType,
+		"artifactId": artifactId,
+		"ns":         ppt.Ns,
+		"tenureType": ppt.TenureType,
 	}
 
 	if context.IsEdit {
