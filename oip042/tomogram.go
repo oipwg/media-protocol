@@ -9,7 +9,8 @@ import (
 
 type TomogramDetails struct {
 	Date           int64   `json:"date,omitempty"`
-	NBCItaxID      int64   `json:"NBCItaxID,omitempty"`
+	NCBItaxID      int64   `json:"NCBItaxID,omitempty"`
+	TypoNBCI       int64   `json:"NBCItaxID,omitempty"`
 	ArtNotes       string  `json:"artNotes,omitempty"`
 	ScopeName      string  `json:"scopeName,omitempty"`
 	Roles          string  `json:"roles,omitempty"`
@@ -47,8 +48,14 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 	if pt.Date <= 0 {
 		return nil, errors.New("tomogram: invalid Date")
 	}
-	if pt.NBCItaxID <= 0 {
-		return nil, errors.New("tomogram: invalid NBCItaxID")
+	if pt.NCBItaxID == 0 && pt.TypoNBCI != 0 {
+		// many artifacts were published with NCBI misspelled
+		// so we will transparently alias it to be correct
+		pt.NCBItaxID = pt.TypoNBCI
+		pt.TypoNBCI = 0
+	}
+	if pt.NCBItaxID <= 0 {
+		return nil, errors.New("tomogram: invalid NCBItaxID")
 	}
 
 	return pt, nil
@@ -100,7 +107,7 @@ func (pt PublishTomogram) Store(context OipContext) error {
 	cv = map[string]interface{}{
 		"artifactId":     artifactId,
 		"ScanDate":       pt.Date,
-		"NBCItaxID":      pt.NBCItaxID,
+		"NCBItaxID":      pt.NCBItaxID,
 		"ArtNotes":       pt.ArtNotes,
 		"ScopeName":      pt.ScopeName,
 		"SpeciesName":    pt.SpeciesName,
@@ -150,7 +157,7 @@ CREATE TABLE IF NOT EXISTS detailsResearchTomogram
   uid            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   artifactId     INT     NOT NULL,
   ScanDate       INT     NOT NULL,
-  NBCItaxID      INT     NOT NULL,
+  NCBItaxID      INT     NOT NULL,
   ArtNotes       TEXT    NOT NULL,
   ScopeName      TEXT    NOT NULL,
   SpeciesName    TEXT    NOT NULL,
