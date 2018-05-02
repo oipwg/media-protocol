@@ -187,7 +187,13 @@ var ErrTypeMissing = errors.New("artifact missing type")
 func (pa PublishArtifact) Validate(context OipContext) (OipAction, error) {
 	if !context.IsEdit {
 		// only validate signatures if it's the first go 'round, edits may have changed signed values
-		v := []string{pa.Storage.Location, pa.FloAddress, strconv.FormatInt(pa.Timestamp, 10)}
+		var loc string
+		if pa.Storage != nil {
+			loc = pa.Storage.Location
+		} else {
+			loc = ""
+		}
+		v := []string{loc, pa.FloAddress, strconv.FormatInt(pa.Timestamp, 10)}
 		preImage := strings.Join(v, "-")
 		sigOk, _ := utility.CheckSignature(pa.FloAddress, pa.Signature, preImage)
 		if !sigOk {
