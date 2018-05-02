@@ -176,5 +176,6 @@ CREATE TABLE IF NOT EXISTS detailsResearchTomogram
 );
 CREATE UNIQUE INDEX IF NOT EXISTS detailsResearchTomogram_artifactId_uindex ON detailsResearchTomogram (artifactId);
 CREATE INDEX IF NOT EXISTS detailsResearchTomogram_speciesName_index ON detailsResearchTomogram (SpeciesName);
+CREATE INDEX IF NOT EXISTS detailsResearchTomogram_sid_index ON detailsResearchTomogram (sid);
 CREATE INDEX IF NOT EXISTS detailsResearchTomogram_emdb_index ON detailsResearchTomogram (Emdb);
 `
