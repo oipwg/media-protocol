@@ -89,10 +89,11 @@ type EditArtifact struct {
 	Timestamp  int64           `json:"timestamp"`
 	RawPatch   json.RawMessage `json:"patch"`
 	Patch      jsonpatch.Patch
+	Signature  string `json:"signature"`
 }
 
 func (ea EditArtifact) Store(context OipContext) error {
-	sq := squirrel.Select("publisher", "json", "title", "type", "subType", "nsfw", "hasDetails").
+	sq := squirrel.Select("uid", "publisher", "json", "title", "type", "subType", "nsfw", "hasDetails").
 		From("artifact").
 		Where(squirrel.Eq{"txid": ea.ArtifactID})
 
@@ -102,6 +103,7 @@ func (ea EditArtifact) Store(context OipContext) error {
 	}
 
 	type data struct {
+		Uid        int64  `db:"uid"`
 		Publisher  string `db:"publisher"`
 		Json       []byte `db:"json"`
 		Title      string `db:"title"`
@@ -121,18 +123,16 @@ func (ea EditArtifact) Store(context OipContext) error {
 		return err
 	}
 
-	var o Oip042
-	err = json.Unmarshal(pp, &o)
+	var pa PublishArtifact
+	err = json.Unmarshal(pp, &pa)
 	if err != nil {
 		return err
 	}
 
-	if o.Publish == nil || o.Publish.Artifact == nil {
-		return errors.New("edit removed publish message")
-	}
 	context.IsEdit = true
 	context.Reference = ea.ArtifactID
-	ep, err := o.Publish.Artifact.Validate(context)
+	context.ArtifactId = d.Uid
+	ep, err := pa.Validate(context)
 	if err != nil {
 		return err
 	}
@@ -150,6 +150,7 @@ type TransferArtifact struct {
 	ToFloAddress   string `json:"toFloAddress"`
 	FromFloAddress string `json:"fromFloAddress"`
 	Timestamp      int64  `json:"timestamp"`
+	Signature      string `json:"signature"`
 }
 
 func (ta TransferArtifact) Store(context OipContext) error {
@@ -242,12 +243,12 @@ func (ea EditArtifact) Validate(context OipContext) (OipAction, error) {
 
 	v := []string{ea.ArtifactID, publisher, strconv.FormatInt(ea.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(publisher, context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(publisher, ea.Signature, preImage)
 	if !sigOk {
 		return nil, ErrBadSignature
 	}
 
-	ea.Patch, err = UnSquashPatch(ea.RawPatch)
+	ea.Patch, err = utility.UnSquashPatch(ea.RawPatch)
 	if err != nil {
 		return ea, err
 	}
@@ -258,7 +259,7 @@ func (ea EditArtifact) Validate(context OipContext) (OipAction, error) {
 func (ta TransferArtifact) Validate(context OipContext) (OipAction, error) {
 	v := []string{ta.ArtifactID, ta.ToFloAddress, ta.FromFloAddress, strconv.FormatInt(ta.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(ta.FromFloAddress, context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(ta.FromFloAddress, ta.Signature, preImage)
 	if !sigOk {
 		return nil, ErrBadSignature
 	}
@@ -291,27 +292,4 @@ func (da DeactivateArtifact) Validate(context OipContext) (OipAction, error) {
 	}
 
 	return da, nil
-}
-
-// ToDo: Move to a more appropriate location
-func UnSquashPatch(sp []byte) (jsonpatch.Patch, error) {
-	var p map[string][]map[string]*json.RawMessage // yikes
-	var up jsonpatch.Patch
-
-	err := json.Unmarshal(sp, &p)
-	if err != nil {
-		return up, err
-	}
-
-	// op="Add", arr="Array of actions"
-	for op, arr := range p {
-		// _="index", act="Action object"
-		for _, act := range arr {
-			o := json.RawMessage([]byte(`"` + op + `"`))
-			act["op"] = &o
-			up = append(up, act)
-		}
-	}
-
-	return up, err
 }

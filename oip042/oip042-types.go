@@ -56,5 +56,5 @@ type OipContext struct {
 	DbTx        *sqlx.Tx
 	IsEdit      bool
 	Reference   string
-	signature   string
+	ArtifactId  int64
 }

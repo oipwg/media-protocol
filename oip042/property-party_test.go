@@ -69,3 +69,28 @@ const samplePropertyPartyJson = `{
     }
   }
 }`
+
+const sampleEditPropertyPartyJson = `
+{
+  "oip042": {
+    "edit": {
+      "artifact": {
+        "timestamp": 1525211559,
+        "artifactID": "9a14e771ee69bb372105c1e87d0bfa1ad983b824447c6211599fc52abfbb94a5",
+        "patch": {
+          "replace": [
+            {
+              "path": "/info/title",
+              "value": "Test 42 Property-Party Edit"
+            }
+          ],
+          "remove": [
+            "/details/members",
+            "/details/attrs"
+          ]
+        }
+      },
+      "signature": "INaSl3hL+tco4uOq85UHDcPKtXSH3Nh4RYN6cd8qYVfCYrIdRxVeSpFes1HG4nSgVAMseNT8d3N3apmnuec+Yu8="
+    }
+  }
+}`

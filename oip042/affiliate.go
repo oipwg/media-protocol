@@ -15,12 +15,14 @@ type RegisterAffiliate struct {
 	ShortMW      []string          `json:"shortMW"`
 	Verification map[string]string `json:"verification"`
 	Version      int32             `json:"version"`
+	Signature    string            `json:"signature"`
 }
 
 type EditAffiliate struct {
 	ArtifactID string          `json:"artifactID"`
 	Timestamp  int64           `json:"timestamp"`
 	Patch      json.RawMessage `json:"patch"`
+	Signature  string          `json:"signature"`
 }
 
 func (affiliate *EditAffiliate) Store(context OipContext) error {
@@ -30,7 +32,7 @@ func (affiliate *EditAffiliate) Store(context OipContext) error {
 func (ra RegisterAffiliate) Validate(context OipContext) error {
 	v := []string{ra.FloAddress, strconv.FormatInt(int64(ra.Version), 10), strconv.FormatInt(ra.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(ra.FloAddress, context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(ra.FloAddress, ra.Signature, preImage)
 	if !sigOk {
 		return ErrBadSignature
 	}

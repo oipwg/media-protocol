@@ -69,23 +69,25 @@ func (pt PublishTomogram) Store(context OipContext) error {
 	}
 
 	cv := map[string]interface{}{
-		"active":     1,
-		"block":      context.BlockHeight,
-		"json":       j,
-		"tags":       pt.Info.Tags,
-		"unixtime":   pt.Timestamp,
-		"title":      pt.Info.Title,
-		"txid":       context.TxId,
-		"type":       pt.Type,
-		"subType":    pt.SubType,
-		"publisher":  pt.FloAddress,
-		"hasDetails": 1,
+		"json":      j,
+		"tags":      pt.Info.Tags,
+		"unixtime":  pt.Timestamp,
+		"title":     pt.Info.Title,
+		"type":      pt.Type,
+		"subType":   pt.SubType,
+		"publisher": pt.FloAddress,
 	}
 
 	var q sq.Sqlizer
 	if context.IsEdit {
-		q = sq.Update("artifact").SetMap(cv)
+		cv["txid"] = context.Reference
+		q = sq.Update("artifact").SetMap(cv).Where(sq.Eq{"txid": context.Reference})
 	} else {
+		// these values are only set on publish
+		cv["active"] = 1
+		cv["txid"] = context.TxId
+		cv["block"] = context.BlockHeight
+		cv["hasDetails"] = 1
 		q = sq.Insert("artifact").SetMap(cv)
 	}
 
@@ -99,13 +101,7 @@ func (pt PublishTomogram) Store(context OipContext) error {
 		return err
 	}
 
-	artifactId, err := res.LastInsertId()
-	if err != nil {
-		return err
-	}
-
 	cv = map[string]interface{}{
-		"artifactId":     artifactId,
 		"ScanDate":       pt.Date,
 		"NCBItaxID":      pt.NCBItaxID,
 		"ArtNotes":       pt.ArtNotes,
@@ -123,8 +119,14 @@ func (pt PublishTomogram) Store(context OipContext) error {
 	}
 
 	if context.IsEdit {
-		q = sq.Update("detailsResearchTomogram").SetMap(cv)
+		q = sq.Update("detailsResearchTomogram").SetMap(cv).Where(sq.Eq{"artifactId": context.ArtifactId})
 	} else {
+		artifactId, err := res.LastInsertId()
+		if err != nil {
+			return err
+		}
+		cv["artifactId"] = artifactId
+		context.ArtifactId = artifactId
 		q = sq.Insert("detailsResearchTomogram").SetMap(cv)
 	}
 

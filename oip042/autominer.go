@@ -15,6 +15,7 @@ type RegisterAutominer struct {
 	ShortMW    []string         `json:"shortMW"`
 	Version    int32            `json:"version"`
 	Info       AutominerInfo    `json:"info"`
+	Signature  string           `json:"signature"`
 }
 
 func (ram RegisterAutominer) Store(context OipContext) error {
@@ -30,6 +31,7 @@ type EditAutominer struct {
 	ArtifactID string          `json:"artifactID"`
 	Timestamp  int64           `json:"timestamp"`
 	Patch      json.RawMessage `json:"patch"`
+	Signature  string          `json:"signature"`
 }
 
 func (autominer *EditAutominer) Store(context OipContext) error {
@@ -45,6 +47,7 @@ type RegisterAutominerPool struct {
 	Verification map[string]string `json:"verification"`
 	Version      int32             `json:"version"`
 	Info         AutominerInfo     `json:"info"`
+	Signature    string            `json:"signature"`
 }
 
 func (ramp RegisterAutominerPool) Store(context OipContext) error {
@@ -61,6 +64,7 @@ type EditAutominerPool struct {
 	ArtifactID string          `json:"artifactID"`
 	Timestamp  int64           `json:"timestamp"`
 	Patch      json.RawMessage `json:"patch"`
+	Signature  string          `json:"signature"`
 }
 
 func (autominerPool *EditAutominerPool) Store(context OipContext) error {
@@ -70,7 +74,7 @@ func (autominerPool *EditAutominerPool) Store(context OipContext) error {
 func (ram RegisterAutominer) Validate(context OipContext) (OipAction, error) {
 	v := []string{ram.FloAddress, strconv.FormatInt(int64(ram.Version), 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(ram.FloAddress, context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(ram.FloAddress, ram.Signature, preImage)
 	if !sigOk {
 		return ram, ErrBadSignature
 	}

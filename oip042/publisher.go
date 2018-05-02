@@ -26,6 +26,7 @@ type RegisterPub struct {
 		Twitter     string `json:"twitter"`
 		Facebook    string `json:"facebook"`
 	} `json:"verification"`
+	Signature string `json:"signature"`
 }
 
 func (rp RegisterPub) Store(context OipContext) error {
@@ -36,6 +37,7 @@ type EditPub struct {
 	Address   string          `json:"address"`
 	Timestamp int64           `json:"timestamp"`
 	Patch     json.RawMessage `json:"patch"`
+	Signature string          `json:"signature"`
 }
 
 func (ep EditPub) Store(context OipContext) error {
@@ -45,7 +47,7 @@ func (ep EditPub) Store(context OipContext) error {
 func (rp RegisterPub) Validate(context OipContext) (OipAction, error) {
 	v := []string{rp.Alias, rp.FloAddress, strconv.FormatInt(rp.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(rp.FloAddress, context.signature, preImage)
+	sigOk, _ := utility.CheckSignature(rp.FloAddress, rp.Signature, preImage)
 	if !sigOk {
 		return rp, ErrBadSignature
 	}
