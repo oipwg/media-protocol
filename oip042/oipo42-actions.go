@@ -64,9 +64,9 @@ func (d Deactivate) Validate(ctx OipContext) (OipAction, error) {
 	//if d.Affiliate != nil {
 	//    return d.Affiliate.Validate(ctx)
 	//}
-	//if d.Pub != nil {
-	//    return d.Pub.Validate(ctx)
-	//}
+	if d.Pub != nil {
+		return d.Pub.Validate(ctx)
+	}
 	//if d.Platform != nil {
 	//    return d.Platform.Validate(ctx)
 	//}
