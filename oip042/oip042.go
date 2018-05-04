@@ -61,6 +61,9 @@ func (o Oip042) ValidateIncoming(tx *flojson.TxRawResult, txComment string, txid
 }
 
 func SetupTables(dbtx *sqlx.Tx) error {
+	if _, err := dbtx.Exec(createPublisherTable); err != nil {
+		return err
+	}
 	if _, err := dbtx.Exec(createArtifactTable); err != nil {
 		return err
 	}
