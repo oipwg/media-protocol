@@ -18,20 +18,22 @@ type Oip041 struct {
 }
 
 type Oip041ArtifactAPIResult struct {
-	Block         int     `json:"block"`
-	OIP041        Oip041  `json:"oip-041"`
-	Tags          string  `json:"tags"`
-	Timestamp     int64   `json:"timestamp"`
-	Title         string  `json:"title"`
-	TxID          string  `json:"txid"`
-	Type          string  `json:"type"`
-	Year          int     `json:"year"`
-	Publisher     string  `json:"publisher"`
-	PublisherName string  `json:"publisherName"`
-	ArtCost       float64 `json:"artCost"`
-	ArtSize       int     `json:"artSize"`
-	PubFeeUSD     float64 `json:"pubFeeUSD"`
-	NSFW          bool    `json:"nsfw"`
+	//OIP041        Oip041  `json:"oip-041,omitempty"`
+	Block         int             `json:"block,omitempty"`
+	Oip042        json.RawMessage `json:"oip042,omitempty"`
+	Tags          string          `json:"tags,omitempty"`
+	Timestamp     int64           `json:"timestamp,omitempty"`
+	Title         string          `json:"title,omitempty"`
+	TxID          string          `json:"txid,omitempty"`
+	Type          string          `json:"type,omitempty"`
+	SubType       string          `json:"subType,omitempty"`
+	Year          int             `json:"year,omitempty"`
+	Publisher     string          `json:"publisher,omitempty"`
+	PublisherName string          `json:"publisherName,omitempty"`
+	ArtCost       float64         `json:"artCost,omitempty"`
+	ArtSize       int             `json:"artSize,omitempty"`
+	PubFeeUSD     float64         `json:"pubFeeUSD,omitempty"`
+	NSFW          bool            `json:"nsfw,omitempty"`
 }
 
 type Oip041Transfer struct {
