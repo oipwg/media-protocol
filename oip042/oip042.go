@@ -169,11 +169,13 @@ func GetByType(dbtx *sqlx.Tx, t string, st string, page uint64, results uint64, 
 	q := squirrel.Select("a.json", "a.txid", "a.publisher").
 		From("artifact as a").
 		Where(squirrel.Eq{"a.active": 1}).
-		Where(squirrel.Eq{"a.invalidated": 0})
+		Where(squirrel.Eq{"a.invalidated": 0}).
+		OrderBy("a.uid DESC")
 	qc := squirrel.Select("count(*)").
 		From("artifact as a").
 		Where(squirrel.Eq{"a.active": 1}).
-		Where(squirrel.Eq{"a.invalidated": 0})
+		Where(squirrel.Eq{"a.invalidated": 0}).
+		OrderBy("a.uid DESC")
 
 	if t != "*" && t != "" {
 		if t == "-" {
