@@ -137,7 +137,7 @@ func (ep EditPub) Validate(context OipContext) (OipAction, error) {
 }
 
 const createPublisherTable = `
-CREATE TABLE pub
+CREATE TABLE IF NOT EXISTS pub
 (
     alias text DEFAULT '' NOT NULL,
     floAddress text NOT NULL,
@@ -151,8 +151,8 @@ CREATE TABLE pub
     timestamp int NOT NULL,
     json text NOT NULL
 );
-CREATE INDEX pub_block_index ON pub (block);
-CREATE INDEX pub_unixtime_index ON pub (unixtime);
-CREATE INDEX pub_active_index ON pub (active);
-CREATE INDEX pub_floAddress_index ON pub (floAddress);
+CREATE INDEX IF NOT EXISTS pub_block_index ON pub (block);
+CREATE INDEX IF NOT EXISTS pub_unixtime_index ON pub (unixtime);
+CREATE INDEX IF NOT EXISTS pub_active_index ON pub (active);
+CREATE INDEX IF NOT EXISTS pub_floAddress_index ON pub (floAddress);
 `
