@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type RegisterAffiliate struct {
+type RegisterInfluencer struct {
 	Alias        string            `json:"alias"`
 	Timestamp    int64             `json:"timestamp"`
 	FloAddress   string            `json:"floAddress"`
@@ -18,28 +18,31 @@ type RegisterAffiliate struct {
 	Signature    string            `json:"signature"`
 }
 
-type EditAffiliate struct {
+type EditInfluencer struct {
 	ArtifactID string          `json:"artifactID"`
 	Timestamp  int64           `json:"timestamp"`
 	Patch      json.RawMessage `json:"patch"`
 	Signature  string          `json:"signature"`
 }
 
-func (affiliate *EditAffiliate) Store(context OipContext) error {
+func (ei *EditInfluencer) Store(context OipContext) error {
+	panic("implement me")
+}
+func (ri *RegisterInfluencer) Store(context OipContext) error {
 	panic("implement me")
 }
 
-func (ra RegisterAffiliate) Validate(context OipContext) error {
-	v := []string{ra.FloAddress, strconv.FormatInt(int64(ra.Version), 10), strconv.FormatInt(ra.Timestamp, 10)}
+func (ri *RegisterInfluencer) Validate(context OipContext) (OipAction, error) {
+	v := []string{ri.FloAddress, strconv.FormatInt(int64(ri.Version), 10), strconv.FormatInt(ri.Timestamp, 10)}
 	preImage := strings.Join(v, "-")
-	sigOk, _ := utility.CheckSignature(ra.FloAddress, ra.Signature, preImage)
+	sigOk, _ := utility.CheckSignature(ri.FloAddress, ri.Signature, preImage)
 	if !sigOk {
-		return ErrBadSignature
+		return ri, ErrBadSignature
 	}
 
-	return nil
+	return ri, nil
 }
 
-func (affiliate *EditAffiliate) Validate(context OipContext) (OipAction, error) {
-	return affiliate, ErrNotImplemented
+func (ei *EditInfluencer) Validate(context OipContext) (OipAction, error) {
+	return ei, ErrNotImplemented
 }

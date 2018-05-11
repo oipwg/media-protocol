@@ -20,8 +20,8 @@ func (r Register) Validate(ctx OipContext) (OipAction, error) {
 	if r.AutominerPool != nil {
 		return r.AutominerPool.Validate(ctx)
 	}
-	if r.Affiliate != nil {
-		return r.AutominerPool.Validate(ctx)
+	if r.Influencer != nil {
+		return r.Influencer.Validate(ctx)
 	}
 	if r.Pub != nil {
 		return r.Pub.Validate(ctx)
@@ -39,8 +39,8 @@ func (e Edit) Validate(ctx OipContext) (OipAction, error) {
 	if e.AutominerPool != nil {
 		return e.AutominerPool.Validate(ctx)
 	}
-	if e.Affiliate != nil {
-		return e.Affiliate.Validate(ctx)
+	if e.Influencer != nil {
+		return e.Influencer.Validate(ctx)
 	}
 	if e.Pub != nil {
 		return e.Pub.Validate(ctx)
@@ -61,8 +61,8 @@ func (d Deactivate) Validate(ctx OipContext) (OipAction, error) {
 	//if d.AutominerPool != nil {
 	//    return d.AutominerPool.Validate(ctx)
 	//}
-	//if d.Affiliate != nil {
-	//    return d.Affiliate.Validate(ctx)
+	//if d.Influencer != nil {
+	//    return d.Influencer.Validate(ctx)
 	//}
 	if d.Pub != nil {
 		return d.Pub.Validate(ctx)
@@ -83,8 +83,8 @@ func (t Transfer) Validate(ctx OipContext) (OipAction, error) {
 	//if t.AutominerPool != nil {
 	//    return t.AutominerPool.Validate(ctx)
 	//}
-	//if t.Affiliate != nil {
-	//    return t.Affiliate.Validate(ctx)
+	//if t.Influencer != nil {
+	//    return t.Influencer.Validate(ctx)
 	//}
 	//if t.Pub != nil {
 	//    return t.Pub.Validate(ctx)

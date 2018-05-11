@@ -16,7 +16,7 @@ type Oip042 struct {
 type Register struct {
 	Pub           *RegisterPub           `json:"pub,omitempty"`
 	Platform      *RegisterPlatform      `json:"platform,omitempty"`
-	Affiliate     *RegisterAffiliate     `json:"affiliate,omitempty"`
+	Influencer    *RegisterInfluencer    `json:"influencer,omitempty"`
 	Autominer     *RegisterAutominer     `json:"autominer,omitempty"`
 	AutominerPool *RegisterAutominerPool `json:"autominerPool,omitempty"`
 }
@@ -28,7 +28,7 @@ type Publish struct {
 type Edit struct {
 	Pub           *EditPub           `json:"pub,omitempty"`
 	Platform      *EditPlatform      `json:"platform,omitempty"`
-	Affiliate     *EditAffiliate     `json:"affiliate,omitempty"`
+	Influencer    *EditInfluencer    `json:"influencer,omitempty"`
 	Autominer     *EditAutominer     `json:"autominer,omitempty"`
 	AutominerPool *EditAutominerPool `json:"autominerPool,omitempty"`
 	Artifact      *EditArtifact      `json:"artifact,omitempty"`

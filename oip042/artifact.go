@@ -26,7 +26,7 @@ type ArtifactPayment struct {
 	Tokens      *PaymentTokens   `json:"tokens,omitempty"`
 	Addresses   []PaymentAddress `json:"addresses,omitempty"`
 	Platform    int              `json:"platform,omitempty"`
-	Affiliate   int              `json:"affiliate,omitempty"`
+	Influencer  int              `json:"influencer,omitempty"`
 	MaxDiscount float64          `json:"maxdisc,omitempty"`
 	ShortMW     []string         `json:"shortMW,omitempty"`
 }
