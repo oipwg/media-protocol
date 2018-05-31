@@ -54,7 +54,7 @@ func (pt PublishTomogram) Validate(context OipContext) (OipAction, error) {
 		pt.NCBItaxID = pt.TypoNBCI
 		pt.TypoNBCI = 0
 	}
-	if pt.NCBItaxID <= 0 {
+	if pt.NCBItaxID < 0 {
 		return nil, errors.New("tomogram: invalid NCBItaxID")
 	}
 
