@@ -57,6 +57,7 @@ func (rp RegisterPub) Store(context OipContext) error {
 		// these values are only set on publish
 		cv["active"] = 1
 		cv["unixtime"] = rp.Timestamp
+		cv["timestamp"] = rp.Timestamp
 		cv["txid"] = context.TxId
 		cv["block"] = context.BlockHeight
 		q = squirrel.Insert("pub").SetMap(cv)
