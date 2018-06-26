@@ -3,7 +3,9 @@ package oip042
 import (
 	"encoding/json"
 	//"errors"
+	"errors"
 	sq "github.com/Masterminds/squirrel"
+	"strings"
 )
 
 type SpatialUnitDetails struct {
@@ -74,6 +76,21 @@ func (ppsu PublishPropertySpatialUnit) Validate(context OipContext) (OipAction, 
 }
 
 func (ppsu PublishPropertySpatialUnit) Store(context OipContext) error {
+	index := false
+	if len(context.IndexTypes) == 0 {
+		index = true
+	} else {
+		for _, t := range context.IndexTypes {
+			if strings.ToLower(ppsu.Type) == t {
+				index = true
+				break
+			}
+		}
+	}
+	if !index {
+		return errors.New("not indexed due to IndexedTypes config")
+	}
+
 	j, err := json.Marshal(ppsu)
 	if err != nil {
 		return err

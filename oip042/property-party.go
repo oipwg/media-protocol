@@ -2,7 +2,9 @@ package oip042
 
 import (
 	"encoding/json"
+	"errors"
 	sq "github.com/Masterminds/squirrel"
+	"strings"
 )
 
 type PartyDetails struct {
@@ -30,6 +32,21 @@ func (ppp PublishPropertyParty) Validate(context OipContext) (OipAction, error) 
 }
 
 func (ppp PublishPropertyParty) Store(context OipContext) error {
+	index := false
+	if len(context.IndexTypes) == 0 {
+		index = true
+	} else {
+		for _, t := range context.IndexTypes {
+			if strings.ToLower(ppp.Type) == t {
+				index = true
+				break
+			}
+		}
+	}
+	if !index {
+		return errors.New("not indexed due to IndexedTypes config")
+	}
+
 	j, err := json.Marshal(ppp)
 	if err != nil {
 		return err

@@ -53,4 +53,5 @@ type OipContext struct {
 	IsEdit      bool
 	Reference   string
 	ArtifactId  int64
+	IndexTypes  []string
 }

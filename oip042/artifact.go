@@ -78,6 +78,21 @@ type PublishArtifact struct {
 }
 
 func (pa PublishArtifact) Store(context OipContext) error {
+	index := false
+	if len(context.IndexTypes) == 0 {
+		index = true
+	} else {
+		for _, t := range context.IndexTypes {
+			if strings.ToLower(pa.Type) == t {
+				index = true
+				break
+			}
+		}
+	}
+	if !index {
+		return errors.New("not indexed due to IndexedTypes config")
+	}
+
 	// ToDo store generic publishes without indexing details
 	fmt.Println("Attempted to store unknown PublishArtifact type")
 	fmt.Println("Disregarding for now.")
