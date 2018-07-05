@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Masterminds/squirrel"
+	"github.com/oipwg/media-protocol/oip042"
 	"github.com/oipwg/media-protocol/utility"
 	"log"
 	"strconv"
@@ -54,23 +56,62 @@ func CreateNewPublisherTxComment(b []byte) {
 }
 
 func StorePublisher(publisher AlexandriaPublisher, dbtx *sql.Tx, txid string, block int, hash string) {
-	// store in database
-	stmtstr := `insert into publisher (name, address, timestamp, txid, block, emailmd5, bitmessage, extraInfo, hash, signature, active) values (?, ?, ?, "` + txid + `", ` + strconv.Itoa(block) + `, ?, ?, ?, "` + hash + `", ?, 1)`
+	ap := publisher.AlexandriaPublisher
 
-	stmt, err := dbtx.Prepare(stmtstr)
-	if err != nil {
-		fmt.Println("exit 100")
-		log.Fatal(err)
+	rp := oip042.RegisterPub{
+		Alias:        ap.Name,
+		Authorized:   nil,
+		FloAddress:   ap.Address,
+		Info:         nil,
+		Signature:    publisher.Signature,
+		Timestamp:    ap.Timestamp,
+		Verification: nil,
 	}
 
-	_, stmterr := stmt.Exec(publisher.AlexandriaPublisher.Name, publisher.AlexandriaPublisher.Address, publisher.AlexandriaPublisher.Timestamp, publisher.AlexandriaPublisher.Emailmd5, publisher.AlexandriaPublisher.Bitmessage, publisher.AlexandriaPublisher.ExtraInfo, publisher.Signature)
-	if err != nil {
-		fmt.Println("exit 101")
-		log.Fatal(stmterr)
+	if len(ap.Bitmessage) != 0 || len(ap.Emailmd5) != 0 {
+		rp.Info = &oip042.PublisherInfo{
+			Avatar:             "",
+			AvatarNetwork:      "",
+			Bitmessage:         ap.Bitmessage,
+			Emailmd5:           ap.Emailmd5,
+			HeaderImage:        "",
+			HeaderImageNetwork: "",
+		}
 	}
 
-	stmt.Close()
+	j, err := json.Marshal(rp)
+	if err != nil {
+		log.Println("Unable to store 0.4.1 publisher")
+		log.Println(err)
+	}
 
+	cv := map[string]interface{}{
+		"json":        j,
+		"alias":       rp.Alias,
+		"floAddress":  rp.FloAddress,
+		"active":      1,
+		"invalidated": 0,
+		"validated":   0,
+		"unixtime":    rp.Timestamp,
+		"timestamp":   rp.Timestamp,
+		"txid":        txid,
+		"block":       block,
+	}
+
+	var q squirrel.Sqlizer
+	q = squirrel.Insert("pub").SetMap(cv)
+
+	s, args, err := q.ToSql()
+	if err != nil {
+		log.Println("Unable to store 0.4.1 publisher")
+		log.Println(err)
+	}
+
+	_, err = dbtx.Exec(s, args...)
+	if err != nil {
+		log.Println("Unable to store 0.4.1 publisher")
+		log.Println(err)
+	}
 }
 
 func VerifyPublisher(b []byte) (AlexandriaPublisher, error) {
