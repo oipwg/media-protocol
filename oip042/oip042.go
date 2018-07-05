@@ -83,6 +83,46 @@ func SetupTables(dbtx *sqlx.Tx) error {
 	return nil
 }
 
+func GetAllPublishers(dbtx *sqlx.Tx) ([]interface{}, error) {
+	q := squirrel.Select("json", "txid", "floAddress", "alias").
+		From("pub").
+		Where(squirrel.Eq{"active": 1}).
+		Where(squirrel.Eq{"invalidated": 0})
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := dbtx.Queryx(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	type OipInner struct {
+		Publisher json.RawMessage `json:"publisher"`
+	}
+	type rWrap struct {
+		OipInner   `json:"oip042"`
+		Txid       string `json:"txid"`
+		FloAddress string `json:"floAddress"`
+		Alias      string `json:"alias"`
+	}
+	var res []interface{}
+	for rows.Next() {
+		var j json.RawMessage
+		var txid string
+		var floAddress string
+		var alias string
+		err := rows.Scan(&j, &txid, &floAddress, &alias)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, rWrap{OipInner{j}, txid, floAddress, alias})
+	}
+
+	return res, nil
+}
+
 func GetAllArtifacts(dbtx *sqlx.Tx) ([]interface{}, error) {
 	q := squirrel.Select("json", "txid", "publisher").
 		From("artifact").
@@ -122,9 +162,9 @@ func GetAllArtifacts(dbtx *sqlx.Tx) ([]interface{}, error) {
 }
 
 func GetById(dbh *sqlx.DB, artId string) (interface{}, error) {
-	q := squirrel.Select("a.json", "a.txid", "a.publisher", "p.name").
+	q := squirrel.Select("a.json", "a.txid", "a.publisher", "p.alias").
 		From("artifact AS a").
-		LeftJoin("publisher AS p ON p.address = a.publisher").
+		LeftJoin("pub AS p ON p.floAddress = a.publisher").
 		Where(squirrel.Eq{"a.active": 1}).
 		Where(squirrel.Eq{"a.invalidated": 0})
 	if len(artId) == 64 {
