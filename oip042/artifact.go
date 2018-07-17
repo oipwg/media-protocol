@@ -24,7 +24,7 @@ type ArtifactPayment struct {
 	Scale       string           `json:"scale,omitempty"`
 	SugTip      []int            `json:"sugTip,omitempty"`
 	Tokens      *PaymentTokens   `json:"tokens,omitempty"`
-	Addresses   []PaymentAddress `json:"addresses,omitempty"`
+	Addresses   *PaymentAddress `json:"addresses,omitempty"`
 	Platform    int              `json:"platform,omitempty"`
 	Influencer  int              `json:"influencer,omitempty"`
 	MaxDiscount float64          `json:"maxdisc,omitempty"`

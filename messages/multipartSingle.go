@@ -138,7 +138,6 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	var ret MediaMultipartSingle
 	prefix := "alexandria-media-multipart("
 	prefix2 := "oip-mp("
-
 	// check prefix
 	checkPrefix := strings.HasPrefix(s, prefix)
 	checkPrefix = checkPrefix || strings.HasPrefix(s, prefix2)
@@ -150,13 +149,13 @@ func VerifyMediaMultipartSingle(s string, txid string, block int) (MediaMultipar
 	s = strings.TrimPrefix(s, prefix)
 	s = strings.TrimPrefix(s, prefix2)
 
-	comChunks := strings.Split(s, "):")
+	comChunks := strings.SplitN(s, "):", 2)
 	if len(comChunks) < 2 {
 		return ret, errors.New("Malformed multi-part")
 	}
 
 	metaString := comChunks[0]
-	dataString := strings.Join(comChunks[1:], "):")
+	dataString := comChunks[1] //strings.Join(comChunks[1:], "):")
 
 	meta := strings.Split(metaString, ",")
 	lm := len(meta)

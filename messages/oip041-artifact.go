@@ -142,12 +142,35 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 			// Files is handled below
 		},
 		// ToDo: Convert payments
+		Payment: &oip042.ArtifactPayment{
+			Fiat: a.Payment.Fiat,
+			Scale: a.Payment.Scale,
+			SugTip: a.Payment.SugTip,
+			//Token is handled below
+			//Address is handled below
+			Platform: a.Payment.Retailer,
+			Influencer: a.Payment.Promoter,
+			MaxDiscount: a.Payment.MaxDiscount,
+		},
 		// ToDo: Convert details
+		Details: a.Info.ExtraInfo,
 		Signature: o.Signature,
 	}
 
+	oaa := make(oip042.PaymentAddress)
+	for _, addr := range a.Payment.Addresses {
+		oaa[addr.Token] = addr.Address
+	}
+	pa.Payment.Addresses = &oaa
+
+	opt := make(oip042.PaymentTokens)
+	for k, v := range a.Payment.Tokens {
+		opt[k] = v
+	}
+	pa.Payment.Tokens = &opt
+
 	for _, f := range a.Storage.Files {
-		pa.Storage.Files = append(pa.Storage.Files, oip042.ArtifactFiles{
+		newFile := oip042.ArtifactFiles{
 			DisallowBuy:  f.DisallowBuy,
 			Dname:        f.Dname,
 			Duration:     f.Duration,
@@ -169,7 +192,8 @@ func StoreOIP041Artifact(o Oip041, txid string, block int, dbtx *sql.Tx) error {
 			CType:        "",
 			Software:     "", // ToDo move to a file[n].details section
 			FNotes:       "",
-		})
+		}
+		pa.Storage.Files = append(pa.Storage.Files, newFile)
 	}
 
 	j, err := json.Marshal /*Indent*/ (pa) //, " ", " ")
