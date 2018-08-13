@@ -93,10 +93,44 @@ func (pa PublishArtifact) Store(context OipContext) error {
 		return errors.New("not indexed due to IndexedTypes config")
 	}
 
-	// ToDo store generic publishes without indexing details
-	fmt.Println("Attempted to store unknown PublishArtifact type")
-	fmt.Println("Disregarding for now.")
-	return ErrNotImplemented
+	j, err := json.Marshal(pa)
+	if err != nil {
+		return err
+	}
+
+	cv := map[string]interface{}{
+		"json":      j,
+		"tags":      pa.Info.Tags,
+		"unixtime":  pa.Timestamp,
+		"title":     pa.Info.Title,
+		"type":      pa.Type,
+		"subType":   pa.SubType,
+		"publisher": pa.FloAddress,
+	}
+
+	var q squirrel.Sqlizer
+	if context.IsEdit {
+		q = squirrel.Update("artifact").SetMap(cv).Where(squirrel.Eq{"txid": context.Reference})
+	} else {
+		// these values are only set on publish
+		cv["active"] = 1
+		cv["txid"] = context.TxId
+		cv["block"] = context.BlockHeight
+		cv["hasDetails"] = 0
+		q = squirrel.Insert("artifact").SetMap(cv)
+	}
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = context.DbTx.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type EditArtifact struct {
